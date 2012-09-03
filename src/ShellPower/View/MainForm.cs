@@ -12,7 +12,9 @@ namespace SSCP.ShellPower {
         /* model */
         KDTree<MeshTriangle> kdTree;
         Mesh mesh;
-        MeshSprite sprite;
+        Shadow shadow;
+
+        /* view */
         ShadowMeshSprite shadowSprite;
 
         /* data i/o */
@@ -56,17 +58,17 @@ namespace SSCP.ShellPower {
 
         private void SetModel(Mesh mesh) {
             this.mesh = mesh;
-            //MeshUtils.JoinVertices(mesh);
-            this.sprite = new MeshSprite() { mesh = mesh };
-
-            var center = (sprite.BoundingBox.Max + sprite.BoundingBox.Min) / 2;
-            sprite.Position = new Vector4(-center, 1);
-            sprite.Initialize();
 
             //create shadows volumes
-            shadowSprite = new ShadowMeshSprite(sprite);
-            shadowSprite.Light = new Vector4(glControl.SunDirection, 0);
-            shadowSprite.Initialize();
+            shadow = new Shadow(mesh);
+            shadow.Initialize();
+            shadow.Light = new Vector4(glControl.SunDirection, 0);
+            shadow.ComputeShadows();
+
+            //render the mesh, with shadows, centered in the viewport
+            shadowSprite = new ShadowMeshSprite(shadow);
+            var center = (mesh.BoundingBox.Max + mesh.BoundingBox.Min) / 2;
+            shadowSprite.Position = new Vector4(-center, 1);
 
             //create kd tree
             var tris = mesh.triangles
@@ -74,8 +76,6 @@ namespace SSCP.ShellPower {
                     Mesh = mesh,
                     Triangle = ix
                 })
-                //TODO: remove disgusting hack
-                .Where(tri => mesh.triangles[tri.Triangle].vertexA>=0)
                 .ToList();
             kdTree = new KDTree<MeshTriangle>();
             kdTree.AddAll(tris);
@@ -153,13 +153,13 @@ namespace SSCP.ShellPower {
             glControl.SunDirection = new Vector3(
                 (float)(-Math.Cos(elevation) * Math.Cos(azimuth)), (float)(Math.Sin(elevation)),
                 (float)(-Math.Cos(elevation) * Math.Sin(azimuth)));
-            if (elevation < 0)
+            if (elevation < 0) {
                 glControl.SunDirection = Vector3.Zero;
+            }
 
             //recalculate the shadows
-            shadowSprite.Light = new Vector4(glControl.SunDirection, 0);
-            shadowSprite.ComputeShadowVolumes();
-
+            shadow.Light = new Vector4(glControl.SunDirection, 0);
+            shadow.ComputeShadows();
         }
 
         /// <summary>
