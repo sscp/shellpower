@@ -94,9 +94,9 @@ namespace SSCP.ShellPower {
                 "joined " + (mesh.points.Length - pointIxMap.Count) + " dupes");
             for (int i = 0; i < mesh.triangles.Length; i++) {
                 Mesh.Triangle tri = mesh.triangles[i];
-                tri.vertexA = pointIxMap[mesh.points[tri.vertexA]];
-                tri.vertexB = pointIxMap[mesh.points[tri.vertexB]];
-                tri.vertexC = pointIxMap[mesh.points[tri.vertexC]];
+                mesh.triangles[i].vertexA = pointIxMap[mesh.points[tri.vertexA]];
+                mesh.triangles[i].vertexB = pointIxMap[mesh.points[tri.vertexB]];
+                mesh.triangles[i].vertexC = pointIxMap[mesh.points[tri.vertexC]];
             }
         }
     }

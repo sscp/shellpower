@@ -56,7 +56,7 @@ namespace SSCP.ShellPower {
 
         private void SetModel(Mesh mesh) {
             this.mesh = mesh;
-            MeshUtils.JoinVertices(mesh);
+            //MeshUtils.JoinVertices(mesh);
             this.sprite = new MeshSprite() { mesh = mesh };
 
             var center = (sprite.BoundingBox.Max + sprite.BoundingBox.Min) / 2;

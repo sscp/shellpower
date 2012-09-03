@@ -25,8 +25,8 @@ namespace SSCP.ShellPower {
         public Vector4 Light { get; set; }
 
         List<ShadowVolume> shadowVolumes = new List<ShadowVolume>();
-        Dictionary<Pair<int>, Edge> edges = new Dictionary<Pair<int>, Edge>();
-        List<Pair<int>> debugEdges = new List<Pair<int>>();
+        List<Edge> edges = new List<Edge>();
+        List<Pair<int>> silhouetteEdges = new List<Pair<int>>();
 
         public ShadowMeshSprite(MeshSprite other) {
             mesh = other.mesh;
@@ -45,33 +45,29 @@ namespace SSCP.ShellPower {
             var start = DateTime.Now;
 
             /* compute map of edges -> adjacent triangles */
-            edges.Clear();
-            var e = new Edge();
+            Dictionary<Pair<int>, Edge> edgeMap = new Dictionary<Pair<int>, Edge>();
             for (int i = 0; i < mesh.triangles.Length; i++) {
                 var triangle = mesh.triangles[i];
-                var ab = new Pair<int>(Math.Min(triangle.vertexA, triangle.vertexB), 
-                    Math.Max(triangle.vertexA, triangle.vertexB));
-                var ac = new Pair<int>(Math.Min(triangle.vertexA, triangle.vertexC), 
-                    Math.Max(triangle.vertexA, triangle.vertexC));
-                var bc = new Pair<int>(Math.Min(triangle.vertexB, triangle.vertexC), 
-                    Math.Max(triangle.vertexB, triangle.vertexC));
-                if (!edges.ContainsKey(ab)){
-                    edges.Add(ab, new Edge() { pointA = triangle.vertexA, pointB = triangle.vertexB });
+                var ab = PairUtils.Order(triangle.vertexA, triangle.vertexB);
+                var ac = PairUtils.Order(triangle.vertexA, triangle.vertexC);
+                var bc = PairUtils.Order(triangle.vertexB, triangle.vertexC);
+                if (!edgeMap.ContainsKey(ab)) {
+                    edgeMap.Add(ab, new Edge() { pointA = triangle.vertexA, pointB = triangle.vertexB });
+                } 
+                if (!edgeMap.ContainsKey(ac)){
+                    edgeMap.Add(ac, new Edge() { pointA = triangle.vertexA, pointB = triangle.vertexC });
                 }
-                if (!edges.ContainsKey(ac)){
-                    edges.Add(ac, new Edge() { pointA = triangle.vertexA, pointB = triangle.vertexC });
+                if (!edgeMap.ContainsKey(bc)){
+                    edgeMap.Add(bc, new Edge() { pointA = triangle.vertexB, pointB = triangle.vertexC });
                 }
-                if (!edges.ContainsKey(bc)){
-                    edges.Add(bc, new Edge() { pointA = triangle.vertexB, pointB = triangle.vertexC });
-                }
-                edges[ab].triangles.Add(i);
-                edges[ac].triangles.Add(i);
-                edges[bc].triangles.Add(i);
+                edgeMap[ab].triangles.Add(i);
+                edgeMap[ac].triangles.Add(i);
+                edgeMap[bc].triangles.Add(i);
             }
 
             /* delete triangles that aren't part of the mesh */
             int[] adjacencies = new int[mesh.triangles.Length];
-            foreach (var edge in edges.Values) {
+            foreach (var edge in edgeMap.Values) {
                 if (edge.triangles.Count >= 2) {
                     foreach (var triIx in edge.triangles) {
                         adjacencies[triIx]++;
@@ -79,15 +75,35 @@ namespace SSCP.ShellPower {
                 }
             }
             List<Mesh.Triangle> validTris = new List<Mesh.Triangle>();
+            int[] newIndices = new int[mesh.triangles.Length];
             for (int i = 0; i < mesh.triangles.Length; i++) {
                 if (adjacencies[i] >= 3) {
                     validTris.Add(mesh.triangles[i]);
+                    newIndices[i] = validTris.Count - 1;
+                } else {
+                    newIndices[i] = -1;
                 }
             }
             mesh.triangles = validTris.ToArray();
 
+            /* keep only the valid edges */
+            ICollection<Edge> edgeColl = edgeMap.Values;
+            edges.Clear();
+            foreach (var edge in edgeColl) {
+                bool good = true;
+                for (int i = 0; i < edge.triangles.Count; i++) {
+                    int ix = newIndices[edge.triangles[i]];
+                    // negative ix means bad triangle -> bad edge.
+                    good &= (ix >= 0);
+                    edge.triangles[i] = ix;
+                }
+                if (good) {
+                    edges.Add(edge);
+                }
+            }
+
             /* compute normals */
-            foreach (var edge in edges.Values) {
+            foreach (var edge in edges) {
                 foreach (var triIx in edge.triangles) {
                     var triangle = mesh.triangles[triIx];
                     if (triangle.vertexA < 0) {
@@ -110,37 +126,39 @@ namespace SSCP.ShellPower {
              * (specifically, if one of the adjacent faces is facing the light and the other is not)
              * (more specifically, if dot(face1.normal, light direction) * dot(face2.normal, light direction) < 0)
              */
-            debugEdges.Clear();
+            silhouetteEdges.Clear();
 
             /* create silhouettes and keep joining them until each one is a closed path */
             var volumes = new HashSet<ShadowVolume>();
             var volumeTable = new Dictionary<int, ShadowVolume>();
             foreach (var edge in edges
-                .Where((pair) => {
+                .Where((edge) => {
                     float xy =
-                        Vector3.Dot(pair.Value.normalA, new Vector3(Light.X, Light.Y, Light.Z)) *
-                        Vector3.Dot(pair.Value.normalB, new Vector3(Light.X, Light.Y, Light.Z));
+                        Vector3.Dot(edge.normalA, new Vector3(Light.X, Light.Y, Light.Z)) *
+                        Vector3.Dot(edge.normalB, new Vector3(Light.X, Light.Y, Light.Z));
                     return xy < 0;
-                }).Select(pair => pair.Key)) {
-                debugEdges.Add(edge);
-                if (volumeTable.ContainsKey(edge.First)) {
-                    if (volumeTable.ContainsKey(edge.Second)) {
-                        var vol1 = volumeTable[edge.First];
-                        var vol2 = volumeTable[edge.Second];
+                })) {
+                Pair<int> edgeIxs = PairUtils.Order(edge.pointA, edge.pointB);
+                silhouetteEdges.Add(edgeIxs);
+                int v1 = edgeIxs.First, v2 = edgeIxs.Second;
+                if (volumeTable.ContainsKey(v1)) {
+                    if (volumeTable.ContainsKey(v2)) {
+                        var vol1 = volumeTable[v1];
+                        var vol2 = volumeTable[v2];
                         //Debug.Assert(vol1 != vol2);
                         if (vol1 == vol2)
                             continue;
-                        if (vol1.silhouettePoints.IndexOf(edge.First) > vol1.silhouettePoints.Count / 2) {
+                        if (vol1.silhouettePoints.IndexOf(v1) > vol1.silhouettePoints.Count / 2) {
                             vol1.silhouettePoints.Reverse();
-                            //Debug.Assert(vol1.silhouettePoints[0] == edge.First);
-                            while (vol1.silhouettePoints[0] != edge.First) {
+                            //Debug.Assert(vol1.silhouettePoints[0] == v1);
+                            while (vol1.silhouettePoints[0] != v1) {
                                 volumeTable.Remove(vol1.silhouettePoints[0]);
                                 vol1.silhouettePoints.RemoveAt(0);
                             }
                         }
-                        if (vol2.silhouettePoints.IndexOf(edge.Second) <= vol2.silhouettePoints.Count / 2) {
-                            //Debug.Assert(vol2.silhouettePoints[0] == edge.Second);
-                            while (vol2.silhouettePoints[0] != edge.Second) {
+                        if (vol2.silhouettePoints.IndexOf(v2) <= vol2.silhouettePoints.Count / 2) {
+                            //Debug.Assert(vol2.silhouettePoints[0] == v2);
+                            while (vol2.silhouettePoints[0] != v2) {
                                 volumeTable.Remove(vol2.silhouettePoints[0]);
                                 vol2.silhouettePoints.RemoveAt(0);
                             }
@@ -154,32 +172,32 @@ namespace SSCP.ShellPower {
                             volumeTable[pointIx] = vol2;
                         volumes.Add(vol2);
                     } else {
-                        var pointIx = edge.First;
+                        var pointIx = v1;
                         var vol = volumeTable[pointIx];
                         if (vol.silhouettePoints[0] == pointIx ||
                             vol.silhouettePoints[vol.silhouettePoints.Count - 1] == pointIx) {
                             if (vol.silhouettePoints[0] == pointIx)
                                 vol.silhouettePoints.Reverse();
-                            vol.silhouettePoints.Add(edge.Second);
-                            volumeTable.Add(edge.Second, vol);
+                            vol.silhouettePoints.Add(v2);
+                            volumeTable.Add(v2, vol);
                         }
                     }
-                } else if (volumeTable.ContainsKey(edge.Second)) {
-                    var pointIx = edge.Second;
+                } else if (volumeTable.ContainsKey(v2)) {
+                    var pointIx = v2;
                     var vol = volumeTable[pointIx];
                     if (vol.silhouettePoints[0] == pointIx ||
                         vol.silhouettePoints[vol.silhouettePoints.Count - 1] == pointIx) {
                         if (vol.silhouettePoints[0] == pointIx)
                             vol.silhouettePoints.Reverse();
-                        vol.silhouettePoints.Add(edge.First);
-                        volumeTable.Add(edge.First, vol);
+                        vol.silhouettePoints.Add(v1);
+                        volumeTable.Add(v1, vol);
                     }
                 } else {
                     var vol = new ShadowVolume(mesh, Light);
-                    vol.silhouettePoints.Add(edge.First);
-                    vol.silhouettePoints.Add(edge.Second);
-                    volumeTable.Add(edge.First, vol);
-                    volumeTable.Add(edge.Second, vol);
+                    vol.silhouettePoints.Add(v1);
+                    vol.silhouettePoints.Add(v2);
+                    volumeTable.Add(v1, vol);
+                    volumeTable.Add(v2, vol);
                 }
             }
 
@@ -259,7 +277,7 @@ namespace SSCP.ShellPower {
             GL.Disable(EnableCap.Lighting);
             GL.Color3(1.0f, 0, 0);
             GL.Begin(BeginMode.Lines);
-            foreach (var edge in debugEdges) {
+            foreach (var edge in silhouetteEdges) {
                 GL.Vertex3(mesh.points[edge.First]);
                 GL.Vertex3(mesh.points[edge.Second]);
             }

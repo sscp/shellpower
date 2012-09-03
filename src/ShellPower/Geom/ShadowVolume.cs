@@ -18,6 +18,7 @@ namespace SSCP.ShellPower {
         public ShadowVolume(Mesh mesh, Vector4 lightSource) {
             this.mesh = mesh;
             this.lightSource = lightSource;
+            silhouettePoints = new List<int>();
         }
 
         public void CalculateQuadMatrices() {

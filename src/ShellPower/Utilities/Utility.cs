@@ -19,8 +19,8 @@ namespace SSCP.ShellPower {
             return argMin;
         }
     }
-    public class Pair<T> {
-        public Pair(T first, T second)// : this()
+    public struct Pair<T> {
+        public Pair(T first, T second) : this()
         {
             this.First = first;
             this.Second = second;
@@ -36,5 +36,10 @@ namespace SSCP.ShellPower {
         }
         public T First { get; set; }
         public T Second { get; set; }
+    }
+    public static class PairUtils {
+        public static Pair<int> Order(int a, int b) {
+            return new Pair<int>(Math.Min(a, b), Math.Max(a, b));
+        }
     }
 }
