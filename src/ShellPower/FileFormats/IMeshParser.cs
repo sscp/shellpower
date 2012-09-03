@@ -6,6 +6,6 @@ using System.Text;
 namespace SSCP.ShellPower {
     public interface IMeshParser {
         void Parse(String filename);
-        MeshSprite GetMesh();
+        Mesh GetMesh();
     }
 }

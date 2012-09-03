@@ -7,7 +7,7 @@ using OpenTK;
 
 namespace SSCP.ShellPower {
     public class MeshParser3DXml : IMeshParser {
-        MeshSprite sprite;
+        Mesh mesh;
 
         public void Parse(string filename) {
             /* load file */
@@ -17,7 +17,7 @@ namespace SSCP.ShellPower {
             /* parse file */
             var points = new List<Vector3>();
             var normals = new List<Vector3>();
-            var triangles = new List<MeshSprite.Triangle>();
+            var triangles = new List<Mesh.Triangle>();
 
             //TODO: disgusting hack.
             //XmlNodeList xmlSurfaces;   = doc.FirstChild.SelectNodes(
@@ -77,10 +77,10 @@ namespace SSCP.ShellPower {
                         }
                     }*/
                     for (int i = 0; i < vertIxs.Length; i += 3) {
-                        triangles.Add(new MeshSprite.Triangle() {
-                            VertexA = offset + vertIxs[i],
-                            VertexB = offset + vertIxs[i + 1],
-                            VertexC = offset + vertIxs[i + 2]
+                        triangles.Add(new Mesh.Triangle() {
+                            vertexA = offset + vertIxs[i],
+                            vertexB = offset + vertIxs[i + 1],
+                            vertexC = offset + vertIxs[i + 2]
                         });
                     }
                 } else if (faceAttrs["strips"] != null) {
@@ -88,10 +88,10 @@ namespace SSCP.ShellPower {
                     foreach (String strip in strips) {
                         int[] vertIxs = Parse3DXMLInts(strip);
                         for (int i = 2; i < vertIxs.Length; i++) {
-                            triangles.Add(new MeshSprite.Triangle() {
-                                VertexA = offset + vertIxs[i - ((i % 2) == 0 ? 1 : 2)],
-                                VertexB = offset + vertIxs[i - ((i % 2) == 0 ? 2 : 1)],
-                                VertexC = offset + vertIxs[i]
+                            triangles.Add(new Mesh.Triangle() {
+                                vertexA = offset + vertIxs[i - ((i % 2) == 0 ? 1 : 2)],
+                                vertexB = offset + vertIxs[i - ((i % 2) == 0 ? 2 : 1)],
+                                vertexC = offset + vertIxs[i]
                             });
                         }
                     }
@@ -101,15 +101,15 @@ namespace SSCP.ShellPower {
             }
 
             /* create mesh sprite */
-            sprite = new MeshSprite() {
-                Points = points.ToArray(),
-                Normals = normals.ToArray(),
-                Triangles = triangles.ToArray()
+            mesh = new Mesh() {
+                points = points.ToArray(),
+                normals = normals.ToArray(),
+                triangles = triangles.ToArray()
             };
         }
 
-        public MeshSprite GetMesh() {
-            return sprite;
+        public Mesh GetMesh() {
+            return mesh;
         }
 
         private Vector3[] Parse3DXMLVectors(string str) {

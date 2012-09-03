@@ -137,12 +137,18 @@
   <ItemGroup>
     <Compile Include="FileFormats\MeshParser3DXml.cs" />
     <Compile Include="FileFormats\IMeshParser.cs" />
-    <Compile Include="Math\IBoundingBox.cs" />
-    <Compile Include="Math\Quad3.cs" />
+    <Compile Include="Geom\IBoundingBox.cs" />
+    <Compile Include="Geom\IVolume.cs" />
+    <Compile Include="Geom\Mesh.cs" />
+    <Compile Include="Geom\MeshUtils.cs" />
+    <Compile Include="Geom\Polygon2.cs" />
+    <Compile Include="Geom\Quad3.cs" />
+    <Compile Include="Geom\IArea.cs" />
+    <Compile Include="Geom\ShadowVolume.cs" />
     <Compile Include="Sprites\MeshTriangle.cs" />
     <Compile Include="Utilities\Cache.cs" />
     <Compile Include="Utilities\Logger.cs" />
-    <Compile Include="Math\KDTree.cs" />
+    <Compile Include="Geom\KDTree.cs" />
     <Compile Include="Utilities\Utility.cs" />
     <Compile Include="Utilities\Web.cs" />
     <Compile Include="View\ArrayModelControl.cs">
@@ -165,7 +171,7 @@
     <Compile Include="Sprites\ShadowMeshSprite.cs" />
     <Compile Include="Sprites\Sprite.cs" />
     <Compile Include="ThirdParty\TexLib.cs" />
-    <Compile Include="Math\Matrix3.cs" />
+    <Compile Include="Geom\Matrix3.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="View\MainForm.resx">

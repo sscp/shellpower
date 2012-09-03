@@ -11,6 +11,7 @@ namespace SSCP.ShellPower {
     public partial class MainForm : Form {
         /* model */
         KDTree<MeshTriangle> kdTree;
+        Mesh mesh;
         MeshSprite sprite;
         ShadowMeshSprite shadowSprite;
 
@@ -32,15 +33,14 @@ namespace SSCP.ShellPower {
         }
 
         void LoadModel(string filename) {
-            MeshSprite sprite = LoadMesh(filename);
+            Mesh mesh = LoadMesh(filename);
             toolStripStatusLabel.Text = string.Format("Loaded model {0}, {1} triangles",
                 System.IO.Path.GetFileName(filename),
-                sprite.Triangles.Length);
-
-            SetModel(sprite);
+                mesh.triangles.Length);
+            SetModel(mesh);
         }
 
-        private MeshSprite LoadMesh(String filename) {
+        private Mesh LoadMesh(String filename) {
             String extension = filename.Split('.').Last().ToLower();
             IMeshParser parser;
             if (extension.Equals("3dxml")) {
@@ -54,8 +54,10 @@ namespace SSCP.ShellPower {
             return parser.GetMesh();
         }
 
-        private void SetModel(MeshSprite sprite) {
-            this.sprite = sprite;
+        private void SetModel(Mesh mesh) {
+            this.mesh = mesh;
+            MeshUtils.JoinVertices(mesh);
+            this.sprite = new MeshSprite() { mesh = mesh };
 
             var center = (sprite.BoundingBox.Max + sprite.BoundingBox.Min) / 2;
             sprite.Position = new Vector4(-center, 1);
@@ -67,78 +69,18 @@ namespace SSCP.ShellPower {
             shadowSprite.Initialize();
 
             //create kd tree
-            var tris = shadowSprite.Triangles
+            var tris = mesh.triangles
                 .Select((tri, ix) => new MeshTriangle() {
-                    Sprite = shadowSprite,
+                    Mesh = mesh,
                     Triangle = ix
                 })
                 //TODO: remove disgusting hack
-                .Where(tri => shadowSprite.Triangles[tri.Triangle].VertexA>=0)
+                .Where(tri => mesh.triangles[tri.Triangle].vertexA>=0)
                 .ToList();
             kdTree = new KDTree<MeshTriangle>();
             kdTree.AddAll(tris);
 
             glControl.Sprite = shadowSprite;
-        }
-
-        MeshSprite MirrorAndCombine(MeshSprite sprite, Vector3 axis) {
-            /* if the current mesh has n points, we'll have up to 2n-1 points in the mirrored and combined one */
-            var points = new List<Vector3>();
-            points.AddRange(sprite.Points);
-            /* find the point or points we're going to mirror around--the ones closest in the 'axis' direction
-             * (in other words, find the mirror plane) */
-            var minDot = sprite.Points.Min(point => Vector3.Dot(point, axis));
-            /* if points are this close or closer to the mirror plane, they will not be duplicated--they will simply be shared by additional triangles */
-            var epsilon = 0.002f;
-            /* create a dictionary mapping point indices in the original mesh to the corresponding mirrored points */
-            var pointIndexMap = new Dictionary<int, int>();
-
-            for (int i = 0; i < sprite.Points.Length; i++) {
-                var distance = Vector3.Dot(sprite.Points[i], axis) - minDot;
-                if (distance < epsilon) {
-                    /* point lies on mirror plane */
-                    pointIndexMap.Add(i, i);
-                } else {
-                    /* point is not on mirror plane; create its mirror image as a new point */
-                    pointIndexMap.Add(i, points.Count);
-                    var mirrorPoint = sprite.Points[i] - 2 * distance * axis;
-                    points.Add(mirrorPoint);
-                }
-            }
-
-            /* normals correspond to points, but may need to be mirrored.
-             * if a point is on the mirror plane, make sure the corresponding normal is in the mirror plane
-             */
-            var normals = new Vector3[points.Count];
-            for (int i = 0; i < sprite.Points.Length; i++) {
-                if (pointIndexMap[i] == i) {
-                    normals[i] = sprite.Normals[i] - Vector3.Dot(sprite.Normals[i], axis) * axis;
-                    normals[i].Normalize();
-                } else {
-                    normals[i] = sprite.Normals[i];
-                    normals[pointIndexMap[i]] = sprite.Normals[i] - 2 * Vector3.Dot(sprite.Normals[i], axis) * axis;
-                }
-            }
-
-            /* triangles are simply duplicated--each triangle gets a mirror image */
-            var triangles = new MeshSprite.Triangle[sprite.Triangles.Length * 2];
-            for (int i = 0; i < sprite.Triangles.Length; i++) {
-                triangles[i] = sprite.Triangles[i];
-            }
-            for (int i = 0; i < sprite.Triangles.Length; i++) {
-                var triangle = sprite.Triangles[i];
-                triangles[sprite.Triangles.Length + i] = new MeshSprite.Triangle() {
-                    VertexA = pointIndexMap[triangle.VertexA],
-                    VertexB = pointIndexMap[triangle.VertexB],
-                    VertexC = pointIndexMap[triangle.VertexC]
-                };
-            }
-
-            return new MeshSprite() {
-                Points = points.ToArray(),
-                Normals = normals,
-                Triangles = triangles
-            };
         }
 
         Vector3 MouseProject(int x, int y) {
@@ -168,7 +110,7 @@ namespace SSCP.ShellPower {
 
             /* paint part of the car red */
             DateTime start = DateTime.Now;
-            shadowSprite.FaceColors = new Vector4[shadowSprite.Triangles.Length];
+            shadowSprite.FaceColors = new Vector4[mesh.triangles.Length];
             int count = 0;
             foreach (var tri in kdTree.GetElementsInVolume(volume)) {
                 count++;
@@ -180,6 +122,7 @@ namespace SSCP.ShellPower {
         }
 
         private void CalculateSimStep() {
+            // update the astronomy model
             var utc_time = simInput.LocalTime - new TimeSpan((long)(simInput.Timezone * 3600.0) * 10000000);
             var sidereal = Astro.sidereal_time(
                 utc_time,
@@ -206,24 +149,17 @@ namespace SSCP.ShellPower {
                 utc_time,
                 sidereal);
 
+            //update the view
             glControl.SunDirection = new Vector3(
                 (float)(-Math.Cos(elevation) * Math.Cos(azimuth)), (float)(Math.Sin(elevation)),
                 (float)(-Math.Cos(elevation) * Math.Sin(azimuth)));
-            shadowSprite.Light = new Vector4(glControl.SunDirection, 0);
-
             if (elevation < 0)
                 glControl.SunDirection = Vector3.Zero;
 
+            //recalculate the shadows
+            shadowSprite.Light = new Vector4(glControl.SunDirection, 0);
             shadowSprite.ComputeShadowVolumes();
 
-            //calculate azimuth, elevation, insolation
-            // * adjust insolation based on time of day
-            // * adjust sun vs ambient (cloud and sky) insolation by weather
-            //calculate insolation for each cell (and resulting Isc / Voc)
-            // * use shadow volumes  
-            //for each string, determining which cells are in bypass at MPP
-            //display power/cell, power, efficiency, Isc, Voc, num cells, and num cells in bypass for each string
-            //add totals line
         }
 
         /// <summary>

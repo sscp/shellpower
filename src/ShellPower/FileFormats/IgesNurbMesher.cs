@@ -5,7 +5,7 @@ using OpenTK;
 
 namespace SSCP.ShellPower {
     public class IgesNurbMesher {
-        public static MeshSprite mesh(IEnumerable<IgesRationalBSplineSurfaceEntity> surfaces) {
+        public static Mesh mesh(IEnumerable<IgesRationalBSplineSurfaceEntity> surfaces) {
             int[] offsets = new int[surfaces.Count() + 1];
             int n = surfaces.Sum(surf => surf.ControlPoints.Length);
             var points = new Vector3[n];
@@ -13,7 +13,7 @@ namespace SSCP.ShellPower {
 
             int[] triOffsets = new int[surfaces.Count() + 1];
             int nTris = surfaces.Sum(surf => (surf.UControlPoints - 1) * (surf.VControlPoints - 1) * 2);
-            var tris = new MeshSprite.Triangle[nTris];
+            var tris = new Mesh.Triangle[nTris];
 
             int i = 0;
             foreach (var surf in surfaces) {
@@ -28,15 +28,15 @@ namespace SSCP.ShellPower {
                         norms[ix].Normalize();
 
                         if (j < surf.UControlPoints - 1 && k < surf.VControlPoints - 1) {
-                            tris[triOffsets[i] + (j + (surf.UControlPoints - 1) * k) * 2] = new MeshSprite.Triangle() {
-                                VertexA = offsets[i] + surf.VControlPoints * j + k,
-                                VertexB = offsets[i] + surf.VControlPoints * (j + 1) + k,
-                                VertexC = offsets[i] + surf.VControlPoints * j + (k + 1)
+                            tris[triOffsets[i] + (j + (surf.UControlPoints - 1) * k) * 2] = new Mesh.Triangle() {
+                                vertexA = offsets[i] + surf.VControlPoints * j + k,
+                                vertexB = offsets[i] + surf.VControlPoints * (j + 1) + k,
+                                vertexC = offsets[i] + surf.VControlPoints * j + (k + 1)
                             };
-                            tris[triOffsets[i] + (j + (surf.UControlPoints - 1) * k) * 2 + 1] = new MeshSprite.Triangle() {
-                                VertexA = offsets[i] + surf.VControlPoints * (j + 1) + (k + 1),
-                                VertexC = offsets[i] + surf.VControlPoints * j + (k + 1),
-                                VertexB = offsets[i] + surf.VControlPoints * (j + 1) + k
+                            tris[triOffsets[i] + (j + (surf.UControlPoints - 1) * k) * 2 + 1] = new Mesh.Triangle() {
+                                vertexA = offsets[i] + surf.VControlPoints * (j + 1) + (k + 1),
+                                vertexC = offsets[i] + surf.VControlPoints * j + (k + 1),
+                                vertexB = offsets[i] + surf.VControlPoints * (j + 1) + k
                             };
                         }
                     }
@@ -46,11 +46,11 @@ namespace SSCP.ShellPower {
                 i++;
             }
 
-            MeshSprite sprite = new MeshSprite();
-            sprite.Points = points;
-            sprite.Normals = norms;
-            sprite.Triangles = tris;
-            return sprite;
+            return new Mesh() {
+                points = points,
+                normals = norms,
+                triangles = tris
+            };
         }
     }
 }

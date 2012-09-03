@@ -7,15 +7,15 @@ using OpenTK;
 
 namespace SSCP.ShellPower {
     struct MeshTriangle : IBoundingBox {
-        public MeshSprite Sprite { get; set; }
+        public Mesh Mesh { get; set; }
         public int Triangle { get; set; }
         public Quad3 BoundingBox {
             get {
-                Debug.Assert(Sprite.Triangles[Triangle].VertexA >= 0);
+                Debug.Assert(Mesh.triangles[Triangle].vertexA >= 0);
                 Vector3
-                    a = Sprite.Points[Sprite.Triangles[Triangle].VertexA],
-                    b = Sprite.Points[Sprite.Triangles[Triangle].VertexB],
-                    c = Sprite.Points[Sprite.Triangles[Triangle].VertexC];
+                    a = Mesh.points[Mesh.triangles[Triangle].vertexA],
+                    b = Mesh.points[Mesh.triangles[Triangle].vertexB],
+                    c = Mesh.points[Mesh.triangles[Triangle].vertexC];
                 Quad3 quad = new Quad3() {
                     Min = new Vector3(
                         a.X < b.X ? (a.X < c.X ? a.X : c.X) : (b.X < c.X ? b.X : c.X),

@@ -3,15 +3,13 @@ using OpenTK.Graphics;
 
 namespace SSCP.ShellPower {
     public class MeshSprite : Sprite {
-        public struct Triangle {
-            public int VertexA, VertexB, VertexC;
-        }
-        public Vector3[] Points;
-        public Vector3[] Normals;
-        public Triangle[] Triangles;
 
+        // model
+        public Mesh mesh;
+
+        // view params
         public Vector2[] TextureCoordinates;
-        public Vector4[] VertexColors;
+        public Vector4[] vertexColors;
         public Vector4[] FaceColors;
         public bool IsWireframe { get; set; }
 
@@ -22,27 +20,26 @@ namespace SSCP.ShellPower {
             GL.Color3(1f, 1, 1);
             if (!IsWireframe)
                 GL.Begin(BeginMode.Triangles);
-            for (int i = 0; i < Triangles.Length; i++) {
-                var triangle = Triangles[i];
-                if (triangle.VertexA < 0)
-                    continue;
-                if (IsWireframe)
+            for (int i = 0; i < mesh.triangles.Length; i++) {
+                var triangle = mesh.triangles[i];
+                if (IsWireframe) {
                     GL.Begin(BeginMode.LineStrip);
-                //TODO: texture coords
-                if (FaceColors != null) GL.Color4(FaceColors[i]);
+                } else if (FaceColors != null) {
+                    GL.Color4(FaceColors[i]);
+                }
 
                 //draw triangle
-                if (VertexColors != null) GL.Color4(VertexColors[triangle.VertexA]);
-                GL.Normal3(Normals[triangle.VertexA]);
-                GL.Vertex4(new Vector4(Points[triangle.VertexA], 1));
+                if (vertexColors != null) GL.Color4(vertexColors[triangle.vertexA]);
+                GL.Normal3(mesh.normals[triangle.vertexA]);
+                GL.Vertex4(new Vector4(mesh.points[triangle.vertexA], 1));
 
-                if (VertexColors != null) GL.Color4(VertexColors[triangle.VertexB]);
-                GL.Normal3(Normals[triangle.VertexB]);
-                GL.Vertex4(new Vector4(Points[triangle.VertexB], 1));
+                if (vertexColors != null) GL.Color4(vertexColors[triangle.vertexB]);
+                GL.Normal3(mesh.normals[triangle.vertexB]);
+                GL.Vertex4(new Vector4(mesh.points[triangle.vertexB], 1));
 
-                if (VertexColors != null) GL.Color4(VertexColors[triangle.VertexC]);
-                GL.Normal3(Normals[triangle.VertexC]);
-                GL.Vertex4(new Vector4(Points[triangle.VertexC], 1));
+                if (vertexColors != null) GL.Color4(vertexColors[triangle.vertexC]);
+                GL.Normal3(mesh.normals[triangle.vertexC]);
+                GL.Vertex4(new Vector4(mesh.points[triangle.vertexC], 1));
 
                 if (IsWireframe)
                     GL.End();
@@ -52,24 +49,12 @@ namespace SSCP.ShellPower {
         }
         public override void Dispose() {
             base.Dispose();
-            Points = null;
-            Normals = null;
-            Triangles = null;
+            mesh = null;
         }
 
         public Quad3 BoundingBox {
             get {
-                var box = new Quad3();
-                box.Min = box.Max = Points[0];
-                foreach (var point in Points) {
-                    if (point.X < box.Min.X) box.Min.X = point.X;
-                    if (point.Y < box.Min.Y) box.Min.Y = point.Y;
-                    if (point.Z < box.Min.Z) box.Min.Z = point.Z;
-                    if (point.X > box.Max.X) box.Max.X = point.X;
-                    if (point.Y > box.Max.Y) box.Max.Y = point.Y;
-                    if (point.Z > box.Max.Z) box.Max.Z = point.Z;
-                }
-                return box;
+                return mesh.BoundingBox;
             }
         }
 
@@ -77,7 +62,7 @@ namespace SSCP.ShellPower {
         /// Returns a depth t such that position + direction*t = a point in triangle. Note that this may be a positive or negative number.
         /// Returns NaN if the ray does not intersect the triangle or if direction is the zero vector.
         /// </summary>
-        public float Intersect(Triangle triangle, Vector3 position, Vector3 direction) {
+        public float Intersect(Mesh.Triangle triangle, Vector3 position, Vector3 direction) {
             //transform coords so that position=0, triangle = (v1, v2, v3)
             // find a b c such that
             // a*v1x + b*v1y + c*v1z = 1
@@ -87,9 +72,9 @@ namespace SSCP.ShellPower {
             // (v1 v2 v3)T(a b c)T = (1 1 1)
             // (a b c) = (v1 v2 v3)T^-1 (1 1 1)
             var m = new Matrix3(
-                Points[triangle.VertexA],
-                Points[triangle.VertexB],
-                Points[triangle.VertexC]);
+                mesh.points[triangle.vertexA],
+                mesh.points[triangle.vertexB],
+                mesh.points[triangle.vertexC]);
             m.Transpose();
             var inv = m.Inverse;
             var abc = inv * new Vector3(1, 1, 1);
