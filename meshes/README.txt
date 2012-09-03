@@ -1,0 +1,1 @@
+Meshes go here. The sample mesh is one of the draft shapes that became Apogee, Stanford's 2009 entry to the World Solar Challenge.
