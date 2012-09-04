@@ -8,7 +8,7 @@ namespace SSCP.ShellPower {
     public interface IVolume {
         bool Contains(Vector3 vec);
     }
-    public class ExtrudedVolume {
+    public class ExtrudedVolume : IVolume {
         public enum Plane { XY, YX, XZ, ZX, YZ, ZY };
         public Plane plane;
         public IArea area;

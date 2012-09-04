@@ -58,28 +58,69 @@ namespace SSCP.ShellPower {
 
         private void SetModel(Mesh mesh) {
             this.mesh = mesh;
+            //TODO: remove gross hack
+            //new Shadow(mesh).Initialize();
 
-            //create shadows volumes
-            shadow = new Shadow(mesh);
-            shadow.Initialize();
-            shadow.Light = new Vector4(glControl.SunDirection, 0);
-            shadow.ComputeShadows();
-
-            //render the mesh, with shadows, centered in the viewport
-            shadowSprite = new ShadowMeshSprite(shadow);
-            var center = (mesh.BoundingBox.Max + mesh.BoundingBox.Min) / 2;
-            shadowSprite.Position = new Vector4(-center, 1);
+            //split out the array
+            Logger.info("creating solar array boundary in the mesh...");
+            Polygon2 arr = new Polygon2();
+            var arrY1 = 0.8f; // width dimension = Y
+            var arrX1 = 0.15f;
+            var arrX2 = 4.05f;
+            var arrYB = 0.3f;
+            var arrXB = 2.0f;
+            arr.vertices = new Vector2[]{
+                new Vector2(arrX1, -arrY1),
+                new Vector2(arrX2, -arrY1),
+                new Vector2(arrX2, -arrYB),
+                new Vector2(arrXB, -arrYB),
+                new Vector2(arrXB, arrYB),
+                new Vector2(arrX2, arrYB),
+                new Vector2(arrX2, arrY1),
+                new Vector2(arrX1, arrY1)};
+            ExtrudedVolume vol = new ExtrudedVolume() {
+                area = arr,
+                plane = ExtrudedVolume.Plane.XZ
+            };
+            Mesh amended;
+            int[] trisInside;
+            MeshUtils.Split(mesh, vol, out amended, out trisInside);
+            Logger.info("mesh now has " + amended.points.Length + " verts, " + amended.triangles.Length + " tris");
 
             //create kd tree
+            Logger.info("creating kd tree...");
             var tris = mesh.triangles
                 .Select((tri, ix) => new MeshTriangle() {
-                    Mesh = mesh,
+                    Mesh = amended,
                     Triangle = ix
                 })
                 .ToList();
             kdTree = new KDTree<MeshTriangle>();
             kdTree.AddAll(tris);
 
+            //create shadows volumes
+            Logger.info("computing shadows...");
+            shadow = new Shadow(mesh);
+            shadow.Initialize();
+            shadow.Light = new Vector4(glControl.SunDirection, 0);
+            shadow.ComputeShadows();
+            Logger.info("mesh now has " + amended.points.Length + " verts, " + amended.triangles.Length + " tris");
+
+            // color the array green
+            Logger.info("creating shadow sprite");
+            shadowSprite = new ShadowMeshSprite(shadow);
+            int nt = amended.triangles.Length;
+            shadowSprite.FaceColors = new Vector4[nt];
+            for (int i = 0; i < nt; i++) {
+                shadowSprite.FaceColors[i] = new Vector4(1f, 1f, 1f, 1f);
+            }
+            /*for (int i = 0; i < trisInside.Length; i++) {
+                shadowSprite.FaceColors[trisInside[i]] = new Vector4(0.3f, 0.6f, 0.3f, 1f);
+            }*/
+
+            //render the mesh, with shadows, centered in the viewport
+            var center = (amended.BoundingBox.Max + amended.BoundingBox.Min) / 2;
+            shadowSprite.Position = new Vector4(-center, 1);
             glControl.Sprite = shadowSprite;
         }
 

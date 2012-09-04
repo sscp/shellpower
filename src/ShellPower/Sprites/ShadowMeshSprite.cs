@@ -11,25 +11,49 @@ namespace SSCP.ShellPower {
     public class ShadowMeshSprite : MeshSprite {
         Shadow shadow;
 
-        public ShadowMeshSprite(Shadow shadow) {
+        public ShadowMeshSprite(Shadow shadow) : base(shadow.Mesh) {
             this.shadow = shadow;
-            mesh = shadow.Mesh;
         }
 
         private void ComputeShadowByVertex() {
-            vertexColors = new Vector4[mesh.points.Length];
-            for (int i = 0; i < mesh.points.Length; i++) {
+            VertexColors = new Vector4[Mesh.points.Length];
+            for (int i = 0; i < Mesh.points.Length; i++) {
                 float light = 1.0f;
-                if (shadow.IsInShadow(mesh.points[i])) {
+                if (shadow.IsInShadow(Mesh.points[i])) {
                     light = 0.1f;
                 }
-                vertexColors[i] = new Vector4(light, light, light, 1.0f);
+                VertexColors[i] = new Vector4(light, light, light, 1.0f);
             }
         }
 
         public override void Render() {
             /* render normally */
-            base.Render();
+            GL.Color3(1f, 1, 1);
+            GL.Begin(BeginMode.Triangles);
+            for (int i = 0; i < Mesh.triangles.Length; i++) {
+                var triangle = Mesh.triangles[i];
+                Vector4 color = new Vector4(1, 1, 1, 1);
+                if (FaceColors != null) {
+                    color = FaceColors[i];
+                }
+                float att = 0.3f;
+                Vector4 shadowColor = new Vector4(color.X * att, color.Y*att, color.Z*att, color.W);
+
+                //draw triangle
+                GL.Color4(shadow.VertShadows[triangle.vertexA] ? shadowColor : color);
+                GL.Normal3(Mesh.normals[triangle.vertexA]);
+                GL.Vertex4(new Vector4(Mesh.points[triangle.vertexA], 1));
+
+                GL.Color4(shadow.VertShadows[triangle.vertexB] ? shadowColor : color);
+                GL.Normal3(Mesh.normals[triangle.vertexB]);
+                GL.Vertex4(new Vector4(Mesh.points[triangle.vertexB], 1));
+
+                GL.Color4(shadow.VertShadows[triangle.vertexC] ? shadowColor : color);
+                GL.Normal3(Mesh.normals[triangle.vertexC]);
+                GL.Vertex4(new Vector4(Mesh.points[triangle.vertexC], 1));
+            }
+            GL.End();
+
             DebugRenderShadowVolume();
             DebugRenderEdges();
         }
@@ -39,7 +63,7 @@ namespace SSCP.ShellPower {
             if (shadow.Light.Y <= 0) {
                 return;
             }
-            var minY = mesh.points.Select(point => point.Y).Min() + Position.Y;
+            var minY = Mesh.points.Select(point => point.Y).Min() + Position.Y;
 
             /* no shading, just a translucent shadow volume */
             GL.Disable(EnableCap.Lighting);
@@ -59,7 +83,7 @@ namespace SSCP.ShellPower {
             foreach (var volume in shadow.ShadowVolumes) {
                 GL.Begin(BeginMode.QuadStrip);
                 foreach (var point in volume.SilhouettePoints) {
-                    var p = mesh.points[point];
+                    var p = Mesh.points[point];
                     GL.Vertex3(p);
                     GL.Vertex3(p - new Vector3(light.X, light.Y, light.Z) * ((p.Y - minY) / light.Y));
                 }
@@ -74,8 +98,8 @@ namespace SSCP.ShellPower {
             GL.Color3(1.0f, 0, 0);
             GL.Begin(BeginMode.Lines);
             foreach (var edge in shadow.SilhouetteEdges) {
-                GL.Vertex3(mesh.points[edge.First]);
-                GL.Vertex3(mesh.points[edge.Second]);
+                GL.Vertex3(Mesh.points[edge.First]);
+                GL.Vertex3(Mesh.points[edge.Second]);
             }
             GL.End();
             GL.Enable(EnableCap.Lighting);

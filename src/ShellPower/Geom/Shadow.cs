@@ -23,12 +23,15 @@ namespace SSCP.ShellPower {
         public Mesh Mesh { get; private set; }
         public List<ShadowVolume> ShadowVolumes { get; private set; }
         public List<Pair<int>> SilhouetteEdges { get; private set; }
+        public bool[] VertShadows { get; private set; }
         List<Edge> edges = new List<Edge>();
+
 
         public Shadow(Mesh mesh) {
             this.Mesh = mesh;
             this.ShadowVolumes = new List<ShadowVolume>();
             this.SilhouetteEdges = new List<Pair<int>>();
+            this.VertShadows = new bool[mesh.points.Length];
         }
 
         public void Initialize() {
@@ -117,6 +120,19 @@ namespace SSCP.ShellPower {
         }
 
         public void ComputeShadows() {
+            ComputeShadowVolumes();
+            ComputeVertShadows();
+        }
+
+        public void ComputeVertShadows() {
+            int np = Mesh.points.Length;
+            this.VertShadows = new bool[np];
+            for (int i = 0; i < np; i++) {
+                VertShadows[i] = IsInShadow(Mesh.points[i]);
+            }
+        }
+
+        private void ComputeShadowVolumes() {
             /* find each edge in the mesh, and find out whether its part of a silhouette
              * (specifically, if one of the adjacent faces is facing the light and the other is not)
              * (more specifically, if dot(face1.normal, light direction) * dot(face2.normal, light direction) < 0)

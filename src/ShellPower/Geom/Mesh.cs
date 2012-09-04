@@ -7,6 +7,11 @@ using OpenTK;
 namespace SSCP.ShellPower {
     public class Mesh {
         public struct Triangle {
+            public Triangle(int vA, int vB, int vC) {
+                vertexA = vA;
+                vertexB = vB;
+                vertexC = vC;
+            }
             public int vertexA, vertexB, vertexC;
         }
         public Vector3[] points;

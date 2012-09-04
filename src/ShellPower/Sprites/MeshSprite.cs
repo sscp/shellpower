@@ -1,27 +1,30 @@
 ﻿using OpenTK;
 using OpenTK.Graphics;
+using System.Diagnostics;
 
 namespace SSCP.ShellPower {
     public class MeshSprite : Sprite {
 
         // model
-        public Mesh mesh;
+        public Mesh Mesh { get; set; }
 
         // view params
-        public Vector2[] TextureCoordinates;
-        public Vector4[] vertexColors;
-        public Vector4[] FaceColors;
+        public Vector2[] TextureCoordinates { get; set; }
+        public Vector4[] VertexColors { get; set; }
+        public Vector4[] FaceColors { get; set; }
         public bool IsWireframe { get; set; }
 
-        public MeshSprite() {
+        public MeshSprite(Mesh mesh) {
+            Debug.Assert(mesh != null);
+            Mesh = mesh;
         }
 
         public override void Render() {
             GL.Color3(1f, 1, 1);
             if (!IsWireframe)
                 GL.Begin(BeginMode.Triangles);
-            for (int i = 0; i < mesh.triangles.Length; i++) {
-                var triangle = mesh.triangles[i];
+            for (int i = 0; i < Mesh.triangles.Length; i++) {
+                var triangle = Mesh.triangles[i];
                 if (IsWireframe) {
                     GL.Begin(BeginMode.LineStrip);
                 } else if (FaceColors != null) {
@@ -29,17 +32,17 @@ namespace SSCP.ShellPower {
                 }
 
                 //draw triangle
-                if (vertexColors != null) GL.Color4(vertexColors[triangle.vertexA]);
-                GL.Normal3(mesh.normals[triangle.vertexA]);
-                GL.Vertex4(new Vector4(mesh.points[triangle.vertexA], 1));
+                if (VertexColors != null) GL.Color4(VertexColors[triangle.vertexA]);
+                GL.Normal3(Mesh.normals[triangle.vertexA]);
+                GL.Vertex4(new Vector4(Mesh.points[triangle.vertexA], 1));
 
-                if (vertexColors != null) GL.Color4(vertexColors[triangle.vertexB]);
-                GL.Normal3(mesh.normals[triangle.vertexB]);
-                GL.Vertex4(new Vector4(mesh.points[triangle.vertexB], 1));
+                if (VertexColors != null) GL.Color4(VertexColors[triangle.vertexB]);
+                GL.Normal3(Mesh.normals[triangle.vertexB]);
+                GL.Vertex4(new Vector4(Mesh.points[triangle.vertexB], 1));
 
-                if (vertexColors != null) GL.Color4(vertexColors[triangle.vertexC]);
-                GL.Normal3(mesh.normals[triangle.vertexC]);
-                GL.Vertex4(new Vector4(mesh.points[triangle.vertexC], 1));
+                if (VertexColors != null) GL.Color4(VertexColors[triangle.vertexC]);
+                GL.Normal3(Mesh.normals[triangle.vertexC]);
+                GL.Vertex4(new Vector4(Mesh.points[triangle.vertexC], 1));
 
                 if (IsWireframe)
                     GL.End();
@@ -49,12 +52,12 @@ namespace SSCP.ShellPower {
         }
         public override void Dispose() {
             base.Dispose();
-            mesh = null;
+            Mesh = null;
         }
 
         public Quad3 BoundingBox {
             get {
-                return mesh.BoundingBox;
+                return Mesh.BoundingBox;
             }
         }
 
@@ -72,9 +75,9 @@ namespace SSCP.ShellPower {
             // (v1 v2 v3)T(a b c)T = (1 1 1)
             // (a b c) = (v1 v2 v3)T^-1 (1 1 1)
             var m = new Matrix3(
-                mesh.points[triangle.vertexA],
-                mesh.points[triangle.vertexB],
-                mesh.points[triangle.vertexC]);
+                Mesh.points[triangle.vertexA],
+                Mesh.points[triangle.vertexB],
+                Mesh.points[triangle.vertexC]);
             m.Transpose();
             var inv = m.Inverse;
             var abc = inv * new Vector3(1, 1, 1);
