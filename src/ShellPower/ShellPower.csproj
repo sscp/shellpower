@@ -137,6 +137,7 @@
   <ItemGroup>
     <Compile Include="FileFormats\MeshParser3DXml.cs" />
     <Compile Include="FileFormats\IMeshParser.cs" />
+    <Compile Include="FileFormats\MeshParserStl.cs" />
     <Compile Include="Geom\IBoundingBox.cs" />
     <Compile Include="Geom\IVolume.cs" />
     <Compile Include="Geom\Mesh.cs" />

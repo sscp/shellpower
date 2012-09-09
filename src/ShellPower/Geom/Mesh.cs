@@ -11,8 +11,10 @@ namespace SSCP.ShellPower {
                 vertexA = vA;
                 vertexB = vB;
                 vertexC = vC;
+                normal = new Vector3(0, 0, 0);
             }
             public int vertexA, vertexB, vertexC;
+            public Vector3 normal;
         }
         public Vector3[] points;
         public Vector3[] normals;

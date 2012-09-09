@@ -32,7 +32,8 @@ namespace SSCP.ShellPower {
                 && ((Pair<T>)obj).Second.Equals(Second);
         }
         public override int GetHashCode() {
-            return First.GetHashCode() ^ Second.GetHashCode();
+            var hash = First.GetHashCode() * 65539 + Second.GetHashCode();
+            return hash;
         }
         public T First { get; set; }
         public T Second { get; set; }

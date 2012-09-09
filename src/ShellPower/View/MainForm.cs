@@ -10,11 +10,12 @@ using OpenTK;
 namespace SSCP.ShellPower {
     public partial class MainForm : Form {
         /* model */
-        KDTree<MeshTriangle> kdTree;
-        Mesh mesh;
+        Mesh mesh, amended;
+        bool[] trisInArray;
         Shadow shadow;
 
         /* view */
+        //KDTree<MeshTriangle> kdTree;
         ShadowMeshSprite shadowSprite;
 
         /* data i/o */
@@ -24,13 +25,8 @@ namespace SSCP.ShellPower {
         ArraySimulationStepInput simInput = new ArraySimulationStepInput();
         ArraySimulationStepOutput simOutput = new ArraySimulationStepOutput();
 
-        /* ui */
-        bool select;
-        Point dragStart;
-
         public MainForm() {
             InitializeComponent();
-            LoadModel("../../../../meshes/apogee.3dxml");
             GuiSimStepInputs(null, null);
         }
 
@@ -42,13 +38,66 @@ namespace SSCP.ShellPower {
             SetModel(mesh);
         }
 
+        private IArea GetArrayArea() {
+            float arrYS = 0.75f; // side
+            float arrYB = 0.3f; // bubble
+            float arrXF = -2.0f, arrXR = 2.3f; // +X is the rear
+            float arrXBF = -1.0f, arrXBR = 1.0f; // bubble
+            float gap = 0.0f, gap2 = gap / 2;
+            Polygon2 arr1 = new Polygon2();
+            arr1.vertices = new Vector2[]{
+                new Vector2(arrXF, -arrYS),
+                new Vector2(arrXF, -gap2),
+                new Vector2(arrXBF-gap, -gap2),
+                new Vector2(arrXBF-gap, -arrYS)};
+            Polygon2 arr2 = new Polygon2();
+            arr2.vertices = new Vector2[]{
+                new Vector2(arrXF, arrYS),
+                new Vector2(arrXF, gap2),
+                new Vector2(arrXBF-gap, gap2),
+                new Vector2(arrXBF-gap, arrYS)};
+            Polygon2 arr3 = new Polygon2();
+            arr3.vertices = new Vector2[]{
+                new Vector2(arrXBF, -arrYS),
+                new Vector2(arrXBF, -arrYB),
+                new Vector2(arrXBR, -arrYB),
+                new Vector2(arrXBR, -arrYS)};
+            Polygon2 arr4 = new Polygon2();
+            arr4.vertices = new Vector2[]{
+                new Vector2(arrXBF, arrYS),
+                new Vector2(arrXBF, arrYB),
+                new Vector2(arrXBR, arrYB),
+                new Vector2(arrXBR, arrYS)};
+            Polygon2 arr5 = new Polygon2();
+            arr5.vertices = new Vector2[]{
+                new Vector2(arrXR, -arrYS),
+                new Vector2(arrXR, -gap2),
+                new Vector2(arrXBR+gap, -gap2),
+                new Vector2(arrXBR+gap, -arrYS)};
+            Polygon2 arr6 = new Polygon2();
+            arr6.vertices = new Vector2[]{
+                new Vector2(arrXR, arrYS),
+                new Vector2(arrXR, gap2),
+                new Vector2(arrXBR+gap, gap2),
+                new Vector2(arrXBR+gap, arrYS)};
+
+            CompoundShape2 arrs = new CompoundShape2();
+            arrs.include.Add(arr1);
+            arrs.include.Add(arr2);
+            arrs.include.Add(arr3);
+            arrs.include.Add(arr4);
+            arrs.include.Add(arr5);
+            arrs.include.Add(arr6);
+            return arrs;
+        }
+
         private Mesh LoadMesh(String filename) {
             String extension = filename.Split('.').Last().ToLower();
             IMeshParser parser;
             if (extension.Equals("3dxml")) {
                 parser = new MeshParser3DXml();
-                //} else if (extension.Equals("stl")) {
-                //    parser = new MeshParserStl();
+            } else if (extension.Equals("stl")) {
+                parser = new MeshParserStl();
             } else {
                 throw new ArgumentException("unsupported filetype: " + extension);
             }
@@ -58,37 +107,21 @@ namespace SSCP.ShellPower {
 
         private void SetModel(Mesh mesh) {
             this.mesh = mesh;
-            //TODO: remove gross hack
-            //new Shadow(mesh).Initialize();
 
             //split out the array
             Logger.info("creating solar array boundary in the mesh...");
-            Polygon2 arr = new Polygon2();
-            var arrY1 = 0.8f; // width dimension = Y
-            var arrX1 = 0.15f;
-            var arrX2 = 4.05f;
-            var arrYB = 0.3f;
-            var arrXB = 2.0f;
-            arr.vertices = new Vector2[]{
-                new Vector2(arrX1, -arrY1),
-                new Vector2(arrX2, -arrY1),
-                new Vector2(arrX2, -arrYB),
-                new Vector2(arrXB, -arrYB),
-                new Vector2(arrXB, arrYB),
-                new Vector2(arrX2, arrYB),
-                new Vector2(arrX2, arrY1),
-                new Vector2(arrX1, arrY1)};
+
+            /* sunbad */
+            var area = GetArrayArea();
             ExtrudedVolume vol = new ExtrudedVolume() {
-                area = arr,
+                area = area,
                 plane = ExtrudedVolume.Plane.XZ
             };
-            Mesh amended;
-            int[] trisInside;
-            MeshUtils.Split(mesh, vol, out amended, out trisInside);
+            MeshUtils.Split(mesh, vol, out amended, out trisInArray);
             Logger.info("mesh now has " + amended.points.Length + " verts, " + amended.triangles.Length + " tris");
 
             //create kd tree
-            Logger.info("creating kd tree...");
+            /*Logger.info("creating kd tree...");
             var tris = mesh.triangles
                 .Select((tri, ix) => new MeshTriangle() {
                     Mesh = amended,
@@ -96,70 +129,28 @@ namespace SSCP.ShellPower {
                 })
                 .ToList();
             kdTree = new KDTree<MeshTriangle>();
-            kdTree.AddAll(tris);
+            kdTree.AddAll(tris);*/
 
             //create shadows volumes
             Logger.info("computing shadows...");
-            shadow = new Shadow(mesh);
+            shadow = new Shadow(amended);
             shadow.Initialize();
-            shadow.Light = new Vector4(glControl.SunDirection, 0);
-            shadow.ComputeShadows();
-            Logger.info("mesh now has " + amended.points.Length + " verts, " + amended.triangles.Length + " tris");
 
             // color the array green
             Logger.info("creating shadow sprite");
             shadowSprite = new ShadowMeshSprite(shadow);
             int nt = amended.triangles.Length;
             shadowSprite.FaceColors = new Vector4[nt];
+            var green = new Vector4(0.3f, 0.8f, 0.3f, 1f);
+            var white = new Vector4(1f, 1f, 1f, 1f);
             for (int i = 0; i < nt; i++) {
-                shadowSprite.FaceColors[i] = new Vector4(1f, 1f, 1f, 1f);
+                shadowSprite.FaceColors[i] = trisInArray[i] ? green : white;
             }
-            /*for (int i = 0; i < trisInside.Length; i++) {
-                shadowSprite.FaceColors[trisInside[i]] = new Vector4(0.3f, 0.6f, 0.3f, 1f);
-            }*/
 
             //render the mesh, with shadows, centered in the viewport
             var center = (amended.BoundingBox.Max + amended.BoundingBox.Min) / 2;
             shadowSprite.Position = new Vector4(-center, 1);
             glControl.Sprite = shadowSprite;
-        }
-
-        Vector3 MouseProject(int x, int y) {
-            /* change screen to world coordinates */
-            Vector3 world = glControl.ScreenToWorld(x, y);
-            Vector3 position = glControl.Position;
-            Vector3 direction = world - position;
-            Vector3 intercept = position - direction * (position.Y / direction.Y);
-            return intercept;
-        }
-
-        void MouseHighlight(Rectangle screenArea) {
-            /* intersect ray thru mouseclick with the ground */
-            Vector3 model = MouseProject(screenArea.Left, screenArea.Top);
-            Vector3 model2 = MouseProject(screenArea.Right, screenArea.Bottom);
-            var pos = new Vector3(glControl.Sprite.Position);
-            Quad3 volume = new Quad3() {
-                Min = new Vector3(
-                    Math.Min(model.X, model2.X),
-                    -100f,
-                    Math.Min(model.Z, model2.Z)) - pos,
-                Max = new Vector3(
-                    Math.Max(model.X, model2.X),
-                    100f,
-                    Math.Max(model.Z, model2.Z)) - pos
-            };
-
-            /* paint part of the car red */
-            DateTime start = DateTime.Now;
-            shadowSprite.FaceColors = new Vector4[mesh.triangles.Length];
-            int count = 0;
-            foreach (var tri in kdTree.GetElementsInVolume(volume)) {
-                count++;
-                shadowSprite.FaceColors[tri.Triangle] = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-            }
-            Debug.WriteLine("{0} tris selected in {1:0.000}s", count, (DateTime.Now - start).TotalSeconds);
-
-            glControl.Refresh();
         }
 
         private void CalculateSimStep() {
@@ -173,12 +164,10 @@ namespace SSCP.ShellPower {
                 simInput.LocalTime.DayOfYear,
                 simInput.Latitude)
                 - (float)simInput.Heading;
-            //(float)(simInput.Heading + Math.Cos(simInput.LocalTime.TimeOfDay.TotalHours * 2 * Math.PI / 24));
             var elevation = Astro.solar_elevation(
                 (int)sidereal.TimeOfDay.TotalSeconds,
                 simInput.LocalTime.DayOfYear,
                 simInput.Latitude);
-            //(float)(-Math.Cos(simInput.LocalTime.TimeOfDay.TotalHours * 2 * Math.PI / 24) - 0.2 * Math.Cos(simInput.LocalTime.DayOfYear * 2 * Math.PI / 365));
             Logger.info("sim step\n\t" +
                 "lat {0:0.0} lon {1:0.0} heading {2:0.0}\n\t" +
                 "azith {3:0.0} elev {4:0.0} utc {5} sidereal {6}",
@@ -190,17 +179,56 @@ namespace SSCP.ShellPower {
                 utc_time,
                 sidereal);
 
-            //update the view
-            glControl.SunDirection = new Vector3(
+            //recalculate the shadows
+            var lightDir = new Vector3(
                 (float)(-Math.Cos(elevation) * Math.Cos(azimuth)), (float)(Math.Sin(elevation)),
                 (float)(-Math.Cos(elevation) * Math.Sin(azimuth)));
             if (elevation < 0) {
-                glControl.SunDirection = Vector3.Zero;
+                lightDir = Vector3.Zero;
+            }
+            if (shadow != null && lightDir.LengthSquared > 0) {
+                shadow.Light = new Vector4(lightDir, 0);
+                shadow.ComputeShadows();
             }
 
-            //recalculate the shadows
-            shadow.Light = new Vector4(glControl.SunDirection, 0);
-            shadow.ComputeShadows();
+            // update the view
+            glControl.SunDirection = lightDir;
+
+            // calculate array params
+            //TODO: fix this hackery
+            const float insolation = 1000f; // W/m^2
+            const float efficiency = 0.227f; 
+            float arrayArea = 0.0f, shadedArea = 0.0f, totalWatts = 0.0f;
+            int nt = amended == null ? 0 : amended.triangles.Length;
+            for (int i = 0; i < nt; i++) {
+                if (!trisInArray[i]) {
+                    continue;
+                }
+                var tri = amended.triangles[i];
+                var vA = amended.points[tri.vertexA];
+                var vB = amended.points[tri.vertexB];
+                var vC = amended.points[tri.vertexC];
+                float area = Vector3.Cross(vC - vA, vB - vA).Length / 2;
+                arrayArea += area;
+
+                int nshad = 0;
+                if (shadow.VertShadows[tri.vertexA]) nshad++;
+                if (shadow.VertShadows[tri.vertexB]) nshad++;
+                if (shadow.VertShadows[tri.vertexC]) nshad++;
+                shadedArea += area * nshad / 3.0f;
+
+                // if we're not in a shadow, get cosine rule insolation.
+                if (nshad < 2) {
+                    var cosInsolation = Math.Max(Vector3.Dot(tri.normal, lightDir), 0f) * insolation;
+                    var watts = cosInsolation * efficiency * area;
+                    totalWatts += watts;
+                }
+            }
+
+            //update ui
+            this.labelArrPower.Text = string.Format(
+                "{0:0}W over {1:0.00}m\u00B2, {2:0.00}m\u00B2 shaded",
+                totalWatts, arrayArea, shadedArea);
         }
 
         /// <summary>
@@ -221,7 +249,7 @@ namespace SSCP.ShellPower {
             labelCarDirection.Text = headings[dirIx];
 
             /* set date/time */
-            dateTimePicker.Value = simInput.Utc;
+            dateTimePicker.Value = simInput.Utc; // fix roundoff problems
             labelTimezone.Text = string.Format("GMT{0}{1:0.0}", simInput.Timezone >= 0 ? "+" : "", simInput.Timezone);
             var name = geoNamesApi.GetTimezoneName(simInput.Latitude, simInput.Longitude);
             if (name != null)
@@ -289,27 +317,6 @@ namespace SSCP.ShellPower {
             simInput.LocalTime = simInput.LocalTime.Date + timeOfDay;
             simInput.Utc = simInput.LocalTime - new TimeSpan((long)(simInput.Timezone * 60 * 60 * 10000000));
             UpdateSimStateView();
-        }
-
-        private void glControl_Mouse(object sender, MouseEventArgs e) {
-            if (e.Button == System.Windows.Forms.MouseButtons.Right) {
-                select = false;
-            }
-        }
-
-        private void glControl_Move(object sender, MouseEventArgs e) {
-            if (select) {
-                var screenArea = new Rectangle(dragStart, new Size(e.Location.X - dragStart.X, e.Location.Y - dragStart.Y));
-                MouseHighlight(screenArea);
-            }
-            glControl.Cursor = MouseProject(e.X, e.Y);
-        }
-
-        private void glControl_MouseDown(object sender, MouseEventArgs e) {
-            if (e.Button == System.Windows.Forms.MouseButtons.Right) {
-                select = true;
-                dragStart = e.Location;
-            }
         }
     }
 }

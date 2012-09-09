@@ -10,3 +10,4 @@ TestResults
 *.swp
 *.suo
 *.user
+meshes/*

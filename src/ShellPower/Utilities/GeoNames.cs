@@ -28,7 +28,7 @@ namespace SSCP.ShellPower {
         }
         public string GetTimezoneName(double lat, double lng) {
             //var tz = GetTimezoneResponse(lat, lng);
-            return "Dummy timezone"; // tz.TimezoneId;
+            return "Northern Territories"; // tz.TimezoneId;
         }
         public DateTime GetSunrise(double lat, double lng) {
             var tz = GetTimezoneResponse(lat, lng);

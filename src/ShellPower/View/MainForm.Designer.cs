@@ -36,8 +36,7 @@
             this.tabPageDesign = new System.Windows.Forms.TabPage();
             this.dataGridViewStrings = new System.Windows.Forms.DataGridView();
             this.tabPageRun = new System.Windows.Forms.TabPage();
-            this.labelArrayEfficiency = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
+            this.labelArrPower = new System.Windows.Forms.Label();
             this.labelArrayPower = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.dataGridViewSimStrings = new System.Windows.Forms.DataGridView();
@@ -66,7 +65,6 @@
             this.labelSimAvgPower = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.glControl = new SSCP.ShellPower.ArrayModelControl();
-            this.openFileDialogXml = new System.Windows.Forms.OpenFileDialog();
             this.openFileDialogModel = new System.Windows.Forms.OpenFileDialog();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -182,9 +180,9 @@
             // 
             // dataGridViewStrings
             // 
-            this.dataGridViewStrings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridViewStrings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridViewStrings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewStrings.Location = new System.Drawing.Point(6, 6);
             this.dataGridViewStrings.Name = "dataGridViewStrings";
@@ -193,8 +191,7 @@
             // 
             // tabPageRun
             // 
-            this.tabPageRun.Controls.Add(this.labelArrayEfficiency);
-            this.tabPageRun.Controls.Add(this.label6);
+            this.tabPageRun.Controls.Add(this.labelArrPower);
             this.tabPageRun.Controls.Add(this.labelArrayPower);
             this.tabPageRun.Controls.Add(this.label5);
             this.tabPageRun.Controls.Add(this.dataGridViewSimStrings);
@@ -208,23 +205,15 @@
             this.tabPageRun.Text = "Run";
             this.tabPageRun.UseVisualStyleBackColor = true;
             // 
-            // labelArrayEfficiency
+            // labelArrPower
             // 
-            this.labelArrayEfficiency.AutoSize = true;
-            this.labelArrayEfficiency.Location = new System.Drawing.Point(191, 471);
-            this.labelArrayEfficiency.Name = "labelArrayEfficiency";
-            this.labelArrayEfficiency.Size = new System.Drawing.Size(0, 13);
-            this.labelArrayEfficiency.TabIndex = 12;
-            // 
-            // label6
-            // 
-            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(130, 369);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(55, 13);
-            this.label6.TabIndex = 11;
-            this.label6.Text = "efficiency:";
+            this.labelArrPower.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.labelArrPower.AutoSize = true;
+            this.labelArrPower.Location = new System.Drawing.Point(81, 369);
+            this.labelArrPower.Name = "labelArrPower";
+            this.labelArrPower.Size = new System.Drawing.Size(10, 13);
+            this.labelArrPower.TabIndex = 12;
+            this.labelArrPower.Text = "-";
             // 
             // labelArrayPower
             // 
@@ -246,9 +235,9 @@
             // 
             // dataGridViewSimStrings
             // 
-            this.dataGridViewSimStrings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridViewSimStrings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridViewSimStrings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewSimStrings.Location = new System.Drawing.Point(6, 324);
             this.dataGridViewSimStrings.Name = "dataGridViewSimStrings";
@@ -257,8 +246,8 @@
             // 
             // groupBoxInstantaneous
             // 
-            this.groupBoxInstantaneous.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBoxInstantaneous.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxInstantaneous.Controls.Add(this.labelCarDirection);
             this.groupBoxInstantaneous.Controls.Add(this.label7);
             this.groupBoxInstantaneous.Controls.Add(this.trackBarCarDirection);
@@ -406,13 +395,13 @@
             this.dateTimePicker.Name = "dateTimePicker";
             this.dateTimePicker.Size = new System.Drawing.Size(182, 20);
             this.dateTimePicker.TabIndex = 0;
-            this.dateTimePicker.Value = new System.DateTime(2011, 10, 25, 0, 0, 0, 0);
+            this.dateTimePicker.Value = new System.DateTime(2011, 10, 24, 23, 0, 0, 0);
             this.dateTimePicker.ValueChanged += new System.EventHandler(this.GuiSimStepInputs);
             // 
             // groupBoxSimulation
             // 
-            this.groupBoxSimulation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBoxSimulation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxSimulation.Controls.Add(this.labelSimTotalEnergy);
             this.groupBoxSimulation.Controls.Add(this.label12);
             this.groupBoxSimulation.Controls.Add(this.labelSimAvgEfficiency);
@@ -515,18 +504,10 @@
             this.glControl.SunInsolation = ((OpenTK.Vector3)(resources.GetObject("glControl.SunInsolation")));
             this.glControl.TabIndex = 0;
             this.glControl.VSync = true;
-            this.glControl.MouseDown += new System.Windows.Forms.MouseEventHandler(this.glControl_MouseDown);
-            this.glControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.glControl_Mouse);
-            this.glControl.MouseMove += new System.Windows.Forms.MouseEventHandler(this.glControl_Move);
-            // 
-            // openFileDialogXml
-            // 
-            this.openFileDialogXml.Filter = "XML Files|*.xml|All files|*.*";
-            this.openFileDialogXml.Title = "Load XML";
             // 
             // openFileDialogModel
             // 
-            this.openFileDialogModel.Filter = "3DXML files|*.3dxml|All files|*.*";
+            this.openFileDialogModel.Filter = "3DXML files|*.3dxml|STL Files (ascii)|*.stl|All files|*.*";
             this.openFileDialogModel.Title = "Load solar car model";
             // 
             // MainForm
@@ -592,9 +573,7 @@
         private System.Windows.Forms.ToolStripMenuItem openSimParamsToolStripMenuItem;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label labelArrayPower;
-        private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label labelArrayEfficiency;
         private System.Windows.Forms.Label labelSimAvgEfficiency;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label labelSimAvgPower;
@@ -608,7 +587,7 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TrackBar trackBarCarDirection;
         private System.Windows.Forms.Label labelCarDirection;
-        private System.Windows.Forms.OpenFileDialog openFileDialogXml;
         private System.Windows.Forms.OpenFileDialog openFileDialogModel;
+        private System.Windows.Forms.Label labelArrPower;
     }
 }

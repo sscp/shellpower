@@ -38,7 +38,6 @@ namespace SSCP.ShellPower {
 
         /* graphics state */
         int list0, nLists;
-        int texture;
         bool loaded = false;
 
         public Vector3 Position {
@@ -57,8 +56,6 @@ namespace SSCP.ShellPower {
 
         public Vector3 AmbientInsolation { get; set; }
 
-        public Vector3? Cursor { get; set; }
-
         public ArrayModelControl()
             : base(new OpenTK.Graphics.GraphicsMode(32, 24, 0, 4)) {
             VSync = true;
@@ -70,7 +67,7 @@ namespace SSCP.ShellPower {
             MouseWheel += new MouseEventHandler(Mouse_WheelChanged);
         }
 
-        void InitGL() {
+        private void InitGL() {
             GL.ClearColor(0f, 0f, 0.1f, 0.0f);
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Lighting);
@@ -84,7 +81,7 @@ namespace SSCP.ShellPower {
             GL.Light(LightName.Light0, LightParameter.Ambient, new OpenTK.Graphics.Color4(0, 0, 0, 255));
             GL.ColorMaterial(MaterialFace.Front, ColorMaterialParameter.Diffuse);
         }
-        void InitTextures() {
+        private void InitTextures() {
             /* textures */
             Bitmap bmp = new Bitmap(600, 400);
             Graphics g = Graphics.FromImage(bmp);
@@ -99,7 +96,7 @@ namespace SSCP.ShellPower {
             //TexUtil.InitTexturing();
             //texture = TexUtil.CreateTextureFromBitmap(bmp);
         }
-        void InitDisplayLists() {
+        private void InitDisplayLists() {
             /* display lists */
             nLists = 1;
             list0 = GL.GenLists(nLists);
@@ -109,7 +106,7 @@ namespace SSCP.ShellPower {
             Sprite.PopTransform();
             GL.EndList();
         }
-        void ResizeGL() {
+        private void ResizeGL() {
             GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
             Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView((float)Math.PI / 6, Width / (float)Height, 1.0f, 640.0f);
             GL.MatrixMode(MatrixMode.Projection);
@@ -160,22 +157,22 @@ namespace SSCP.ShellPower {
             return new Vector3(world) / world.W;
         }
 
-        void Mouse_WheelChanged(object sender, MouseEventArgs e) {
-            double sensitivity = 1 / 300;
-            position = position * (float)Math.Exp(e.Delta / sensitivity);
+        private void Mouse_WheelChanged(object sender, MouseEventArgs e) {
+            double sensitivity = 1.0 / 300.0;
+            position = position * (float)Math.Exp(-e.Delta * sensitivity);
             Refresh();
         }
-        void Mouse_ButtonDown(object sender, MouseEventArgs e) {
+        private void Mouse_ButtonDown(object sender, MouseEventArgs e) {
             lastMouse = e.Location;
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
                 mouseRotate = true;
         }
-        void Mouse_ButtonUp(object sender, MouseEventArgs e) {
+        private void Mouse_ButtonUp(object sender, MouseEventArgs e) {
             lastMouse = e.Location;
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
                 mouseRotate = false;
         }
-        void Mouse_Move(object sender, MouseEventArgs e) {
+        private void Mouse_Move(object sender, MouseEventArgs e) {
             if (mouseRotate) {
                 float sensitivity = 1.0f / 100;
                 var xdelta = e.X - lastMouse.X;
@@ -188,7 +185,7 @@ namespace SSCP.ShellPower {
 
             Refresh();
         }
-        void Game_KeyPress(object sender, KeyEventArgs e) {
+        private void Game_KeyPress(object sender, KeyEventArgs e) {
             float zoomSensitivity = 0.05f;
             float rotateSensitivity = pi / 16;
             if (e.Shift) {
@@ -228,8 +225,7 @@ namespace SSCP.ShellPower {
             if (!this.DesignMode) {
                 InitGL();
                 InitTextures();
-                InitDisplayLists();
-                //InitWaveThreads();
+                //InitDisplayLists();
 
                 ResizeGL();
                 loaded = true;
@@ -260,7 +256,7 @@ namespace SSCP.ShellPower {
                 Render();
         }
 
-        void Render() {
+        private void Render() {
             DateTime startRender = DateTime.Now;
 
             /* gl state */
@@ -273,31 +269,11 @@ namespace SSCP.ShellPower {
             GL.Light(LightName.Light0, LightParameter.Position, new Vector4(SunDirection, 0));
 
             /* render obj display list */
-            Sprite.PushTransform();
-            Sprite.Render();
-            Sprite.PopTransform();/*
-            if (Cursor != null)
-            {
-                GL.Color3(Color.Red);
-                GL.PushMatrix();
-                GL.Translate(Cursor.Value);
-                GL.Begin(BeginMode.Lines);
-                GL.Vertex3(0, 0, 0);
-                GL.Vertex4( 1, 0, 0, 0);
-                GL.Vertex3(0, 0, 0);
-                GL.Vertex4(-1, 0, 0, 0);
-                GL.Vertex3(0, 0, 0);
-                GL.Vertex4( 0, 1, 0, 0);
-                GL.Vertex3(0, 0, 0);
-                GL.Vertex4( 0,-1, 0, 0);
-                GL.Vertex3(0, 0, 0);
-                GL.Vertex4( 0, 0, 1, 0);
-                GL.Vertex3(0, 0, 0);
-                GL.Vertex4( 0, 0,-1, 0);
-                GL.End();
-                GL.PopMatrix();
+            if (Sprite != null) {
+                Sprite.PushTransform();
+                Sprite.Render();
+                Sprite.PopTransform();
             }
-            RenderWaves();*/
             SwapBuffers();
 
             /* render stats */
@@ -496,11 +472,11 @@ namespace SSCP.ShellPower {
         //    GL.End();
         //}
 
-        int nThreads = 1;
-        Semaphore[] sema_start, sema_stop;
-        Thread[] threads;
-        int resolution = 1500;
-        void InitWaveThreads() {
+        private int nThreads = 1;
+        private Semaphore[] sema_start, sema_stop;
+        private Thread[] threads;
+        private int resolution = 1500;
+        private void InitWaveThreads() {
             sema_start = new Semaphore[nThreads];
             sema_stop = new Semaphore[nThreads];
 
@@ -529,7 +505,7 @@ namespace SSCP.ShellPower {
                 threads[thread].Start(thread);
             }
         }
-        void RenderWaves() {
+        private void RenderWaves() {
             GL.Color3(Color.White);
             GL.PointSize(0.01f);
             GL.Begin(BeginMode.Points);
@@ -543,7 +519,7 @@ namespace SSCP.ShellPower {
 
             GL.End();
         }
-        void RenderDonut() {
+        private void RenderDonut() {
 
             float radius0 = 5.0f;
             float radius1 = 2.0f;

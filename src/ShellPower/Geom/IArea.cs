@@ -15,7 +15,7 @@ namespace SSCP.ShellPower {
     /// If a point is in *any* of the include shapes, but *not in any* of the exclude shapes, 
     /// then it is in the compound shape.
     /// </summary>
-    public class CompoundShape2 {
+    public class CompoundShape2 : IArea {
         public List<IArea> include = new List<IArea>();
         public List<IArea> exclude = new List<IArea>();
         public bool Contains(Vector2 vec) {

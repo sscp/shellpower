@@ -68,7 +68,7 @@ namespace SSCP.ShellPower {
         }
 
         public static void Split(Mesh input, IVolume volume, 
-            out Mesh output, out int[] ixTrisInside) {
+            out Mesh output, out bool[] trisInside) {
 
             /**
              *
@@ -102,7 +102,7 @@ namespace SSCP.ShellPower {
             List<Vector3> points = input.points.ToList();
             List<Vector3> norms = input.normals.ToList();
             List<Mesh.Triangle> tris = new List<Mesh.Triangle>();
-            List<int> trisInside = new List<int>();
+            List<bool> trisIn = new List<bool>();
             for(int i = 0; i < nt; i++){
                 var tri = input.triangles[i];
                 Vector3 vA = input.points[tri.vertexA];
@@ -114,9 +114,10 @@ namespace SSCP.ShellPower {
                     (volume.Contains(vC) ? 1 : 0);
                 if (ncontains==3) {
                     tris.Add(tri);
-                    trisInside.Add(tris.Count-1);
+                    trisIn.Add(true);
                 } else if (ncontains==0){
                     tris.Add(tri);
+                    trisIn.Add(false);
                 } else {
                     // see comment above for explanation
                     Debug.Assert(ncontains == 1 || ncontains == 2);
@@ -149,28 +150,31 @@ namespace SSCP.ShellPower {
                     Vector3 nMid1 = input.normals[ixA] * (1 - b1) + input.normals[ixB1] * b1;
                     Vector3 nMid2 = input.normals[ixA] * (1 - b2) + input.normals[ixB2] * b2;
                     Vector3 nMidB = input.normals[ixB1] * 0.5f + input.normals[ixB2] * 0.5f;
+                    nMid1.Normalize(); nMid2.Normalize(); nMidB.Normalize();
                     norms.Add(nMid1); norms.Add(nMid2); norms.Add(nMidB);
-                    tris.Add(new Mesh.Triangle(ixA, points.Count - 3, points.Count - 2));
-                    tris.Add(new Mesh.Triangle(ixB1, points.Count - 3, points.Count - 1));
-                    tris.Add(new Mesh.Triangle(points.Count - 3, points.Count - 2, points.Count - 1));
-                    tris.Add(new Mesh.Triangle(ixB2, points.Count - 2, points.Count - 1));
-                    if (containsA) {
-                        trisInside.Add(tris.Count - 4);
-                    } else {
-                        trisInside.Add(tris.Count - 3);
-                        trisInside.Add(tris.Count - 2);
-                        trisInside.Add(tris.Count - 1);
-                    }
+                    //norms.Add(input.normals[ixA]); norms.Add(input.normals[ixA]); norms.Add(input.normals[ixA]);
+                    var tri1 = new Mesh.Triangle(ixA, points.Count - 3, points.Count - 2);
+                    var tri2 = new Mesh.Triangle(ixB1, points.Count - 3, points.Count - 1);
+                    var tri3 = new Mesh.Triangle(points.Count - 3, points.Count - 2, points.Count - 1);
+                    var tri4 = new Mesh.Triangle(ixB2, points.Count - 2, points.Count - 1);
+                    tri1.normal = tri2.normal = tri3.normal = tri4.normal = tri.normal;
+                    tris.Add(tri1); tris.Add(tri2); tris.Add(tri3); tris.Add(tri4);
+                    trisIn.Add(containsA);
+                    trisIn.Add(!containsA);
+                    trisIn.Add(!containsA);
+                    trisIn.Add(!containsA);
                 }
             }
 
             // done
+            Logger.info("split mesh, started with " + nt + " tris, added " + (tris.Count-nt));
+            Debug.Assert(points.Count==norms.Count);
             output = new Mesh() {
                 points = points.ToArray(),
                 normals = norms.ToArray(),
                 triangles = tris.ToArray()
             };
-            ixTrisInside = trisInside.ToArray();
+            trisInside = trisIn.ToArray();
         }
 
         /// <summary>
