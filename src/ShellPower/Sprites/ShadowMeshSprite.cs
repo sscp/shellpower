@@ -26,7 +26,7 @@ namespace SSCP.ShellPower {
                     color = FaceColors[i];
                 }
                 Vector4 shadowColor = new Vector4(0.8f, 0, 0, 1);
-                int ns = 0;
+                /*int ns = 0;
                 if (shadow.VertShadows[triangle.vertexA]) ns++;
                 if (shadow.VertShadows[triangle.vertexB]) ns++;
                 if (shadow.VertShadows[triangle.vertexC]) ns++;
@@ -34,25 +34,25 @@ namespace SSCP.ShellPower {
                     GL.Color4(shadowColor);
                 } else {
                     GL.Color4(color);
-                }
+                }*/
 
                 //draw triangle
-                //GL.Color4(shadow.VertShadows[triangle.vertexA] ? shadowColor : color);
+                GL.Color4(shadow.VertShadows[triangle.vertexA] ? shadowColor : color);
                 GL.Normal3(Mesh.normals[triangle.vertexA]);
                 GL.Vertex4(new Vector4(Mesh.points[triangle.vertexA], 1));
 
-                //GL.Color4(shadow.VertShadows[triangle.vertexB] ? shadowColor : color);
+                GL.Color4(shadow.VertShadows[triangle.vertexB] ? shadowColor : color);
                 GL.Normal3(Mesh.normals[triangle.vertexB]);
                 GL.Vertex4(new Vector4(Mesh.points[triangle.vertexB], 1));
 
-                //GL.Color4(shadow.VertShadows[triangle.vertexC] ? shadowColor : color);
+                GL.Color4(shadow.VertShadows[triangle.vertexC] ? shadowColor : color);
                 GL.Normal3(Mesh.normals[triangle.vertexC]);
                 GL.Vertex4(new Vector4(Mesh.points[triangle.vertexC], 1));
             }
             GL.End();
 
-            //DebugRenderShadowVolume();
-            //DebugRenderEdges();
+            DebugRenderShadowVolume();
+            DebugRenderEdges();
         }
 
         private void DebugRenderShadowVolume() {

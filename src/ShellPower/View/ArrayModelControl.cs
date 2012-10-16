@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows.Forms;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using System.Drawing.Imaging;
 
 namespace SSCP.ShellPower {
     class ArrayModelControl : GLControl {
@@ -40,6 +41,15 @@ namespace SSCP.ShellPower {
         int list0, nLists;
         bool loaded = false;
 
+        /* HACK: opengl for computation */
+        int shaderVert, shaderFrag, shaderProg;
+        int uniformPixelArea, uniformSolarCells;
+        int texArray;
+
+        int shaderFragWatts, shaderProgWatts;
+        int texWatts, texCells, texWattsWidth, texWattsHeight;
+        int fboWatts;
+
         public Vector3 Position {
             get {
                 Matrix4 rot = rotation;
@@ -68,7 +78,6 @@ namespace SSCP.ShellPower {
         }
 
         private void InitGL() {
-            GL.ClearColor(0f, 0f, 0.1f, 0.0f);
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Lighting);
             GL.Enable(EnableCap.Light0);
@@ -81,21 +90,130 @@ namespace SSCP.ShellPower {
             GL.Light(LightName.Light0, LightParameter.Ambient, new OpenTK.Graphics.Color4(0, 0, 0, 255));
             GL.ColorMaterial(MaterialFace.Front, ColorMaterialParameter.Diffuse);
         }
-        private void InitTextures() {
-            /* textures */
-            Bitmap bmp = new Bitmap(600, 400);
-            Graphics g = Graphics.FromImage(bmp);
-            g.DrawString("hello world", new Font("Verdana", 20f), Brushes.Black, 20f, 20f);
 
-            //texture = GL.GenTexture();
-            //GL.BindTexture(TextureTarget.Texture2D, texture);
-            //GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, (float)TextureEnvMode.Modulate);
-            //BitmapData data = bmp.LockBits(new Rectangle(0, 0, 600, 400), ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            //GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, 600, 400, 0, OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.Bitmap, data.Scan0);
-            //bmp.UnlockBits(data);
-            //TexUtil.InitTexturing();
-            //texture = TexUtil.CreateTextureFromBitmap(bmp);
+        /// <summary>
+        /// Shaders to compute array properties
+        /// </summary>
+        private void InitGLArrayComputeShaders() {
+            Debug.WriteLine("compiling shaders");
+            shaderFrag = GL.CreateShader(ShaderType.FragmentShader);
+            shaderVert = GL.CreateShader(ShaderType.VertexShader);
+            GL.ShaderSource(shaderVert, @"
+varying float cosRule;
+void main()
+{
+    vec4 mv = gl_ModelViewMatrix * gl_Vertex;
+    gl_Position = gl_ProjectionMatrix * mv;
+    vec3 normal = gl_NormalMatrix * gl_Normal;
+    cosRule = dot(normal, vec3(0,0,1));
+    // depth = length(mv.xyz) / mv.w;
+
+    gl_TexCoord[0] = vec4(-gl_Vertex.x / 4.0 + 0.5, gl_Vertex.z / 4.0 + 0.5, 0,0);
+}");
+            GL.ShaderSource(shaderFrag, @"
+out vec4 fragColor; 
+
+uniform float pixelArea;
+varying float cosRule;
+uniform sampler2D solarCells;
+
+void main()
+{
+    vec4 solarCell = texture2D(solarCells, gl_TexCoord[0].xy);
+    float watts = pixelArea * cosRule;
+    fragColor = vec4(solarCell.xyz, 1.0);
+    //gl_FragData[0] = vec4(solarCell.xyz, 1.0);
+    // gl_FragData[1] = vec4(watts, 0, 0, 1.0);
+}");
+
+            GL.CompileShader(shaderVert);
+            Debug.WriteLine("info (vert shader): " + GL.GetShaderInfoLog(shaderVert));
+            GL.CompileShader(shaderFrag);
+            Debug.WriteLine("info (frag shader): " + GL.GetShaderInfoLog(shaderFrag));
+            shaderProg = GL.CreateProgram();
+            GL.AttachShader(shaderProg, shaderVert);
+            GL.AttachShader(shaderProg, shaderFrag);
+            GL.LinkProgram(shaderProg);
+            GL.UseProgram(shaderProg);
+            Debug.WriteLine("shader attached.");
+
+            uniformPixelArea = GL.GetUniformLocation(shaderProg, "pixelArea");
+            GL.Uniform1(uniformPixelArea, 1.0f);
+            uniformSolarCells = GL.GetUniformLocation(shaderProg, "solarCells");
+            GL.Uniform1(uniformSolarCells, (float)TextureUnit.Texture0);
+            Debug.WriteLine("uniforms set.");
         }
+
+        /// <summary>
+        /// Loads the solar array as a texture.
+        /// 
+        /// Assumes a top-down projection, ie the texture UVs are the
+        /// vertex X and Z coords with a scale factor and an offset.
+        /// </summary>
+        private void InitGLArrayTextures() {
+            String fnameTex = "../../../../arrays/texture.png";
+            Debug.WriteLine("loading texture " + fnameTex);
+            Bitmap bmpTex = new Bitmap(fnameTex);
+            BitmapData bmpDataTex = bmpTex.LockBits(
+                new Rectangle(0, 0, bmpTex.Width, bmpTex.Height),
+                ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            Debug.WriteLine("loaded " + bmpTex.Width + "x" + bmpTex.Height + " tex, binding");
+            texArray = GL.GenTexture();
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, texArray);
+            /*GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, 
+                (float)TextureEnvMode.Modulate);*/
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
+                (float)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
+                (float)TextureMinFilter.Nearest);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
+                bmpTex.Width, bmpTex.Height, 0,
+                OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte,
+                bmpDataTex.Scan0);
+            bmpTex.UnlockBits(bmpDataTex);
+
+            Debug.WriteLine("textures ready.");
+        }
+
+        private void InitGLComputeBuffer() {
+            texWattsWidth = texWattsHeight = 2048;
+
+            // one buffer for insolation in W...
+            texWatts = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, texWatts);
+            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Clamp);
+            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Clamp);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, 
+                texWattsWidth, texWattsHeight, 0, 
+                OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+
+            // another that uses color to ID each cell, string, and panel
+            // NB: you must use PixelInternalFormat.Rgb8 or Rgba8, 
+            // PixelFormat.Rgb crashes with a cryptic error
+            texCells = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, texCells);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb8,
+                texWattsWidth, texWattsHeight, 0,
+                OpenTK.Graphics.OpenGL.PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+
+            // depth buffer
+            //int depthBufWatts;
+            //GL.Ext.GenRenderbuffers(1, out depthBufWatts);
+            //GL.Ext.BindRenderbuffer(RenderbufferTarget.RenderbufferExt, depthBufWatts);
+
+            //fbo
+            GL.Ext.GenFramebuffers(1, out fboWatts);
+            GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, fboWatts);
+            GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext, TextureTarget.Texture2D, texCells, 0);
+            //GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment1Ext, TextureTarget.Texture2D, texWatts, 0);
+            //GL.Ext.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachmentExt, RenderbufferTarget.RenderbufferExt, depthBufWatts);
+            GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0); // return to visible framebuffer
+        }
+
         private void InitDisplayLists() {
             /* display lists */
             nLists = 1;
@@ -106,11 +224,9 @@ namespace SSCP.ShellPower {
             Sprite.PopTransform();
             GL.EndList();
         }
-        private void ResizeGL() {
+
+        private void SetViewport() {
             GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
-            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView((float)Math.PI / 6, Width / (float)Height, 1.0f, 640.0f);
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadMatrix(ref projection);
         }
 
         /// <summary>
@@ -224,11 +340,13 @@ namespace SSCP.ShellPower {
 
             if (!this.DesignMode) {
                 InitGL();
-                InitTextures();
+                InitGLArrayComputeShaders();
+                InitGLArrayTextures();
+                InitGLComputeBuffer();
                 //InitDisplayLists();
-
-                ResizeGL();
                 loaded = true;
+
+                ComputeRender();
             }
         }
 
@@ -240,9 +358,9 @@ namespace SSCP.ShellPower {
         /// <param name="e">Not used.</param>
         protected override void OnResize(EventArgs e) {
             base.OnResize(e);
-
-            if (loaded)
-                ResizeGL();
+            /*if (loaded) {
+                SetViewport();
+            }*/
         }
 
         /// <summary>
@@ -251,22 +369,99 @@ namespace SSCP.ShellPower {
         /// <param name="e">Contains timing information.</param>
         protected override void OnPaint(PaintEventArgs e) {
             base.OnPaint(e);
-
-            if (loaded)
+            if (loaded) {
                 Render();
+            }
         }
 
-        private void Render() {
-            DateTime startRender = DateTime.Now;
-
-            /* gl state */
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        private void SetModelView() {
             Matrix4 modelview = Matrix4.LookAt(position, position + direction, Vector3.UnitY);
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
             GL.LoadMatrix(ref modelview);
             GL.MultMatrix(ref rotation);
             GL.Light(LightName.Light0, LightParameter.Position, new Vector4(SunDirection, 0));
+        }
+
+        private void SetCameraProjection(int w, int h) {
+            // perspective projection
+            //Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView((float)Math.PI / 6, Width / (float)Height, 1.0f, 640.0f);
+
+            // orthographic projection
+            float minWidth = 6f, minHeight = 4f; //meters
+            float scale = Math.Max(minWidth / w, minHeight / h);
+            float volWidth = scale*w, volHeight = scale*h;
+            float zNear = 0.1f, zFar = 100.0f;
+            Matrix4 projection = Matrix4.CreateOrthographic(volWidth, volHeight, zNear, zFar);
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadMatrix(ref projection);
+        }
+
+        private void ComputeRender() {
+            Debug.WriteLine("rendering insolation+cells into a " 
+                + texWattsWidth + "x" + texWattsWidth + " fbo");
+
+            /* gl state */
+            GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, fboWatts);
+            /*GL.DrawBuffers(2, new DrawBuffersEnum[]{
+                (DrawBuffersEnum)FramebufferAttachment.ColorAttachment0Ext,
+                (DrawBuffersEnum)FramebufferAttachment.ColorAttachment1Ext});*/
+            GL.DrawBuffer((DrawBufferMode)FramebufferAttachment.ColorAttachment0Ext);
+            GL.PushAttrib(AttribMask.ViewportBit); // stores GL.Viewport() parameters
+
+            GL.BindTexture(TextureTarget.Texture2D, texArray);
+            GL.Viewport(0, 0, texWattsWidth, texWattsHeight);
+            GL.ClearColor(Color.White);
+            GL.Clear(ClearBufferMask.ColorBufferBit); // | ClearBufferMask.DepthBufferBit);
+
+            SetModelView();
+            SetCameraProjection(texWattsWidth, texWattsHeight);
+
+            /* render obj display list */
+            Debug.WriteLine("wtf4");
+            if (Sprite != null) {
+                Sprite.PushTransform();
+                Sprite.Render();
+                Sprite.PopTransform();
+            }
+            Debug.WriteLine("wtf5");
+            DebugSaveBuffer();
+
+            //render
+            GL.PopAttrib();
+            // write to back buffer as normal
+            GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0);
+            GL.DrawBuffer(DrawBufferMode.Back);
+        }
+
+        private void DebugSaveBuffer() {
+            Debug.WriteLine("saving the ext buffer");
+            Bitmap bmp = new Bitmap(texWattsWidth, texWattsHeight, 
+                System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            BitmapData bmpData = bmp.LockBits(
+                new Rectangle(0, 0, texWattsWidth, texWattsHeight),
+                ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            GL.ReadBuffer((ReadBufferMode)FramebufferAttachment.ColorAttachment0Ext);
+            GL.ReadPixels(0, 0, texWattsWidth, texWattsHeight, 
+                OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, bmpData.Scan0);
+            bmp.UnlockBits(bmpData);
+
+            String fname = "../../../../test.png";
+            Debug.WriteLine("writing " + fname);
+            bmp.Save(fname);
+        }
+
+        private void Render() {
+            DateTime startRender = DateTime.Now;
+
+            /* gl state */
+            GL.BindTexture(TextureTarget.Texture2D, texArray);
+            SetViewport();
+            GL.ClearColor(0f, 0f, 0.1f, 0.0f);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            SetModelView();
+            SetCameraProjection(Width, Height);
 
             /* render obj display list */
             if (Sprite != null) {
@@ -285,441 +480,5 @@ namespace SSCP.ShellPower {
                 Debug.WriteLine(string.Format("{0:0.00} fps", 1.0 / emaDelay));
             }
         }
-
-        //void RenderControlPointss()
-        //{
-        //    GL.Color3(Color.White);
-        //    GL.Begin(BeginMode.Points);
-        //    foreach (var nurb in nurbs)
-        //        foreach (var point in nurb.ControlPoints)
-        //            GL.Vertex3(point);
-        //    GL.End();
-        //}
-        //void RenderNurbsWithEvaluators()
-        //{
-        //    GL.Enable(EnableCap.Map2Vertex3);
-
-        //    foreach (var nurb in nurbs)
-        //    {
-        //        int un = 4, vn = 4;
-        //        GL.MapGrid2(
-        //            un * 3, 0, 1,
-        //            vn * 3, 0, 1);
-        //        float[] controlPoints = new float[un * vn * 3];
-        //        for (int i = 0; i < un; i++)
-        //        {
-        //            for (int j = 0; j < vn; j++)
-        //            {
-        //                controlPoints[3 * (i * vn + j)] = (float)nurb.ControlPoints[i, j].X - (float)nurb.ControlPoints[0, 0].X;
-        //                controlPoints[3 * (i * vn + j) + 1] = (float)nurb.ControlPoints[i, j].Y - (float)nurb.ControlPoints[0, 0].Y;
-        //                controlPoints[3 * (i * vn + j) + 2] = (float)nurb.ControlPoints[i, j].Z - (float)nurb.ControlPoints[0, 0].Z;
-        //            }
-        //        }
-        //        float[] uknots = new float[un + nurb.UDegree];
-        //        for (int i = 0; i < uknots.Length; i++)
-        //            uknots[i] = (float)nurb.UKnots[i + 1] / (float)nurb.UKnots[un + nurb.UDegree];
-        //        float[] vknots = new float[vn + nurb.VDegree];
-        //        for (int i = 0; i < vknots.Length; i++)
-        //            vknots[i] = (float)nurb.VKnots[i + 1] / (float)nurb.VKnots[vn + nurb.VDegree];
-        //        OpenTK.Graphics.Glu.NurbsSurface(
-        //            OpenTK.Graphics.Glu.NewNurbsRenderer(),
-        //            uknots.Length,
-        //            uknots,
-        //            vknots.Length,
-        //            vknots,
-        //            3, 3 * un,
-        //            controlPoints,
-        //            nurb.UDegree,
-        //            nurb.VDegree,
-        //            OpenTK.Graphics.MapTarget.Map2Vertex3);
-        //        GL.EvalMesh2(MeshMode2.Line, 0, nurb.UControlPoints * 3, 0, nurb.VControlPoints * 3);
-        //    }
-
-
-        //    //float[] corners = new float[4 * 4 * 3]
-        //    //{
-        //    //    -1.5f, -1.5f, 4.0f,
-        //    //    -0.5f, -1.5f, 2.0f,
-        //    //    0.5f, -1.5f, -1.0f,
-        //    //    1.5f, -1.5f, 2.0f,
-
-        //    //    -1.5f, -0.5f, 1.0f,
-        //    //    -0.5f, -0.5f, 3.0f,
-        //    //    0.5f, -0.5f, 0.0f,
-        //    //    1.5f, -0.5f, -1.0f,
-
-        //    //    -1.5f, 0.5f, 4.0f,
-        //    //    -0.5f, 0.5f, 0.0f,
-        //    //    0.5f, 0.5f, 3.0f,
-        //    //    1.5f, 0.5f, 4.0f,
-
-        //    //    -1.5f, 1.5f, -2.0f,
-        //    //    -0.5f, 1.5f, -2.0f,
-        //    //    0.5f, 1.5f, 0.0f,
-        //    //    1.5f, 1.5f, -1.0f
-        //    //};
-        //    //OpenTK.Graphics.Glu.NurbsSurface(
-        //    //    OpenTK.Graphics.Glu.NewNurbsRenderer(),
-        //    //    7,
-        //    //    new float[] { 0, 0, .2f, .4f, .6f, .8f, 1 },
-        //    //    7,
-        //    //    new float[] { 0, 0, .2f, .4f, .6f, .8f, 1 },
-        //    //    12, 3,
-        //    //    corners,
-        //    //    3,
-        //    //    3,
-        //    //    OpenTK.Graphics.MapTarget.Map2Vertex3);
-
-        //    //unsafe
-        //    //{
-        //    //    fixed (double* ctrlPoint = &nurb.ControlPoints[0, 0].X)
-        //    //    {
-        //    //        GL.Map2(MapTarget.Map2Vertex3,
-        //    //            0, 1, 3, 4,
-        //    //            0, 1, 12, 4,
-        //    //            corners);
-
-        //    //        GL.Map2(MapTarget.Map2Vertex3,
-        //    //            0, 1, 3, nurb.VControlPoints,
-        //    //            0, 1, 3 * nurb.VControlPoints, nurb.UControlPoints,
-        //    //            ctrlPoint);
-        //    //    }
-        //    //}
-        //}
-        //void RenderTestCube()
-        //{
-        //    GL.Begin(BeginMode.TriangleStrip);
-        //    GL.Color3(.5f, .5f, 0f);
-        //    GL.Normal3(0, 1, 0);
-        //    GL.Vertex3(0, 0, 0);
-        //    GL.Color3(.5f, .5f, 0f);
-        //    GL.Normal3(0, 1, 0);
-        //    GL.Vertex3(3, 0, 0);
-        //    GL.Color3(.5f, .5f, 0f);
-        //    GL.Normal3(0, 1, 0);
-        //    GL.Vertex3(0, 0, 3);
-        //    GL.End();
-
-        //    //GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Specular, Color4.White);
-        //    //GL.Material(MaterialFace.FrontAndBack, MaterialParameter.Emission, Color4.Black);
-
-        //    //GL.BindTexture(TextureTarget.Texture2D, texture);
-        //    //GL.Color3(Color.Red);
-        //    //GL.TexCoord2(1, 1);
-        //    //GL.Normal3(1, 0, 0);
-        //    //GL.Vertex3(1, 1, 1);
-        //    //GL.TexCoord2(1, 400);
-        //    //GL.Normal3(1, 0, 0);
-        //    //GL.Vertex3(1, 1, -1);
-        //    //GL.TexCoord2(400, 400);
-        //    //GL.Normal3(1, 0, 0);
-        //    //GL.Vertex3(1, -1, -1);
-        //    //GL.TexCoord2(400, 1);
-        //    //GL.Normal3(1, 0, 0);
-        //    //GL.Vertex3(1, -1, 1);
-
-        //    GL.Begin(BeginMode.Quads);
-        //    GL.Color3(Color.Green);
-        //    GL.Normal3(-1, 0, 0);
-        //    GL.Vertex3(-1, -1, -1);
-        //    GL.Normal3(-1, 0, 0);
-        //    GL.Vertex3(-1, 1, -1);
-        //    GL.Normal3(-1, 0, 0);
-        //    GL.Vertex3(-1, 1, 1);
-        //    GL.Normal3(-1, 0, 0);
-        //    GL.Vertex3(-1, -1, 1);
-
-        //    GL.Color3(Color.Yellow);
-        //    GL.Normal3(0, 1, 0);
-        //    GL.Vertex3(1, 1, 1);
-        //    GL.Normal3(0, 1, 0);
-        //    GL.Vertex3(-1, 1, 1);
-        //    GL.Normal3(0, 1, 0);
-        //    GL.Vertex3(-1, 1, -1);
-        //    GL.Normal3(0, 1, 0);
-        //    GL.Vertex3(1, 1, -1);
-
-        //    GL.Color3(Color.Cyan);
-        //    GL.Normal3(0, -1, 0);
-        //    GL.Vertex3(-1, -1, -1);
-        //    GL.Normal3(0, -1, 0);
-        //    GL.Vertex3(1, -1, -1);
-        //    GL.Normal3(0, -1, 0);
-        //    GL.Vertex3(1, -1, 1);
-        //    GL.Normal3(0, -1, 0);
-        //    GL.Vertex3(-1, -1, 1);
-
-        //    GL.Color3(Color.Magenta);
-        //    GL.Normal3(0, 0, 1);
-        //    GL.Vertex3(1, 1, 1);
-        //    GL.Normal3(0, 0, 1);
-        //    GL.Vertex3(1, -1, 1);
-        //    GL.Normal3(0, 0, 1);
-        //    GL.Vertex3(-1, -1, 1);
-        //    GL.Normal3(0, 0, 1);
-        //    GL.Vertex3(-1, 1, 1);
-
-        //    GL.Color3(Color.Blue);
-        //    GL.Normal3(0, 0, -1);
-        //    GL.Vertex3(-1, -1, -1);
-        //    GL.Normal3(0, 0, -1);
-        //    GL.Vertex3(-1, 1, -1);
-        //    GL.Normal3(0, 0, -1);
-        //    GL.Vertex3(1, 1, -1);
-        //    GL.Normal3(0, 0, -1);
-        //    GL.Vertex3(1, -1, -1);
-
-        //    GL.End();
-        //}
-
-        private int nThreads = 1;
-        private Semaphore[] sema_start, sema_stop;
-        private Thread[] threads;
-        private int resolution = 1500;
-        private void InitWaveThreads() {
-            sema_start = new Semaphore[nThreads];
-            sema_stop = new Semaphore[nThreads];
-
-            for (int thread = 0; thread < nThreads; thread++) {
-                sema_start[thread] = new Semaphore(0, nThreads);
-                sema_stop[thread] = new Semaphore(0, nThreads);
-
-                threads[thread] = new Thread(new ParameterizedThreadStart((Object obj) => {
-                    int t = (int)obj;
-                    while (true) {
-                        sema_start[t].WaitOne();
-                        int i_min = (2 * resolution / nThreads) * t;
-                        int i_max = (2 * resolution / nThreads) * (t + 1);
-                        for (int i = i_min; i < i_max; i++) {
-                            for (int j = -resolution; j <= resolution; j++) {
-                                float x = (float)i / resolution;
-                                float y = (float)j / resolution;
-                                float r = sqrt(x * x + y * y) * 12; //disance from origin in x/y plane
-                                float z = sin(r) * (20 - r) / 50;
-                                GL.Vertex3(x, y, z);
-                            }
-                        }
-                        sema_stop[t].Release();
-                    }
-                }));
-                threads[thread].Start(thread);
-            }
-        }
-        private void RenderWaves() {
-            GL.Color3(Color.White);
-            GL.PointSize(0.01f);
-            GL.Begin(BeginMode.Points);
-
-            for (int thread = 0; thread < nThreads; thread++) {
-                sema_start[thread].Release();
-            }
-            for (int thread = 0; thread < nThreads; thread++) {
-                sema_stop[thread].WaitOne();
-            }
-
-            GL.End();
-        }
-        private void RenderDonut() {
-
-            float radius0 = 5.0f;
-            float radius1 = 2.0f;
-            float warble = radius1 / 5f;
-
-            int sectors0 = 100;
-            int sectors1 = 40;
-            float twoPi = 2.0f * (float)Math.PI;
-            for (int i = 0; i < sectors0; i++) {
-                float theta0 = i * twoPi / sectors0;
-                float theta0Prime = (i + 1) * twoPi / sectors0;
-                GL.Begin(BeginMode.TriangleStrip);
-
-                for (int j = 0; j < sectors1; j++) {
-                    float theta1 = j * twoPi / (sectors1 - 1);
-                    double r = radius0 + radius1 * Math.Cos(theta1) + warble * Math.Sin(10 * theta0 + theta1);
-                    double rPrime = radius0 + radius1 * Math.Cos(theta1) + warble * Math.Sin(10 * theta0Prime + theta1);
-
-                    GL.Color3(.5f + .5f * Math.Cos(theta1), .5f + .5f * Math.Sin(theta1) * Math.Cos(theta0), .5f + .5f * Math.Sin(theta0));
-                    //GL.Color3(.5, .5, .5);
-                    GL.Normal3(Math.Cos(theta0) * Math.Cos(theta1), Math.Sin(theta1), Math.Sin(theta0) * Math.Cos(theta1));
-                    GL.Vertex3(r * Math.Cos(theta0), radius1 * Math.Sin(theta1), r * Math.Sin(theta0));
-                    GL.Color3(.5f + .5f * Math.Cos(theta1), .5f + .5f * Math.Sin(theta1) * Math.Cos(theta0Prime), .5f + .5f * Math.Sin(theta0Prime));
-                    //GL.Color3(.5, .5, .5);
-                    GL.Normal3(Math.Cos(theta0Prime) * Math.Cos(theta1), Math.Sin(theta1), Math.Sin(theta0Prime) * Math.Cos(theta1));
-                    GL.Vertex3(rPrime * Math.Cos(theta0Prime), radius1 * Math.Sin(theta1), rPrime * Math.Sin(theta0Prime));
-
-                }
-                GL.End();
-            }
-        }
-        //void RenderTorus(float radius0, float radius1, Vector3 center, Vector3 axis, Vector3 normAxis)
-        //{
-        //    int sectors0 = 100;
-        //    int sectors1 = 10;
-
-        //    /* get arbitrary perpendicular in a num stable way */
-        //    Vector3 major = new Vector3[]{
-        //        Vector3.Cross(Vector3.UnitX, axis),
-        //        Vector3.Cross(Vector3.UnitY, axis),
-        //        Vector3.Cross(Vector3.UnitZ, axis)
-        //    }.ArgMin(v => -v.LengthSquared);
-        //    Vector3 minor = Vector3.Cross(axis, major);
-        //    major.Normalize();
-        //    minor.Normalize();
-        //    axis.Normalize();
-
-        //    for (int i = 0; i < sectors0; i++)
-        //    {
-        //        float theta0 = i * 2 *pi / sectors0;
-        //        float theta0Prime = (i + 1) * 2*pi / sectors0;
-        //        GL.Begin(BeginMode.TriangleStrip);
-
-        //        for (int j = 0; j < sectors1; j++)
-        //        {
-        //            float theta1 = j * 2*pi / (sectors1 - 1);
-        //            float r = radius0 + radius1 * cos(theta1);
-
-        //            //GL.Color3(.5f, .5f, .5f);
-        //            GL.Color3(.5f + .5f * cos(theta1), .5f + .5f * sin(theta1) * cos(theta0), .5f + .5f * sin(theta0));
-        //            GL.Normal3(
-        //                major * cos(theta0) * cos(theta1)
-        //                + minor * sin(theta0) * cos(theta1)
-        //                + normAxis * sin(theta1));
-        //                //+ normalOffset);
-        //            GL.Vertex3(
-        //                major * cos(theta0) * r
-        //                + minor * sin(theta0) * r
-        //                + axis * sin(theta1) * radius1
-        //                + center);
-        //            GL.Color3(.5f + .5f * cos(theta1), .5f + .5f * sin(theta1) * cos(theta0Prime), .5f + .5f * sin(theta0Prime));
-        //            GL.Normal3(
-        //                major * cos(theta0Prime) * cos(theta1)
-        //                + minor * sin(theta0Prime) * cos(theta1)
-        //                + normAxis * sin(theta1));
-        //                //+ normalOffset);
-        //            GL.Vertex3(
-        //                major * cos(theta0Prime) * r
-        //                + minor * sin(theta0Prime) * r
-        //                + axis * sin(theta1) * radius1
-        //                + center);
-
-        //        }
-        //        GL.End();
-        //    }
-        //}
-        //void PenroseHelper(float t, float radius, out float theta, out Vector3 offset)
-        //{
-        //    float sideLength = 10f;
-        //    float[] cutoffs = new float[3 * 2 + 1];
-        //    float cutoff = 0f;
-        //    cutoffs[0] = cutoff;
-        //    for (int i = 1; i < cutoffs.Length; )
-        //    {
-        //        cutoff += (2 * (float)Math.PI / 3) * radius;
-        //        cutoffs[i++] = cutoff;
-        //        cutoff += sideLength;
-        //        cutoffs[i++] = cutoff;
-        //    }
-
-        //    t *= cutoffs[cutoffs.Length - 1];
-        //    theta = 0f;
-        //    offset = new Vector3(
-        //        (float)Math.Sqrt(5) / 6,
-        //        0,
-        //        .5f) * sideLength;
-        //    for (int j = 0; j < cutoffs.Length - 1 && cutoffs[j] < t; j++)
-        //    {
-        //        float delta = Math.Min(t - cutoffs[j], cutoffs[j + 1] - cutoffs[j]);
-        //        if (j % 2 == 0)
-        //        {
-        //            Debug.WriteLine("adding " + delta);
-        //            theta += delta / radius;
-        //        }
-        //        else
-        //        {
-        //            offset += new Vector3((float)Math.Cos(theta+pi/2), 0, (float)Math.Sin(theta+pi/2)) * delta;
-        //        }
-        //    }
-        //}
-        //void RenderSlinky()
-        //{
-        //    float radius0 = 4,
-        //        radius1 = 2,
-        //        radius2 = 0.2f;
-
-        //    int straightSteps = 20, turnSteps = 15;
-        //    float twoPi = 2.0f * (float)Math.PI;
-        //    Vector3 axis = new Vector3(1, 0, 0);
-        //    Vector3 normAxis = new Vector3(1, 0, 0);
-        //    float spacing = .7f;
-        //    Vector3 center = new Vector3(
-        //        (float)Math.Sqrt(5) / 6,
-        //        0,
-        //        .5f) * straightSteps * spacing;
-
-        //    Vector3 up = new Vector3(0, 1, 0);
-        //    Matrix3 turnLeft = Matrix3.Slice(Matrix4.CreateFromAxisAngle(up, twoPi / 3f / turnSteps));
-
-        //    for (int j = 0; j < 3; j++)
-        //    {
-        //        for (int i = 0; i < turnSteps; i++)
-        //        {
-        //            RenderTorus(radius1, radius2, center, axis, normAxis);
-        //            center += axis * spacing;
-        //            Matrix3 twistleft = Matrix3.Slice(Matrix4.CreateFromAxisAngle(Vector3.Cross(normAxis, up), twoPi / 4f / turnSteps));
-        //            axis = turnLeft * axis;
-        //            normAxis = turnLeft * normAxis;
-        //        }
-        //        for (int i = 0; i < straightSteps; i++)
-        //        {
-        //            RenderTorus(radius1, radius2, center, axis, normAxis);
-        //            center += axis * spacing;
-        //        }
-        //    }
-
-        //    //for (int i = 0; i < steps; i++)
-        //    //{
-
-
-        //    //    float t = (float)i / sectors0;
-        //    //    float tPrime = (float)(i + 1) / sectors0;
-        //    //    float theta0, theta0Prime;
-        //    //    Vector3 offset, offsetPrime;
-        //    //    PenroseHelper(t, radius0, out theta0, out offset);
-        //    //    PenroseHelper(tPrime, out theta0Prime, out offsetPrime);
-
-        //    //    RenderTorus(
-        //    //        radius1,
-        //    //        radius2,
-        //    //        offset + radius0 * new Vector3(cos(theta0), 0, sin(theta0)),
-        //    //        new Vector3(cos(theta0 + pi / 2), 0, sin(theta0 + pi / 2)),
-        //    //        new Vector3(cos(theta0 + pi / 2), 0, sin(theta0 + pi / 2))
-        //    //        );
-        //    //    for (int j = 0; j < sectors1; j++)
-        //    //    {
-        //    //        float theta1 = j * twoPi / (sectors1 - 1);
-        //    //        float r = length + radius * (float)Math.Cos(theta1);
-        //    //        float rPrime = length + radius * (float)Math.Cos(theta1);
-
-        //    //        var n = new Vector3d(Math.Cos(theta0) * Math.Cos(theta1), Math.Sin(theta1), Math.Sin(theta0) * Math.Cos(theta1));
-        //    //        n += new Vector3d(Math.Cos(theta0 + pi / 2), 0, Math.Sin(theta0 + pi / 2)) * .5;
-        //    //        n.Normalize();
-
-
-        //    //        GL.Begin(BeginMode.TriangleStrip);
-        //    //        for (int k = 0; k < sectors2; k++)
-        //    //        {
-        //    //            float theta2 = k * 2 * pi / (sectors2 - 1);
-
-        //    //            GL.Normal3(n);
-        //    //            GL.Vertex3(
-        //    //                new Vector3(r * (float)Math.Cos(theta0), radius * (float)Math.Sin(theta1), r * (float)Math.Sin(theta0))
-        //    //                + offset);
-        //    //            GL.Color3(.5f, .5f, .5f);
-        //    //        }
-        //    //        GL.End();
-
-        //    //    }
-        //    //}
-        //}
-    }
+     }
 }
