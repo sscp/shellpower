@@ -77,22 +77,26 @@ namespace SSCP.ShellPower {
                         }
                     }*/
                     for (int i = 0; i < vertIxs.Length; i += 3) {
-                        triangles.Add(new Mesh.Triangle() {
+                        var tri = new Mesh.Triangle() {
                             vertexA = offset + vertIxs[i],
                             vertexB = offset + vertIxs[i + 1],
                             vertexC = offset + vertIxs[i + 2]
-                        });
+                        };
+                        tri.normal = newNormals[vertIxs[i]];
+                        triangles.Add(tri);
                     }
                 } else if (faceAttrs["strips"] != null) {
                     String[] strips = faceAttrs["strips"].Value.Split(',');
                     foreach (String strip in strips) {
                         int[] vertIxs = Parse3DXMLInts(strip);
                         for (int i = 2; i < vertIxs.Length; i++) {
-                            triangles.Add(new Mesh.Triangle() {
+                            var tri = new Mesh.Triangle() {
                                 vertexA = offset + vertIxs[i - ((i % 2) == 0 ? 1 : 2)],
                                 vertexB = offset + vertIxs[i - ((i % 2) == 0 ? 2 : 1)],
                                 vertexC = offset + vertIxs[i]
-                            });
+                            };
+                            tri.normal = newNormals[vertIxs[i]];
+                            triangles.Add(tri);
                         }
                     }
                 } else {

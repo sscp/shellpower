@@ -9,15 +9,7 @@ namespace SSCP.ShellPower {
     public class Shadow {
         private class Edge {
             public List<int> triangles = new List<int>();
-            public Vector3 normalA, normalB;
             public int pointA, pointB;
-            public void addNormal(Vector3 normal) {
-                if (normalA == Vector3.Zero) {
-                    normalA = normal;
-                } else {
-                    normalB = normal;
-                }
-            }
         }
 
         public Vector4 Light { get; set; }
@@ -67,21 +59,31 @@ namespace SSCP.ShellPower {
             //DeleteLoneEdges(edgeMap.Values);
             edges = edgeMap.Values.ToList();
 
-            /* compute normals */
-            int numRegular = 0;
+            /* compute normals 
             foreach (var edge in edges) {
                 foreach (var triIx in edge.triangles) {
                     var triangle = Mesh.triangles[triIx];
-                    /*var normal = Vector3.Cross(
+                    var normal = Vector3.Cross(
                         Mesh.points[triangle.vertexB] - Mesh.points[triangle.vertexA], 
                         Mesh.points[triangle.vertexC] - Mesh.points[triangle.vertexA]);
                     if (normal.Y < 0) {
                         normal = -normal;
-                    }*/
-                    edge.addNormal(triangle.normal);
-                    if (edge.normalB.LengthSquared != 0) {
-                        numRegular++;
                     }
+                    normal.Normalize();
+                    if ((normal - triangle.normal).LengthSquared > 1e-4) {
+                        Logger.warn("wtf: {0} vs {1}", normal, triangle.normal);
+                    }
+                    edge.addNormal(normal);
+                }
+            }*/
+
+            /* sanity check--output # of regular edges (w/ 2 adj triangles) */
+            int numRegular = 0;
+            foreach (var edge in edges) {
+                if (edge.triangles.Count == 2) {
+                    numRegular++;
+                } else if (edge.triangles.Count > 2) {
+                    throw new Exception("wtf");
                 }
             }
             Logger.info("calculated {0} edges ({1} regular) in {2:0.0}ms", 
@@ -166,9 +168,16 @@ namespace SSCP.ShellPower {
             SilhouetteEdges.Clear();
             foreach (var edge in edges
                 .Where((edge) => {
+                    if (edge.triangles.Count < 2) {
+                        return false;
+                    } else if (edge.triangles.Count > 2) {
+                        throw new Exception("wtf");
+                    }
+                    var norm1 = Mesh.triangles[edge.triangles[0]].normal;
+                    var norm2 = Mesh.triangles[edge.triangles[1]].normal;
                     float xy =
-                        Vector3.Dot(edge.normalA, new Vector3(Light.X, Light.Y, Light.Z)) *
-                        Vector3.Dot(edge.normalB, new Vector3(Light.X, Light.Y, Light.Z));
+                        Vector3.Dot(norm1, new Vector3(Light.X, Light.Y, Light.Z)) *
+                        Vector3.Dot(norm2, new Vector3(Light.X, Light.Y, Light.Z));
                     // xy will be exactly zero for edges on the mesh boundary, with only one adj face
                     return xy <= 0;
                 })) {
@@ -282,7 +291,8 @@ namespace SSCP.ShellPower {
 
         private int GetBucket(Vector3 v) {
             var vL = LightXYZ;
-            return (int)(Math.Atan2(v.X - vL.X, v.Z - vL.Z) * edgeBuckets.Length / (2 * Math.PI));
+            int ix = (int)(Math.Atan2(v.X - vL.X, v.Z - vL.Z) * edgeBuckets.Length / (2 * Math.PI));
+            return Math.Max(0, ix);
         }
 
         public bool IsInShadow(Vector3 v) {
@@ -342,7 +352,7 @@ namespace SSCP.ShellPower {
                 float yAdebug = a * xa + b * za + vL.Y;
                 float yBdebug = a * xb + b * zb + vL.Y;
                 if (Math.Abs(vA.Y - yAdebug) + Math.Abs(vB.Y - yBdebug) > 1e-4) {
-                    Logger.warn("numeric instability");
+                    //Logger.warn("numeric instability");
                 } 
                 float yint = a * (v.X - vL.X) + b * (v.Z - vL.Z) + vL.Y;
                 if (yint > v.Y) {
@@ -351,10 +361,10 @@ namespace SSCP.ShellPower {
             }
             // if a ray traced in any dir (in this case, +Y axis) intersects
             // the volume boundary an odd number of times, then we're in the volume
-            //return (nInt % 2) == 1;
+            return (nInt % 2) == 1;
 
             //Logger.info("overlap " + nInt);
-            return nInt > 0;
+            //return nInt > 0;
         }
     }
 }
