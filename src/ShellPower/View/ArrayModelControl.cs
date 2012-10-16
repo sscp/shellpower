@@ -106,13 +106,10 @@ void main()
     gl_Position = gl_ProjectionMatrix * mv;
     vec3 normal = gl_NormalMatrix * gl_Normal;
     cosRule = dot(normal, vec3(0,0,1));
-    // depth = length(mv.xyz) / mv.w;
 
     gl_TexCoord[0] = vec4(-gl_Vertex.x / 4.0 + 0.5, gl_Vertex.z / 4.0 + 0.5, 0,0);
 }");
             GL.ShaderSource(shaderFrag, @"
-out vec4 fragColor; 
-
 uniform float pixelArea;
 varying float cosRule;
 uniform sampler2D solarCells;
@@ -121,9 +118,8 @@ void main()
 {
     vec4 solarCell = texture2D(solarCells, gl_TexCoord[0].xy);
     float watts = pixelArea * cosRule;
-    fragColor = vec4(solarCell.xyz, 1.0);
-    //gl_FragData[0] = vec4(solarCell.xyz, 1.0);
-    // gl_FragData[1] = vec4(watts, 0, 0, 1.0);
+    gl_FragData[0] = vec4(solarCell.xyz, 1.0);
+    gl_FragData[1] = vec4(watts, 0, 0, 1.0);
 }");
 
             GL.CompileShader(shaderVert);
@@ -195,9 +191,9 @@ void main()
             // PixelFormat.Rgb crashes with a cryptic error
             texCells = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, texCells);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb8,
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8,
                 texWattsWidth, texWattsHeight, 0,
-                OpenTK.Graphics.OpenGL.PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
+                OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
             // depth buffer
@@ -209,7 +205,7 @@ void main()
             GL.Ext.GenFramebuffers(1, out fboWatts);
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, fboWatts);
             GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext, TextureTarget.Texture2D, texCells, 0);
-            //GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment1Ext, TextureTarget.Texture2D, texWatts, 0);
+            GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment1Ext, TextureTarget.Texture2D, texWatts, 0);
             //GL.Ext.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachmentExt, RenderbufferTarget.RenderbufferExt, depthBufWatts);
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0); // return to visible framebuffer
         }
@@ -403,10 +399,9 @@ void main()
 
             /* gl state */
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, fboWatts);
-            /*GL.DrawBuffers(2, new DrawBuffersEnum[]{
+            GL.DrawBuffers(2, new DrawBuffersEnum[]{
                 (DrawBuffersEnum)FramebufferAttachment.ColorAttachment0Ext,
-                (DrawBuffersEnum)FramebufferAttachment.ColorAttachment1Ext});*/
-            GL.DrawBuffer((DrawBufferMode)FramebufferAttachment.ColorAttachment0Ext);
+                (DrawBuffersEnum)FramebufferAttachment.ColorAttachment1Ext});
             GL.PushAttrib(AttribMask.ViewportBit); // stores GL.Viewport() parameters
 
             GL.BindTexture(TextureTarget.Texture2D, texArray);
@@ -418,14 +413,12 @@ void main()
             SetCameraProjection(texWattsWidth, texWattsHeight);
 
             /* render obj display list */
-            Debug.WriteLine("wtf4");
             if (Sprite != null) {
                 Sprite.PushTransform();
                 Sprite.Render();
                 Sprite.PopTransform();
             }
-            Debug.WriteLine("wtf5");
-            DebugSaveBuffer();
+            DebugSaveBuffers();
 
             //render
             GL.PopAttrib();
@@ -434,19 +427,23 @@ void main()
             GL.DrawBuffer(DrawBufferMode.Back);
         }
 
-        private void DebugSaveBuffer() {
-            Debug.WriteLine("saving the ext buffer");
+        private void DebugSaveBuffers() {
+            Debug.WriteLine("saving the ext fbo buffers");
+            DebugSaveBuffer(FramebufferAttachment.ColorAttachment0, "../../../../test0.png");
+            DebugSaveBuffer(FramebufferAttachment.ColorAttachment1, "../../../../test1.png");
+        }
+
+        private void DebugSaveBuffer(FramebufferAttachment buf, String fname){
+            GL.ReadBuffer((ReadBufferMode)buf);
             Bitmap bmp = new Bitmap(texWattsWidth, texWattsHeight, 
                 System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             BitmapData bmpData = bmp.LockBits(
                 new Rectangle(0, 0, texWattsWidth, texWattsHeight),
                 ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            GL.ReadBuffer((ReadBufferMode)FramebufferAttachment.ColorAttachment0Ext);
             GL.ReadPixels(0, 0, texWattsWidth, texWattsHeight, 
                 OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, bmpData.Scan0);
             bmp.UnlockBits(bmpData);
 
-            String fname = "../../../../test.png";
             Debug.WriteLine("writing " + fname);
             bmp.Save(fname);
         }
