@@ -33,13 +33,10 @@
             this.openSimParamsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPageDesign = new System.Windows.Forms.TabPage();
-            this.dataGridViewStrings = new System.Windows.Forms.DataGridView();
             this.tabPageRun = new System.Windows.Forms.TabPage();
             this.labelArrPower = new System.Windows.Forms.Label();
             this.labelArrayPower = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.dataGridViewSimStrings = new System.Windows.Forms.DataGridView();
             this.groupBoxInstantaneous = new System.Windows.Forms.GroupBox();
             this.labelCarDirection = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
@@ -73,10 +70,7 @@
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.tabControl1.SuspendLayout();
-            this.tabPageDesign.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStrings)).BeginInit();
             this.tabPageRun.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewSimStrings)).BeginInit();
             this.groupBoxInstantaneous.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCarDirection)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarTimeOfDay)).BeginInit();
@@ -158,7 +152,6 @@
             // 
             // tabControl1
             // 
-            this.tabControl1.Controls.Add(this.tabPageDesign);
             this.tabControl1.Controls.Add(this.tabPageRun);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
@@ -167,34 +160,11 @@
             this.tabControl1.Size = new System.Drawing.Size(414, 421);
             this.tabControl1.TabIndex = 3;
             // 
-            // tabPageDesign
-            // 
-            this.tabPageDesign.Controls.Add(this.dataGridViewStrings);
-            this.tabPageDesign.Location = new System.Drawing.Point(4, 22);
-            this.tabPageDesign.Name = "tabPageDesign";
-            this.tabPageDesign.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageDesign.Size = new System.Drawing.Size(406, 395);
-            this.tabPageDesign.TabIndex = 1;
-            this.tabPageDesign.Text = "Design";
-            this.tabPageDesign.UseVisualStyleBackColor = true;
-            // 
-            // dataGridViewStrings
-            // 
-            this.dataGridViewStrings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataGridViewStrings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewStrings.Location = new System.Drawing.Point(6, 6);
-            this.dataGridViewStrings.Name = "dataGridViewStrings";
-            this.dataGridViewStrings.Size = new System.Drawing.Size(283, 0);
-            this.dataGridViewStrings.TabIndex = 0;
-            // 
             // tabPageRun
             // 
             this.tabPageRun.Controls.Add(this.labelArrPower);
             this.tabPageRun.Controls.Add(this.labelArrayPower);
             this.tabPageRun.Controls.Add(this.label5);
-            this.tabPageRun.Controls.Add(this.dataGridViewSimStrings);
             this.tabPageRun.Controls.Add(this.groupBoxInstantaneous);
             this.tabPageRun.Controls.Add(this.groupBoxSimulation);
             this.tabPageRun.Location = new System.Drawing.Point(4, 22);
@@ -232,17 +202,6 @@
             this.label5.Size = new System.Drawing.Size(66, 13);
             this.label5.TabIndex = 9;
             this.label5.Text = "Array power:";
-            // 
-            // dataGridViewSimStrings
-            // 
-            this.dataGridViewSimStrings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataGridViewSimStrings.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewSimStrings.Location = new System.Drawing.Point(6, 324);
-            this.dataGridViewSimStrings.Name = "dataGridViewSimStrings";
-            this.dataGridViewSimStrings.Size = new System.Drawing.Size(394, 32);
-            this.dataGridViewSimStrings.TabIndex = 8;
             // 
             // groupBoxInstantaneous
             // 
@@ -416,6 +375,7 @@
             this.groupBoxSimulation.TabIndex = 2;
             this.groupBoxSimulation.TabStop = false;
             this.groupBoxSimulation.Text = "Simulation";
+            this.groupBoxSimulation.Visible = false;
             // 
             // labelSimTotalEnergy
             // 
@@ -529,11 +489,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
-            this.tabPageDesign.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewStrings)).EndInit();
             this.tabPageRun.ResumeLayout(false);
             this.tabPageRun.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewSimStrings)).EndInit();
             this.groupBoxInstantaneous.ResumeLayout(false);
             this.groupBoxInstantaneous.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCarDirection)).EndInit();
@@ -557,8 +514,6 @@
         private System.Windows.Forms.GroupBox groupBoxInstantaneous;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPageRun;
-        private System.Windows.Forms.TabPage tabPageDesign;
-        private System.Windows.Forms.DataGridView dataGridViewStrings;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.DateTimePicker dateTimePicker;
         private System.Windows.Forms.Label labelLocalTime;
@@ -567,7 +522,6 @@
         private System.Windows.Forms.TextBox textBoxLat;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button buttonRun;
-        private System.Windows.Forms.DataGridView dataGridViewSimStrings;
         private System.Windows.Forms.Button buttonAnimate;
         private System.Windows.Forms.ToolStripMenuItem openLayoutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openSimParamsToolStripMenuItem;

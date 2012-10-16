@@ -10,15 +10,12 @@ using OpenTK;
 namespace SSCP.ShellPower {
     public partial class MainForm : Form {
         /* model */
-        Mesh mesh, amended;
-        bool[] trisInArray;
+        Mesh mesh;
         Shadow shadow;
+        Mesh amended;
+        bool[] trisInArray;
 
-        /* view */
-        //KDTree<MeshTriangle> kdTree;
-        ShadowMeshSprite shadowSprite;
-
-        /* data i/o */
+        /* apis */
         GeoNames geoNamesApi = new GeoNames();
 
         /* simulation state */
@@ -28,6 +25,10 @@ namespace SSCP.ShellPower {
         public MainForm() {
             InitializeComponent();
             GuiSimStepInputs(null, null);
+
+            //TODO: remove hack, here to make debugging faster
+            LoadModel("C:/shellpower/meshes/sunbadThinCarWholeRotSmall.stl");
+            CalculateSimStep();
         }
 
         void LoadModel(string filename) {
@@ -107,11 +108,15 @@ namespace SSCP.ShellPower {
 
         private void SetModel(Mesh mesh) {
             this.mesh = mesh;
-
+            MeshSprite sprite = new MeshSprite(mesh);
+            var center = (mesh.BoundingBox.Max + mesh.BoundingBox.Min) / 2;
+            sprite.Position = new Vector4(-center, 1);
+            glControl.Sprite = sprite;
+            
+            /*
             //split out the array
             Logger.info("creating solar array boundary in the mesh...");
-
-            /* sunbad */
+            // sunbad-specific...
             var area = GetArrayArea();
             ExtrudedVolume vol = new ExtrudedVolume() {
                 area = area,
@@ -120,17 +125,6 @@ namespace SSCP.ShellPower {
             MeshUtils.Split(mesh, vol, out amended, out trisInArray);
             Logger.info("mesh now has " + amended.points.Length + " verts, " + amended.triangles.Length + " tris");
 
-            //create kd tree
-            /*Logger.info("creating kd tree...");
-            var tris = mesh.triangles
-                .Select((tri, ix) => new MeshTriangle() {
-                    Mesh = amended,
-                    Triangle = ix
-                })
-                .ToList();
-            kdTree = new KDTree<MeshTriangle>();
-            kdTree.AddAll(tris);*/
-
             //create shadows volumes
             Logger.info("computing shadows...");
             shadow = new Shadow(amended);
@@ -138,7 +132,7 @@ namespace SSCP.ShellPower {
 
             // color the array green
             Logger.info("creating shadow sprite");
-            shadowSprite = new ShadowMeshSprite(shadow);
+            ShadowMeshSprite shadowSprite = new ShadowMeshSprite(shadow);
             int nt = amended.triangles.Length;
             shadowSprite.FaceColors = new Vector4[nt];
             var green = new Vector4(0.3f, 0.8f, 0.3f, 1f);
@@ -150,7 +144,7 @@ namespace SSCP.ShellPower {
             //render the mesh, with shadows, centered in the viewport
             var center = (amended.BoundingBox.Max + amended.BoundingBox.Min) / 2;
             shadowSprite.Position = new Vector4(-center, 1);
-            glControl.Sprite = shadowSprite;
+            glControl.Sprite = shadowSprite;*/
         }
 
         private void CalculateSimStep() {
