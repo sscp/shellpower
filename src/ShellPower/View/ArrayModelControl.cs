@@ -117,7 +117,7 @@ uniform sampler2D solarCells;
 void main()
 {
     vec4 solarCell = texture2D(solarCells, gl_TexCoord[0].xy);
-    float watts = pixelArea * cosRule;
+    float watts = pixelArea*cosRule;
     gl_FragData[0] = vec4(solarCell.xyz, 1.0);
     gl_FragData[1] = vec4(watts, 0, 0, 1.0);
 }");
@@ -197,9 +197,11 @@ void main()
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
             // depth buffer
-            //int depthBufWatts;
-            //GL.Ext.GenRenderbuffers(1, out depthBufWatts);
-            //GL.Ext.BindRenderbuffer(RenderbufferTarget.RenderbufferExt, depthBufWatts);
+            int texDepth = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, texDepth);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent32,
+                texWattsWidth, texWattsHeight, 0,
+                OpenTK.Graphics.OpenGL.PixelFormat.DepthComponent, PixelType.UnsignedInt, IntPtr.Zero);
 
             //fbo
             GL.Ext.GenFramebuffers(1, out fboWatts);
@@ -207,6 +209,7 @@ void main()
             GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext, TextureTarget.Texture2D, texCells, 0);
             GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment1Ext, TextureTarget.Texture2D, texWatts, 0);
             //GL.Ext.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachmentExt, RenderbufferTarget.RenderbufferExt, depthBufWatts);
+            GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachment, TextureTarget.Texture2D, texDepth, 0);
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0); // return to visible framebuffer
         }
 
@@ -407,7 +410,7 @@ void main()
             GL.BindTexture(TextureTarget.Texture2D, texArray);
             GL.Viewport(0, 0, texWattsWidth, texWattsHeight);
             GL.ClearColor(Color.White);
-            GL.Clear(ClearBufferMask.ColorBufferBit); // | ClearBufferMask.DepthBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             SetModelView();
             SetCameraProjection(texWattsWidth, texWattsHeight);
