@@ -1,5 +1,3 @@
-// Released to the public domain. Use, modify and relicense at will.
-
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -13,15 +11,6 @@ namespace SSCP.ShellPower {
     class ArrayModelControl : GLControl {
         /* convenience */
         const float pi = (float)Math.PI;
-        float sin(float theta) {
-            return (float)Math.Sin(theta);
-        }
-        float cos(float theta) {
-            return (float)Math.Cos(theta);
-        }
-        float sqrt(float r) {
-            return (float)Math.Sqrt(r);
-        }
 
         /* render stats */
         double emaDelay = 1;
@@ -31,40 +20,31 @@ namespace SSCP.ShellPower {
         Point lastMouse;
         bool mouseRotate = false;
 
-        /* view state TODO: just use projection and modelview matrices */
-        static readonly Vector3 startPosition = new Vector3(0, 0, -20);
-        Vector3 position = startPosition; /* eye */
-        Vector3 direction = new Vector3(0, 0, 1); /* eye */
+        /* view state */
+        const double INITIAL_ZOOM = 20;
+        double zoom = INITIAL_ZOOM; /* zoom, in meters away from the model */
         Matrix4 rotation = Matrix4.Identity; /* model */
 
         /* graphics state */
         int list0, nLists;
         bool loaded = false;
 
-        /* HACK: opengl for computation */
+        /* opengl for computation program and args */
         int shaderVert, shaderFrag, shaderProg;
         int uniformPixelArea, uniformSolarCells;
         int texArray;
 
-        int shaderFragWatts, shaderProgWatts;
+        /* ... program outputs to a texture */
         int texWatts, texCells, texWattsWidth, texWattsHeight;
         int fboWatts;
 
-        public Vector3 Position {
-            get {
-                Matrix4 rot = rotation;
-                rot.Invert();
-                return Vector3.Transform(position, rot);
-            }
-        }
-
         public MeshSprite Sprite { get; set; }
 
+        public MeshSprite ShadowSprite { get; set; }
+
+        public String ArrayTextureFile { get; set; }
+
         public Vector3 SunDirection { get; set; }
-
-        public Vector3 SunInsolation { get; set; }
-
-        public Vector3 AmbientInsolation { get; set; }
 
         public ArrayModelControl()
             : base(new OpenTK.Graphics.GraphicsMode(32, 24, 0, 4)) {
@@ -147,29 +127,45 @@ void main()
         /// vertex X and Z coords with a scale factor and an offset.
         /// </summary>
         private void InitGLArrayTextures() {
-            String fnameTex = "../../../../arrays/texture.png";
-            Debug.WriteLine("loading texture " + fnameTex);
-            Bitmap bmpTex = new Bitmap(fnameTex);
-            BitmapData bmpDataTex = bmpTex.LockBits(
-                new Rectangle(0, 0, bmpTex.Width, bmpTex.Height),
-                ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            Debug.WriteLine("loaded " + bmpTex.Width + "x" + bmpTex.Height + " tex, binding");
             texArray = GL.GenTexture();
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, texArray);
             /*GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, 
                 (float)TextureEnvMode.Modulate);*/
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
-                (float)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
-                (float)TextureMinFilter.Nearest);
+            FastTexSettings();
+            LoadGLArrayTexture();
+        }
+
+        /// <summary>
+        /// Reads an image from the given file.
+        /// Sets it as Texture 0. See InitGLArrayTexture() for the Texture 0 params.
+        /// </summary>
+        private void LoadGLArrayTexture() {
+            // read the image
+            Debug.WriteLine("loading texture " + ArrayTextureFile);
+            Bitmap bmpTex = new Bitmap(ArrayTextureFile);
+            BitmapData bmpDataTex = bmpTex.LockBits(
+                new Rectangle(0, 0, bmpTex.Width, bmpTex.Height),
+                ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            Debug.WriteLine("loaded " + bmpTex.Width + "x" + bmpTex.Height + " tex, binding");
+
+            // set it as texture 0
+            GL.ActiveTexture(TextureUnit.Texture0);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
                 bmpTex.Width, bmpTex.Height, 0,
-                OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte,
+                OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte,
                 bmpDataTex.Scan0);
-            bmpTex.UnlockBits(bmpDataTex);
 
-            Debug.WriteLine("textures ready.");
+            // clean up
+            bmpTex.UnlockBits(bmpDataTex);
+            Debug.WriteLine("array texture ready");
+        }
+
+        private void FastTexSettings() {
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Clamp);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Clamp);
         }
 
         private void InitGLComputeBuffer() {
@@ -178,17 +174,15 @@ void main()
             // one buffer for insolation in W...
             texWatts = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, texWatts);
-            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
-            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Clamp);
-            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Clamp);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, 
                 texWattsWidth, texWattsHeight, 0, 
                 OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
 
             // another that uses color to ID each cell, string, and panel
             // NB: you must use PixelInternalFormat.Rgb8 or Rgba8, 
-            // PixelFormat.Rgb crashes with a cryptic error
+            // PixelFormat.Rgb crashes with a cryptic error.
+            // also, it seems two attachments in the same FBO must have the same
+            // pixel format, else you get the same cryptic error
             texCells = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, texCells);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8,
@@ -208,7 +202,6 @@ void main()
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, fboWatts);
             GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext, TextureTarget.Texture2D, texCells, 0);
             GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment1Ext, TextureTarget.Texture2D, texWatts, 0);
-            //GL.Ext.FramebufferRenderbuffer(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachmentExt, RenderbufferTarget.RenderbufferExt, depthBufWatts);
             GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachment, TextureTarget.Texture2D, texDepth, 0);
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0); // return to visible framebuffer
         }
@@ -274,7 +267,7 @@ void main()
 
         private void Mouse_WheelChanged(object sender, MouseEventArgs e) {
             double sensitivity = 1.0 / 300.0;
-            position = position * (float)Math.Exp(-e.Delta * sensitivity);
+            zoom *= Math.Exp(-e.Delta * sensitivity);
             Refresh();
         }
         private void Mouse_ButtonDown(object sender, MouseEventArgs e) {
@@ -309,17 +302,17 @@ void main()
             }
             /* WASD to zoom and rotate */
             if (e.KeyCode == Keys.W) {
-                position *= (1 - zoomSensitivity);
+                zoom *= (1 - zoomSensitivity);
             } else if (e.KeyCode == Keys.A) {
                 rotation *= Matrix4.CreateRotationY(-rotateSensitivity);
             } else if (e.KeyCode == Keys.S) {
-                position /= (1 - zoomSensitivity);
+                zoom /= (1 - zoomSensitivity);
             } else if (e.KeyCode == Keys.D) {
                 rotation *= Matrix4.CreateRotationY(rotateSensitivity);
             }
                 /* XYZ to view the model from that axis
                  * Shift+XYZ to view from the opposite side */
-              else if (e.KeyCode == Keys.X) {
+            if (e.KeyCode == Keys.X) {
                 rotation = Matrix4.CreateRotationY(pi / 2 * (e.Shift ? -1 : 1));
             } else if (e.KeyCode == Keys.Y) {
                 rotation = Matrix4.CreateRotationX(pi / 2 * (e.Shift ? -1 : 1));
@@ -327,7 +320,7 @@ void main()
                 rotation = Matrix4.CreateRotationY(pi / 2 * (e.Shift ? 2 : 0));
             } else if (e.KeyCode == Keys.D0) {
                 rotation = Matrix4.Identity;
-                position = startPosition;
+                zoom = INITIAL_ZOOM;
             }
             Refresh();
         }
@@ -340,12 +333,8 @@ void main()
             if (!this.DesignMode) {
                 InitGL();
                 InitGLArrayComputeShaders();
-                InitGLArrayTextures();
                 InitGLComputeBuffer();
-                //InitDisplayLists();
                 loaded = true;
-
-                ComputeRender();
             }
         }
 
@@ -373,8 +362,12 @@ void main()
             }
         }
 
-        private void SetModelView() {
-            Matrix4 modelview = Matrix4.LookAt(position, position + direction, Vector3.UnitY);
+        /// <summary>
+        /// Sets up the modelview matrix from the camera's point of view. (For GUI)
+        /// </summary>
+        private void SetModelViewCamera() {
+            var position = -Vector3.UnitZ * (float)zoom;
+            Matrix4 modelview = Matrix4.LookAt(position, Vector3.Zero, Vector3.UnitY);
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
             GL.LoadMatrix(ref modelview);
@@ -382,10 +375,22 @@ void main()
             GL.Light(LightName.Light0, LightParameter.Position, new Vector4(SunDirection, 0));
         }
 
-        private void SetCameraProjection(int w, int h) {
-            // perspective projection
-            //Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView((float)Math.PI / 6, Width / (float)Height, 1.0f, 640.0f);
+        /// <summary>
+        /// Sets up the modelview matrix from the sun's point of view (for computation)
+        /// </summary>
+        private void SetModelViewSun() {
+            Matrix4 modelview = Matrix4.LookAt(SunDirection*(float)INITIAL_ZOOM, Vector3.Zero, Vector3.UnitY);
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.LoadIdentity();
+            GL.LoadMatrix(ref modelview);
+            GL.Light(LightName.Light0, LightParameter.Position, new Vector4(SunDirection, 0));
+        }
 
+        private void SetCameraProjectionPerspective(int w, int h) {
+            // perspective projection
+            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView((float)Math.PI / 6, Width / (float)Height, 1.0f, 640.0f);
+        }
+        private void SetCameraProjectionOrtho(int w, int h) {
             // orthographic projection
             float minWidth = 6f, minHeight = 4f; //meters
             float scale = Math.Max(minWidth / w, minHeight / h);
@@ -396,11 +401,13 @@ void main()
             GL.LoadMatrix(ref projection);
         }
 
-        private void ComputeRender() {
+        public void ComputeRender() {
             Debug.WriteLine("rendering insolation+cells into a " 
                 + texWattsWidth + "x" + texWattsWidth + " fbo");
 
             /* gl state */
+            GL.UseProgram(shaderProg);
+
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, fboWatts);
             GL.DrawBuffers(2, new DrawBuffersEnum[]{
                 (DrawBuffersEnum)FramebufferAttachment.ColorAttachment0Ext,
@@ -412,8 +419,8 @@ void main()
             GL.ClearColor(Color.White);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            SetModelView();
-            SetCameraProjection(texWattsWidth, texWattsHeight);
+            SetModelViewSun();
+            SetCameraProjectionOrtho(texWattsWidth, texWattsHeight);
 
             /* render obj display list */
             if (Sprite != null) {
@@ -455,19 +462,21 @@ void main()
             DateTime startRender = DateTime.Now;
 
             /* gl state */
+            GL.UseProgram(0);
+
             GL.BindTexture(TextureTarget.Texture2D, texArray);
             SetViewport();
             GL.ClearColor(0f, 0f, 0.1f, 0.0f);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            SetModelView();
-            SetCameraProjection(Width, Height);
+            SetModelViewCamera();
+            SetCameraProjectionOrtho(Width, Height);
 
             /* render obj display list */
             if (Sprite != null) {
-                Sprite.PushTransform();
-                Sprite.Render();
-                Sprite.PopTransform();
+                ShadowSprite.PushTransform();
+                ShadowSprite.Render();
+                ShadowSprite.PopTransform();
             }
             SwapBuffers();
 
@@ -480,5 +489,20 @@ void main()
                 Debug.WriteLine(string.Format("{0:0.00} fps", 1.0 / emaDelay));
             }
         }
-     }
+
+        private ArraySimulationStepOutput AnalyzeComputeTex() {
+            ArraySimulationStepOutput output = new ArraySimulationStepOutput();
+            output.ArrayArea = 10;
+            output.ArrayLitArea = 9;
+            output.WattsInsolation = 6500;
+            output.WattsOutput = 1000;
+            return output;
+        }
+
+        public ArraySimulationStepOutput Recompute() {
+            InitGLArrayTextures();
+            ComputeRender();
+            return AnalyzeComputeTex();
+        }
+    }
 }

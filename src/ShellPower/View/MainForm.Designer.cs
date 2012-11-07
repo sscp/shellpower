@@ -38,6 +38,7 @@
             this.labelArrayPower = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.groupBoxInstantaneous = new System.Windows.Forms.GroupBox();
+            this.btnRecalc = new System.Windows.Forms.Button();
             this.labelCarDirection = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.trackBarCarDirection = new System.Windows.Forms.TrackBar();
@@ -63,6 +64,7 @@
             this.label10 = new System.Windows.Forms.Label();
             this.glControl = new SSCP.ShellPower.ArrayModelControl();
             this.openFileDialogModel = new System.Windows.Forms.OpenFileDialog();
+            this.openFileDialogArray = new System.Windows.Forms.OpenFileDialog();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -207,6 +209,7 @@
             // 
             this.groupBoxInstantaneous.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBoxInstantaneous.Controls.Add(this.btnRecalc);
             this.groupBoxInstantaneous.Controls.Add(this.labelCarDirection);
             this.groupBoxInstantaneous.Controls.Add(this.label7);
             this.groupBoxInstantaneous.Controls.Add(this.trackBarCarDirection);
@@ -227,6 +230,17 @@
             this.groupBoxInstantaneous.TabIndex = 1;
             this.groupBoxInstantaneous.TabStop = false;
             this.groupBoxInstantaneous.Text = "Instantaneous";
+            // 
+            // btnRecalc
+            // 
+            this.btnRecalc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnRecalc.Location = new System.Drawing.Point(319, 170);
+            this.btnRecalc.Name = "btnRecalc";
+            this.btnRecalc.Size = new System.Drawing.Size(75, 23);
+            this.btnRecalc.TabIndex = 14;
+            this.btnRecalc.Text = "Calculate";
+            this.btnRecalc.UseVisualStyleBackColor = true;
+            this.btnRecalc.Click += new System.EventHandler(this.btnRecalc_Click);
             // 
             // labelCarDirection
             // 
@@ -453,15 +467,15 @@
             // 
             // glControl
             // 
-            this.glControl.AmbientInsolation = ((OpenTK.Vector3)(resources.GetObject("glControl.AmbientInsolation")));
+            this.glControl.ArrayTextureFile = null;
             this.glControl.BackColor = System.Drawing.Color.Black;
             this.glControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.glControl.Location = new System.Drawing.Point(0, 0);
             this.glControl.Name = "glControl";
+            this.glControl.ShadowSprite = null;
             this.glControl.Size = new System.Drawing.Size(644, 421);
             this.glControl.Sprite = null;
             this.glControl.SunDirection = ((OpenTK.Vector3)(resources.GetObject("glControl.SunDirection")));
-            this.glControl.SunInsolation = ((OpenTK.Vector3)(resources.GetObject("glControl.SunInsolation")));
             this.glControl.TabIndex = 0;
             this.glControl.VSync = true;
             // 
@@ -469,6 +483,11 @@
             // 
             this.openFileDialogModel.Filter = "3DXML files|*.3dxml|STL Files (ascii)|*.stl|All files|*.*";
             this.openFileDialogModel.Title = "Load solar car model";
+            // 
+            // openFileDialogArray
+            // 
+            this.openFileDialogArray.Filter = "PNG Files|*.png|JPG Files|*.jpg|Bitmap files|*.bmp";
+            this.openFileDialogArray.Title = "Load array texture (cell layout)";
             // 
             // MainForm
             // 
@@ -543,5 +562,7 @@
         private System.Windows.Forms.Label labelCarDirection;
         private System.Windows.Forms.OpenFileDialog openFileDialogModel;
         private System.Windows.Forms.Label labelArrPower;
+        private System.Windows.Forms.Button btnRecalc;
+        private System.Windows.Forms.OpenFileDialog openFileDialogArray;
     }
 }

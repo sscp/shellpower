@@ -11,3 +11,5 @@ TestResults
 *.suo
 *.user
 meshes/*
+arrays/
+test*.png

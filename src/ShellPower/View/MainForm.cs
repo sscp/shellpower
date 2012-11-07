@@ -28,68 +28,19 @@ namespace SSCP.ShellPower {
 
             //TODO: remove hack, here to make debugging faster
             LoadModel("C:/shellpower/meshes/sunbadThinCarWholeRotSmall.stl");
+            LoadArrayTexture("C:/shellpower/arrays/texture.png");
             CalculateSimStep();
         }
 
-        void LoadModel(string filename) {
+        private void LoadArrayTexture(String arrayTex) {
+        }
+
+        private void LoadModel(string filename) {
             Mesh mesh = LoadMesh(filename);
             toolStripStatusLabel.Text = string.Format("Loaded model {0}, {1} triangles",
                 System.IO.Path.GetFileName(filename),
                 mesh.triangles.Length);
             SetModel(mesh);
-        }
-
-        private IArea GetArrayArea() {
-            float arrYS = 0.75f; // side
-            float arrYB = 0.3f; // bubble
-            float arrXF = -2.0f, arrXR = 2.3f; // +X is the rear
-            float arrXBF = -1.0f, arrXBR = 1.0f; // bubble
-            float gap = 0.0f, gap2 = gap / 2;
-            Polygon2 arr1 = new Polygon2();
-            arr1.vertices = new Vector2[]{
-                new Vector2(arrXF, -arrYS),
-                new Vector2(arrXF, -gap2),
-                new Vector2(arrXBF-gap, -gap2),
-                new Vector2(arrXBF-gap, -arrYS)};
-            Polygon2 arr2 = new Polygon2();
-            arr2.vertices = new Vector2[]{
-                new Vector2(arrXF, arrYS),
-                new Vector2(arrXF, gap2),
-                new Vector2(arrXBF-gap, gap2),
-                new Vector2(arrXBF-gap, arrYS)};
-            Polygon2 arr3 = new Polygon2();
-            arr3.vertices = new Vector2[]{
-                new Vector2(arrXBF, -arrYS),
-                new Vector2(arrXBF, -arrYB),
-                new Vector2(arrXBR, -arrYB),
-                new Vector2(arrXBR, -arrYS)};
-            Polygon2 arr4 = new Polygon2();
-            arr4.vertices = new Vector2[]{
-                new Vector2(arrXBF, arrYS),
-                new Vector2(arrXBF, arrYB),
-                new Vector2(arrXBR, arrYB),
-                new Vector2(arrXBR, arrYS)};
-            Polygon2 arr5 = new Polygon2();
-            arr5.vertices = new Vector2[]{
-                new Vector2(arrXR, -arrYS),
-                new Vector2(arrXR, -gap2),
-                new Vector2(arrXBR+gap, -gap2),
-                new Vector2(arrXBR+gap, -arrYS)};
-            Polygon2 arr6 = new Polygon2();
-            arr6.vertices = new Vector2[]{
-                new Vector2(arrXR, arrYS),
-                new Vector2(arrXR, gap2),
-                new Vector2(arrXBR+gap, gap2),
-                new Vector2(arrXBR+gap, arrYS)};
-
-            CompoundShape2 arrs = new CompoundShape2();
-            arrs.include.Add(arr1);
-            arrs.include.Add(arr2);
-            arrs.include.Add(arr3);
-            arrs.include.Add(arr4);
-            arrs.include.Add(arr5);
-            arrs.include.Add(arr6);
-            return arrs;
         }
 
         private Mesh LoadMesh(String filename) {
@@ -105,7 +56,12 @@ namespace SSCP.ShellPower {
             parser.Parse(filename);
             return parser.GetMesh();
         }
-
+        
+        /// <summary>
+        /// Uses the given mesh for rendering and calculation.
+        /// 
+        /// Computes shadow volumes for rendering.
+        /// </summary>
         private void SetModel(Mesh mesh) {
             this.mesh = mesh;
             MeshSprite sprite = new MeshSprite(mesh);
@@ -113,16 +69,11 @@ namespace SSCP.ShellPower {
             sprite.Position = new Vector4(-center, 1);
             glControl.Sprite = sprite;
             
-            /*
             //split out the array
             Logger.info("creating solar array boundary in the mesh...");
-            // sunbad-specific...
-            var area = GetArrayArea();
-            ExtrudedVolume vol = new ExtrudedVolume() {
-                area = area,
-                plane = ExtrudedVolume.Plane.XZ
-            };
-            MeshUtils.Split(mesh, vol, out amended, out trisInArray);
+            // TODO: split mesh using the array tex?
+            trisInArray = new bool[mesh.triangles.Length];
+            amended = mesh;
             Logger.info("mesh now has " + amended.points.Length + " verts, " + amended.triangles.Length + " tris");
 
             //create shadows volumes
@@ -138,13 +89,14 @@ namespace SSCP.ShellPower {
             var green = new Vector4(0.3f, 0.8f, 0.3f, 1f);
             var white = new Vector4(1f, 1f, 1f, 1f);
             for (int i = 0; i < nt; i++) {
-                shadowSprite.FaceColors[i] = trisInArray[i] ? green : white;
+                //TODO(dc): clean up
+                shadowSprite.FaceColors[i] = white; // trisInArray[i] ? green : white;
             }
 
             //render the mesh, with shadows, centered in the viewport
-            var center = (amended.BoundingBox.Max + amended.BoundingBox.Min) / 2;
+            //var center = (amended.BoundingBox.Max + amended.BoundingBox.Min) / 2;
             shadowSprite.Position = new Vector4(-center, 1);
-            glControl.Sprite = shadowSprite;*/
+            glControl.ShadowSprite = shadowSprite;
         }
 
         private void CalculateSimStep() {
@@ -261,7 +213,10 @@ namespace SSCP.ShellPower {
         }
 
         private void openLayoutToolStripMenuItem_Click(object sender, EventArgs e) {
-
+            DialogResult result = openFileDialogArray.ShowDialog();
+            if (result != DialogResult.OK) return;
+            var texFile = openFileDialogArray.FileName;
+            glControl.ArrayTextureFile = texFile;
         }
 
         private void openSimParamsToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -311,6 +266,14 @@ namespace SSCP.ShellPower {
             simInput.LocalTime = simInput.LocalTime.Date + timeOfDay;
             simInput.Utc = simInput.LocalTime - new TimeSpan((long)(simInput.Timezone * 60 * 60 * 10000000));
             UpdateSimStateView();
+        }
+
+        private void btnRecalc_Click(object sender, EventArgs e) {
+            ArraySimulationStepOutput output = glControl.Recompute();
+            Debug.WriteLine("array simulation output");
+            Debug.WriteLine("   ... " + output.ArrayLitArea + " m^2 exposed to sunlight");
+            Debug.WriteLine("   ... " + output.WattsInsolation + " W insolation");
+            Debug.WriteLine("   ... " + output.WattsOutput + " W output");
         }
     }
 }

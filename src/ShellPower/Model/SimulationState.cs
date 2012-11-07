@@ -10,8 +10,16 @@ namespace SSCP.ShellPower {
         public double Heading { get; set; }
     }
 
-    public class ArraySimulationStepOutput {
+    public class ArraySimulationStepSunPosition {
         public double SunAzimuth { get; set; }
         public double SunElevation { get; set; }
+    }
+
+    public class ArraySimulationStepOutput {
+        public double ArrayArea { get; set; }
+        public double ArrayLitArea { get; set; }
+        public double WattsInsolation { get; set; }
+        public double WattsOutput { get; set; }
+        // TODO: WattsInsolationNoShadow, WattsOutputNoShadow
     }
 }
