@@ -11,12 +11,7 @@ namespace SSCP.ShellPower {
     public partial class MainForm : Form {
         /* model */
         ArraySpec array = new ArraySpec();
-
-        // obsolete:
-        Mesh mesh;
         Shadow shadow;
-        Mesh amended;
-        bool[] trisInArray;
 
         /* apis */
         GeoNames geoNamesApi = new GeoNames();
@@ -66,37 +61,16 @@ namespace SSCP.ShellPower {
         /// Computes shadow volumes for rendering.
         /// </summary>
         private void SetModel(Mesh mesh) {
-            this.mesh = mesh;
-            MeshSprite sprite = new MeshSprite(mesh);
-            var center = (mesh.BoundingBox.Max + mesh.BoundingBox.Min) / 2;
-            sprite.Position = new Vector4(-center, 1);
+            array.Mesh = mesh;
             
-            //split out the array
-            Logger.info("creating solar array boundary in the mesh...");
-            // TODO: split mesh using the array tex?
-            trisInArray = new bool[mesh.triangles.Length];
-            amended = mesh;
-            Logger.info("mesh now has " + amended.points.Length + " verts, " + amended.triangles.Length + " tris");
-
-            //create shadows volumes
+            // create shadow volumes
             Logger.info("computing shadows...");
-            shadow = new Shadow(amended);
+            shadow = new Shadow(mesh);
             shadow.Initialize();
 
-            // color the array green
-            Logger.info("creating shadow sprite");
+            // render them
             ShadowMeshSprite shadowSprite = new ShadowMeshSprite(shadow);
-            int nt = amended.triangles.Length;
-            shadowSprite.FaceColors = new Vector4[nt];
-            var green = new Vector4(0.3f, 0.8f, 0.3f, 1f);
-            var white = new Vector4(1f, 1f, 1f, 1f);
-            for (int i = 0; i < nt; i++) {
-                //TODO(dc): clean up
-                shadowSprite.FaceColors[i] = white; // trisInArray[i] ? green : white;
-            }
-
-            //render the mesh, with shadows, centered in the viewport
-            //var center = (amended.BoundingBox.Max + amended.BoundingBox.Min) / 2;
+            var center = (mesh.BoundingBox.Max + mesh.BoundingBox.Min) / 2;
             shadowSprite.Position = new Vector4(-center, 1);
             glControl.Sprite = shadowSprite;
         }
@@ -189,15 +163,12 @@ namespace SSCP.ShellPower {
             const float insolation = 1000f; // W/m^2
             const float efficiency = 0.227f; 
             float arrayArea = 0.0f, shadedArea = 0.0f, totalWatts = 0.0f;
-            int nt = amended == null ? 0 : amended.triangles.Length;
+            int nt = array.Mesh == null ? 0 : array.Mesh.triangles.Length;
             for (int i = 0; i < nt; i++) {
-                if (!trisInArray[i]) {
-                    continue;
-                }
-                var tri = amended.triangles[i];
-                var vA = amended.points[tri.vertexA];
-                var vB = amended.points[tri.vertexB];
-                var vC = amended.points[tri.vertexC];
+                var tri = array.Mesh.triangles[i];
+                var vA = array.Mesh.points[tri.vertexA];
+                var vB = array.Mesh.points[tri.vertexB];
+                var vC = array.Mesh.points[tri.vertexC];
                 float area = Vector3.Cross(vC - vA, vB - vA).Length / 2;
                 arrayArea += area;
 
@@ -324,13 +295,17 @@ namespace SSCP.ShellPower {
         }
 
         private void btnRecalc_Click(object sender, EventArgs e) {
-            array.Mesh = mesh;
             var simulator = new ArraySimulator(array);
-            simOutput = simulator.Simulate(simInput);
-            Debug.WriteLine("array simulation output");
-            Debug.WriteLine("   ... " + simOutput.ArrayLitArea + " m^2 exposed to sunlight");
-            Debug.WriteLine("   ... " + simOutput.WattsInsolation + " W insolation");
-            Debug.WriteLine("   ... " + simOutput.WattsOutput + " W output");
+            try {
+                simOutput = simulator.Simulate(simInput);
+
+                Debug.WriteLine("array simulation output");
+                Debug.WriteLine("   ... " + simOutput.ArrayLitArea + " m^2 exposed to sunlight");
+                Debug.WriteLine("   ... " + simOutput.WattsInsolation + " W insolation");
+                Debug.WriteLine("   ... " + simOutput.WattsOutput + " W output");
+            } catch (Exception exc) {
+                MessageBox.Show(exc.Message);
+            }
         }
     }
 }

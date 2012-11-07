@@ -38,7 +38,10 @@ namespace SSCP.ShellPower {
         /// Returns array output in watts, along with some other data.
         /// </summary>
         public ArraySimulationStepOutput Simulate(ArraySimulationStepInput simInput) {
-            //TODO: clean up mainform. this should be set with ArraySpec, which should be immutable
+            // validate that we're gtg
+            if (Array.Mesh == null) throw new InvalidOperationException("No array shape (mesh) loaded.");
+            if (Array.LayoutTexture == null) throw new InvalidOperationException("No array layout (texture) loaded.");
+
             InitGLArrayTextures();
             ComputeRender(simInput);
             return AnalyzeComputeTex();
