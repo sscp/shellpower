@@ -467,14 +467,12 @@
             // 
             // glControl
             // 
-            this.glControl.ArrayTextureFile = null;
+            this.glControl.Sprite = null; 
             this.glControl.BackColor = System.Drawing.Color.Black;
             this.glControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.glControl.Location = new System.Drawing.Point(0, 0);
             this.glControl.Name = "glControl";
-            this.glControl.ShadowSprite = null;
             this.glControl.Size = new System.Drawing.Size(644, 421);
-            this.glControl.Sprite = null;
             this.glControl.SunDirection = ((OpenTK.Vector3)(resources.GetObject("glControl.SunDirection")));
             this.glControl.TabIndex = 0;
             this.glControl.VSync = true;

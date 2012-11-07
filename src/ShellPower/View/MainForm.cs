@@ -10,6 +10,9 @@ using OpenTK;
 namespace SSCP.ShellPower {
     public partial class MainForm : Form {
         /* model */
+        ArraySpec array = new ArraySpec();
+
+        // obsolete:
         Mesh mesh;
         Shadow shadow;
         Mesh amended;
@@ -18,7 +21,7 @@ namespace SSCP.ShellPower {
         /* apis */
         GeoNames geoNamesApi = new GeoNames();
 
-        /* simulation state */
+        /* current simulation state */
         ArraySimulationStepInput simInput = new ArraySimulationStepInput();
         ArraySimulationStepOutput simOutput = new ArraySimulationStepOutput();
 
@@ -67,7 +70,6 @@ namespace SSCP.ShellPower {
             MeshSprite sprite = new MeshSprite(mesh);
             var center = (mesh.BoundingBox.Max + mesh.BoundingBox.Min) / 2;
             sprite.Position = new Vector4(-center, 1);
-            glControl.Sprite = sprite;
             
             //split out the array
             Logger.info("creating solar array boundary in the mesh...");
@@ -96,7 +98,47 @@ namespace SSCP.ShellPower {
             //render the mesh, with shadows, centered in the viewport
             //var center = (amended.BoundingBox.Max + amended.BoundingBox.Min) / 2;
             shadowSprite.Position = new Vector4(-center, 1);
-            glControl.ShadowSprite = shadowSprite;
+            glControl.Sprite = shadowSprite;
+        }
+
+        private Vector3 GetSunDir() {
+            // update the astronomy model
+            var utc_time = simInput.LocalTime - new TimeSpan((long)(simInput.Timezone * 3600.0) * 10000000);
+            var sidereal = Astro.sidereal_time(
+                utc_time,
+                simInput.Longitude);
+            var azimuth = Astro.solar_azimuth(
+                (int)sidereal.TimeOfDay.TotalSeconds,
+                simInput.LocalTime.DayOfYear,
+                simInput.Latitude)
+                - (float)simInput.Heading;
+            var elevation = Astro.solar_elevation(
+                (int)sidereal.TimeOfDay.TotalSeconds,
+                simInput.LocalTime.DayOfYear,
+                simInput.Latitude);
+            Logger.info("sim step\n\t" +
+                "lat {0:0.0} lon {1:0.0} heading {2:0.0}\n\t" +
+                "azith {3:0.0} elev {4:0.0} utc {5} sidereal {6}",
+                simInput.Latitude,
+                simInput.Longitude,
+                Astro.rad2deg(simInput.Heading),
+                Astro.rad2deg(azimuth),
+                Astro.rad2deg(elevation),
+                utc_time,
+                sidereal);
+
+            //recalculate the shadows
+            var lightDir = new Vector3(
+                (float)(-Math.Cos(elevation) * Math.Cos(azimuth)), (float)(Math.Sin(elevation)),
+                (float)(-Math.Cos(elevation) * Math.Sin(azimuth)));
+            if (elevation < 0) {
+                lightDir = Vector3.Zero;
+            }
+            if (shadow != null && lightDir.LengthSquared > 0) {
+                shadow.Light = new Vector4(lightDir, 0);
+                shadow.ComputeShadows();
+            }
+            return lightDir;
         }
 
         private void CalculateSimStep() {
@@ -136,6 +178,8 @@ namespace SSCP.ShellPower {
                 shadow.Light = new Vector4(lightDir, 0);
                 shadow.ComputeShadows();
             }
+
+            // TODO: clean up MainForm. delete the above.
 
             // update the view
             glControl.SunDirection = lightDir;
@@ -216,11 +260,22 @@ namespace SSCP.ShellPower {
             DialogResult result = openFileDialogArray.ShowDialog();
             if (result != DialogResult.OK) return;
             var texFile = openFileDialogArray.FileName;
-            glControl.ArrayTextureFile = texFile;
+            array.LayoutTexture = new Bitmap(texFile);
         }
 
         private void openSimParamsToolStripMenuItem_Click(object sender, EventArgs e) {
 
+        }
+
+
+        /// <summary>
+        /// Called whenever the array changes.
+        /// Uses our model of the array (mesh, texture, etc) to
+        /// * update the view
+        /// * update the simulator
+        /// * recalculate
+        /// </summary>
+        private void UpdateModel() {
         }
 
         private void GuiSimStepInputs(object sender, EventArgs e) {
@@ -269,11 +324,13 @@ namespace SSCP.ShellPower {
         }
 
         private void btnRecalc_Click(object sender, EventArgs e) {
-            ArraySimulationStepOutput output = glControl.Recompute();
+            array.Mesh = mesh;
+            var simulator = new ArraySimulator(array);
+            simOutput = simulator.Simulate(simInput);
             Debug.WriteLine("array simulation output");
-            Debug.WriteLine("   ... " + output.ArrayLitArea + " m^2 exposed to sunlight");
-            Debug.WriteLine("   ... " + output.WattsInsolation + " W insolation");
-            Debug.WriteLine("   ... " + output.WattsOutput + " W output");
+            Debug.WriteLine("   ... " + simOutput.ArrayLitArea + " m^2 exposed to sunlight");
+            Debug.WriteLine("   ... " + simOutput.WattsInsolation + " W insolation");
+            Debug.WriteLine("   ... " + simOutput.WattsOutput + " W output");
         }
     }
 }

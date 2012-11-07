@@ -148,8 +148,11 @@
     <Compile Include="Geom\IArea.cs" />
     <Compile Include="Geom\Shadow.cs" />
     <Compile Include="Geom\ShadowVolume.cs" />
+    <Compile Include="Math\ArraySimulator.cs" />
+    <Compile Include="Math\ArraySpec.cs" />
     <Compile Include="Sprites\MeshTriangle.cs" />
     <Compile Include="Utilities\Cache.cs" />
+    <Compile Include="Utilities\GLUtils.cs" />
     <Compile Include="Utilities\Logger.cs" />
     <Compile Include="Geom\KDTree.cs" />
     <Compile Include="Utilities\Utility.cs" />
