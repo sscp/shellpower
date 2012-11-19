@@ -20,9 +20,13 @@ namespace SSCP.ShellPower {
         ArraySimulationStepInput simInput = new ArraySimulationStepInput();
         ArraySimulationStepOutput simOutput = new ArraySimulationStepOutput();
 
+        /* view */
+        ArrayLayoutForm arrayLayoutForm;
+
         public MainForm() {
             InitializeComponent();
             GuiSimStepInputs(null, null);
+            arrayLayoutForm = new ArrayLayoutForm(array);
 
             //TODO: remove hack, here to make debugging faster
             LoadModel("C:/shellpower/meshes/sunbadThinCarWholeRotSmall.stl");
@@ -228,10 +232,10 @@ namespace SSCP.ShellPower {
         }
 
         private void openLayoutToolStripMenuItem_Click(object sender, EventArgs e) {
-            DialogResult result = openFileDialogArray.ShowDialog();
-            if (result != DialogResult.OK) return;
-            var texFile = openFileDialogArray.FileName;
-            array.LayoutTexture = new Bitmap(texFile);
+            Bitmap bitmap = arrayLayoutForm.PromptUserForLayoutTexture();
+            if (bitmap != null) {
+                array.LayoutTexture = bitmap;
+            }
         }
 
         private void openSimParamsToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -306,6 +310,10 @@ namespace SSCP.ShellPower {
             } catch (Exception exc) {
                 MessageBox.Show(exc.Message);
             }
+        }
+
+        private void layoutToolStripMenuItem_Click(object sender, EventArgs e) {
+            arrayLayoutForm.ShowDialog();
         }
     }
 }

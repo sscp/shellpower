@@ -20,6 +20,10 @@ namespace SSCP.ShellPower {
     /// * (TODO) An optional set of bypass diodes
     /// </summary>
     public class ArraySpec {
+        public ArraySpec() {
+            CellIDs = new Dictionary<Color, string>();
+            Strings = new List<CellString>();
+        }
         /// <summary>
         /// The shape of the array.
         /// Dimensions should be in meters. The positive Y direction is up.
@@ -38,5 +42,21 @@ namespace SSCP.ShellPower {
         /// is the bottom-right corner.
         /// </summary>
         public Vector4d LayoutBoundsXZ { get; set; }
+        /// <summary>
+        /// Assigns each cell in the texture an id (eg "c00").
+        /// </summary>
+        public Dictionary<Color, string> CellIDs { get; private set; }
+        /// <summary>
+        /// Assigns cells to strings (a group of cells in series).
+        /// </summary>
+        public List<CellString> Strings { get; private set; }
+
+        public class CellString {
+            public CellString() {
+                CellIDs = new List<string>();
+            }
+            public List<String> CellIDs { get; private set; }
+            //TODO: bypass diodes
+        }
     }
 }

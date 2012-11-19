@@ -2,6 +2,8 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Diagnostics;
+using System.Collections;
+using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
@@ -14,7 +16,7 @@ namespace SSCP.ShellPower {
         private int texArray;
 
         /* ... program outputs to a texture */
-        private int texWatts, texCells, texWattsWidth, texWattsHeight;
+        private int texWatts, texCells, computeWidth, computeHeight;
         private int fboWatts;
 
         /* model */
@@ -97,13 +99,13 @@ void main()
         }
 
         private void InitGLComputeBuffer() {
-            texWattsWidth = texWattsHeight = 2048;
+            computeWidth = computeHeight = 2048;
 
             // one buffer for insolation in W...
             texWatts = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, texWatts);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8,
-                texWattsWidth, texWattsHeight, 0,
+                computeWidth, computeHeight, 0,
                 OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
 
             // another that uses color to ID each cell, string, and panel
@@ -114,7 +116,7 @@ void main()
             texCells = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, texCells);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8,
-                texWattsWidth, texWattsHeight, 0,
+                computeWidth, computeHeight, 0,
                 OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
@@ -122,7 +124,7 @@ void main()
             int texDepth = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, texDepth);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent32,
-                texWattsWidth, texWattsHeight, 0,
+                computeWidth, computeHeight, 0,
                 OpenTK.Graphics.OpenGL.PixelFormat.DepthComponent, PixelType.UnsignedInt, IntPtr.Zero);
 
             //fbo
@@ -152,7 +154,7 @@ void main()
 
         public void ComputeRender(ArraySimulationStepInput simInput) {
             Debug.WriteLine("rendering insolation+cells into a "
-                + texWattsWidth + "x" + texWattsWidth + " fbo");
+                + computeWidth + "x" + computeWidth + " fbo");
 
             /* gl state */
             GL.UseProgram(shaderProg);
@@ -164,12 +166,12 @@ void main()
             GL.PushAttrib(AttribMask.ViewportBit); // stores GL.Viewport() parameters
 
             GL.BindTexture(TextureTarget.Texture2D, texArray);
-            GL.Viewport(0, 0, texWattsWidth, texWattsHeight);
+            GL.Viewport(0, 0, computeWidth, computeHeight);
             GL.ClearColor(Color.White);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             SetModelViewSun(GetSunDir(simInput));
-            GLUtils.SetCameraProjectionOrtho(texWattsWidth, texWattsHeight);
+            GLUtils.SetCameraProjectionOrtho(computeWidth, computeHeight);
 
             MeshSprite sprite = new MeshSprite(spec.Mesh);
             sprite.PushTransform();
@@ -234,17 +236,24 @@ void main()
             DebugSaveBuffer(FramebufferAttachment.ColorAttachment1, "../../../../test1.png");
         }
 
-        private void DebugSaveBuffer(FramebufferAttachment buf, String fname) {
+        /// <summary>
+        /// Reads an OpenGL buffer. Returns the contents as an image (specifically, 32-bpp ARGB bitmap).
+        /// </summary>
+        private Bitmap ReadBuffer(FramebufferAttachment buf) {
             GL.ReadBuffer((ReadBufferMode)buf);
-            Bitmap bmp = new Bitmap(texWattsWidth, texWattsHeight,
+            Bitmap bmp = new Bitmap(computeWidth, computeHeight,
                 System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             BitmapData bmpData = bmp.LockBits(
-                new Rectangle(0, 0, texWattsWidth, texWattsHeight),
+                new Rectangle(0, 0, computeWidth, computeHeight),
                 ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            GL.ReadPixels(0, 0, texWattsWidth, texWattsHeight,
+            GL.ReadPixels(0, 0, computeWidth, computeHeight,
                 OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, bmpData.Scan0);
             bmp.UnlockBits(bmpData);
+            return bmp;
+        }
 
+        private void DebugSaveBuffer(FramebufferAttachment buf, String fname) {
+            Bitmap bmp = ReadBuffer(buf);
             Debug.WriteLine("writing " + fname);
             bmp.Save(fname);
         }
@@ -257,6 +266,62 @@ void main()
         /// Uses this to calculate IV curves, etc, and ultimately array power.
         /// </summary>
         private ArraySimulationStepOutput AnalyzeComputeTex() {
+            byte[] cellIdsB = new byte[computeWidth*computeHeight*4];
+            Color[] cellIdsC = new Color[computeWidth*computeHeight];
+            string[] cellIds = new string[computeWidth * computeHeight];
+            float[] watts = new float[computeWidth * computeHeight];
+            unsafe{
+                fixed(byte* pb = cellIdsB){
+                    // cell id
+                    GL.ReadBuffer((ReadBufferMode)FramebufferAttachment.ColorAttachment0);
+                    GL.ReadPixels(0, 0, computeWidth, computeHeight,
+                        OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, new IntPtr(pb));
+                }
+                fixed (float* pf = watts) {
+                    // cell id
+                    GL.ReadBuffer((ReadBufferMode)FramebufferAttachment.ColorAttachment1);
+                    GL.ReadPixels(0, 0, computeWidth, computeHeight,
+                        OpenTK.Graphics.OpenGL.PixelFormat.Blue, PixelType.Float, new IntPtr(pf));
+                }
+            }
+
+            // find the cell id of each fragment...
+            for (int i = 0; i < computeWidth * computeHeight; i++) {
+                cellIdsC[i] = Color.FromArgb(
+                    cellIdsB[i * 4 + 3], // rgba to argb
+                    cellIdsB[i * 4 + 0],
+                    cellIdsB[i * 4 + 1],
+                    cellIdsB[i * 4 + 2]);
+            }
+            //TODO: let the user id the colors, spec how they're wired
+            var colorToId = new Dictionary<Color, string>();
+            int ix = 0;
+            for (int i = 0; i < computeWidth * computeHeight; i++) {
+                Color color = cellIdsC[i];
+                string cellId;
+                if (colorToId.ContainsKey(color)) {
+                    cellId = colorToId[color];
+                } else {
+                    cellId = "c" + (ix++);
+                    colorToId[color] = cellId;
+                }
+                cellIds[i] = cellId;
+            }
+
+            // now, find the total insolation for each cell id
+            var idToInsolation = new Dictionary<string, double>();
+            foreach (String cellId in colorToId.Values) {
+                idToInsolation[cellId] = 0.0;
+            }
+            for (int i = 0; i < computeWidth * computeHeight; i++) {
+                String cellId = cellIds[i];
+                double insolation = watts[i];
+                idToInsolation[cellId] += insolation;
+            }
+            foreach (String cellId in idToInsolation.Keys) {
+                Debug.WriteLine("cell " + cellId + " insolation " + idToInsolation[cellId]);
+            }
+
             ArraySimulationStepOutput output = new ArraySimulationStepOutput();
             output.ArrayArea = 10;
             output.ArrayLitArea = 9;

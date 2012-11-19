@@ -101,6 +101,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Drawing">
       <Name>System.Drawing</Name>
       <Private>False</Private>
@@ -157,6 +158,18 @@
     <Compile Include="Geom\KDTree.cs" />
     <Compile Include="Utilities\Utility.cs" />
     <Compile Include="Utilities\Web.cs" />
+    <Compile Include="View\ArrayLayoutControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\ArrayLayoutControl.Designer.cs">
+      <DependentUpon>ArrayLayoutControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\ArrayLayoutForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\ArrayLayoutForm.Designer.cs">
+      <DependentUpon>ArrayLayoutForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\ArrayModelControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -180,6 +193,9 @@
     <Compile Include="Geom\Matrix3.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="View\ArrayLayoutForm.resx">
+      <DependentUpon>ArrayLayoutForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="View\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

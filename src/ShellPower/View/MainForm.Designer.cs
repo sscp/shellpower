@@ -62,9 +62,10 @@
             this.buttonRun = new System.Windows.Forms.Button();
             this.labelSimAvgPower = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
-            this.glControl = new SSCP.ShellPower.ArrayModelControl();
             this.openFileDialogModel = new System.Windows.Forms.OpenFileDialog();
-            this.openFileDialogArray = new System.Windows.Forms.OpenFileDialog();
+            this.glControl = new SSCP.ShellPower.ArrayModelControl();
+            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.layoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -97,7 +98,8 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
+            this.fileToolStripMenuItem,
+            this.editToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1062, 24);
@@ -465,27 +467,37 @@
             this.label10.TabIndex = 13;
             this.label10.Text = "Avg power:";
             // 
-            // glControl
-            // 
-            this.glControl.Sprite = null; 
-            this.glControl.BackColor = System.Drawing.Color.Black;
-            this.glControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.glControl.Location = new System.Drawing.Point(0, 0);
-            this.glControl.Name = "glControl";
-            this.glControl.Size = new System.Drawing.Size(644, 421);
-            this.glControl.SunDirection = ((OpenTK.Vector3)(resources.GetObject("glControl.SunDirection")));
-            this.glControl.TabIndex = 0;
-            this.glControl.VSync = true;
-            // 
             // openFileDialogModel
             // 
             this.openFileDialogModel.Filter = "3DXML files|*.3dxml|STL Files (ascii)|*.stl|All files|*.*";
             this.openFileDialogModel.Title = "Load solar car model";
             // 
-            // openFileDialogArray
+            // glControl
             // 
-            this.openFileDialogArray.Filter = "PNG Files|*.png|JPG Files|*.jpg|Bitmap files|*.bmp";
-            this.openFileDialogArray.Title = "Load array texture (cell layout)";
+            this.glControl.BackColor = System.Drawing.Color.Black;
+            this.glControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.glControl.Location = new System.Drawing.Point(0, 0);
+            this.glControl.Name = "glControl";
+            this.glControl.Size = new System.Drawing.Size(644, 421);
+            this.glControl.Sprite = null;
+            this.glControl.SunDirection = ((OpenTK.Vector3)(resources.GetObject("glControl.SunDirection")));
+            this.glControl.TabIndex = 0;
+            this.glControl.VSync = true;
+            // 
+            // editToolStripMenuItem
+            // 
+            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.layoutToolStripMenuItem});
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
+            this.editToolStripMenuItem.Text = "Edit";
+            // 
+            // layoutToolStripMenuItem
+            // 
+            this.layoutToolStripMenuItem.Name = "layoutToolStripMenuItem";
+            this.layoutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.layoutToolStripMenuItem.Text = "Layout";
+            this.layoutToolStripMenuItem.Click += new System.EventHandler(this.layoutToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -561,6 +573,7 @@
         private System.Windows.Forms.OpenFileDialog openFileDialogModel;
         private System.Windows.Forms.Label labelArrPower;
         private System.Windows.Forms.Button btnRecalc;
-        private System.Windows.Forms.OpenFileDialog openFileDialogArray;
+        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem layoutToolStripMenuItem;
     }
 }
