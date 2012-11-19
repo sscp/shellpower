@@ -16,6 +16,11 @@ namespace SSCP.ShellPower {
             Debug.Assert(spec != null);
             this.spec = spec;
             InitializeComponent();
+            arrayLayoutControl.SelectionChanged += new EventHandler(arrayLayoutControl_SelectionChanged);
+            UpdateUI();
+        }
+
+        void arrayLayoutControl_SelectionChanged(object sender, EventArgs e) {
             UpdateUI();
         }
 
@@ -40,6 +45,13 @@ namespace SSCP.ShellPower {
             // show the layout
             arrayLayoutControl.Array = this.spec;
             // TODO: array bounds
+
+            // show the strings
+            listViewStrings.Clear();
+            foreach (ArraySpec.CellString cellStr in spec.Strings) {
+                string cellStrStr = string.Join(",", cellStr.CellIDs);
+                listViewStrings.Items.Add(new ListViewItem(cellStrStr));
+            }
         }
         #endregion
 
@@ -56,7 +68,35 @@ namespace SSCP.ShellPower {
             Debug.WriteLine("relabel");
         }
         private void buttonMakeString_Click(object sender, EventArgs e) {
-            Debug.WriteLine("make string");
+            HashSet<String> cellIds = arrayLayoutControl.SelectedIDs;
+            Debug.WriteLine("make string: " + string.Join(",", cellIds));
+
+            // remove from existing strings
+            List<ArraySpec.CellString> newStrings = new List<ArraySpec.CellString>();
+            foreach (ArraySpec.CellString cellStr in spec.Strings) {
+                List<string> stringIds = cellStr.CellIDs;
+                for (int i = stringIds.Count - 1; i >= 0; i--) {
+                    if (cellIds.Contains(stringIds[i])) {
+                        stringIds.RemoveAt(i);
+                        if (i < stringIds.Count) {
+                            i++;
+                        }
+                    }
+                }
+                if (cellStr.CellIDs.Count > 0) {
+                    newStrings.Add(cellStr);
+                }
+            }
+            spec.Strings.Clear();
+            spec.Strings.AddRange(newStrings);
+
+            // create the new string
+            ArraySpec.CellString newString = new ArraySpec.CellString();
+            newString.CellIDs.AddRange(cellIds);
+            spec.Strings.Add(newString);
+
+            // update the view
+            UpdateUI();
         }
         private void listViewStrings_SelectedIndexChanged(object sender, EventArgs e) {
         }

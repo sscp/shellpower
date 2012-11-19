@@ -195,7 +195,7 @@
             this.ClientSize = new System.Drawing.Size(578, 395);
             this.Controls.Add(this.splitContainer1);
             this.Name = "ArrayLayoutForm";
-            this.Text = "Solar array layout";
+            this.Text = "Solar Array Layout";
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);

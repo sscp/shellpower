@@ -32,6 +32,21 @@ namespace SSCP.ShellPower {
                           true);
         }
 
+        public event EventHandler SelectionChanged;
+
+        public HashSet<String> SelectedIDs {
+            get {
+                HashSet<String> ret = new HashSet<string>();
+                foreach (Color col in SelectedColors) {
+                    if (!Array.CellIDs.ContainsKey(col)) {
+                        Array.CellIDs.Add(col, ColorTranslator.ToHtml(col));
+                    }
+                    ret.Add(Array.CellIDs[col]);
+                }
+                return ret;
+            }
+        }
+
         private RectangleF GetArrayLayoutRect() {
             double texW = Array.LayoutTexture.Width;
             double texH = Array.LayoutTexture.Height;
@@ -50,6 +65,42 @@ namespace SSCP.ShellPower {
             return new Rectangle(minX, minY, maxX-minX, maxY-minY);
         }
 
+        /// <summary>
+        /// Gets the array layout texture.
+        /// </summary>
+        private Bitmap cacheTex;
+        private Color[,] cachePixels;
+        private Color[,] GetPixels() {
+            Debug.Assert(Array != null && Array.LayoutTexture != null);
+            Bitmap tex = Array.LayoutTexture;
+            if (tex == cacheTex) {
+                return cachePixels;
+            }
+            int w = tex.Width, h = tex.Height;
+            Color[,] ret = new Color[w,h];
+            Debug.WriteLine("copying out array layout texture pixels");
+
+            // jump thru some hoops to read Bitmap data efficiently
+            BitmapData texData = tex.LockBits(
+                new Rectangle(0, 0, w, h),
+                ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            unsafe {
+                int* pixels = (int*)texData.Scan0.ToPointer();
+                for (int i = 0; i < w; i++){
+                    for(int j = 0; j < h; j++){
+                        Color pixelColor = Color.FromArgb(pixels[j*w + i] | unchecked((int)0xff000000));
+                        Debug.Assert(pixelColor.A == 255);
+                        ret[i,j] = pixelColor;
+                    }
+                }
+            }
+            tex.UnlockBits(texData);
+
+            cacheTex = tex;
+            cachePixels = ret;
+            return ret;
+        }
+
         private void RecomputeSelection() {
             Bitmap tex = Array.LayoutTexture;
             int w = tex.Width, h = tex.Height;
@@ -63,39 +114,68 @@ namespace SSCP.ShellPower {
             int maxY = (int)(h * (rectSel.Bottom - rectLayout.Y) / rectLayout.Height);
 
             // find which solar cells we've selected
-            SelectedColors.Clear();
-            BitmapData texData = tex.LockBits(
-                new Rectangle(0, 0, w, h),
-                ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-            unsafe {
-                int* pixels = (int*)texData.Scan0.ToPointer();
-                for (int j = minY; j <= maxY; j++) {
-                    for (int i = minX; i <= maxX; i++) {
-                        if (i < 0 || j < 0 || i >= w || j >= h) {
-                            continue;
-                        }
-                        Color pixelColor = Color.FromArgb(pixels[j*w + i] | unchecked((int)0xff000000));
-                        Debug.Assert(pixelColor.A == 255);
-                        // ignore grayscale
-                        if (pixelColor.B == pixelColor.G && pixelColor.G == pixelColor.R) {
-                            continue;
-                        }
-                        SelectedColors.Add(pixelColor);
+            Color[,] pixels = GetPixels();
+            HashSet<Color> newSelection = new HashSet<Color>();
+            for (int j = minY; j <= maxY; j++) {
+                for (int i = minX; i <= maxX; i++) {
+                    if (i < 0 || j < 0 || i >= w || j >= h) {
+                        continue;
                     }
+                    Color pixelColor = pixels[i,j];
+                    // ignore grayscale
+                    if (pixelColor.B == pixelColor.G && pixelColor.G == pixelColor.R) {
+                        continue;
+                    }
+                    newSelection.Add(pixelColor);
                 }
             }
-            tex.UnlockBits(texData);
+            if (!newSelection.SetEquals(SelectedColors)) {
+                SelectedColors = newSelection;
+                if (SelectionChanged != null) {
+                    SelectionChanged(this, null);
+                }
+            }
         }
 
+        private Bitmap texSelected;
         protected override void OnPaint(PaintEventArgs e) {
+            // draw the background
             Graphics g = e.Graphics;
             g.Clear(Color.Black);
             if(Array == null || Array.LayoutTexture == null){
                 return;
             }
-            g.DrawImage(Array.LayoutTexture, GetArrayLayoutRect());
+
+            // draw the array layout
+            RectangleF arrayLayoutRect = GetArrayLayoutRect();
+            g.DrawImage(Array.LayoutTexture, arrayLayoutRect);
+
+            // highlight the selected cells
+            Color[,] pixels = GetPixels();
+            int w = Array.LayoutTexture.Width, h = Array.LayoutTexture.Height;
+            if (texSelected == null || texSelected.Width != w || texSelected.Height != h) {
+                texSelected = new Bitmap(w, h);
+            }
+            BitmapData texSelData = texSelected.LockBits(
+                new Rectangle(0, 0, w, h),
+                ImageLockMode.WriteOnly,
+                PixelFormat.Format32bppArgb);
+            unsafe {
+                uint* pixelSel = (uint*)texSelData.Scan0.ToPointer();
+                for (int j = 0; j < h; j++) {
+                    for (int i = 0; i < w; i++) {
+                        bool sel = SelectedColors.Contains(pixels[i, j]);
+                        bool mask = (j + i) % 20 < 10;
+                        uint alpha = (uint)((sel && mask) ? 0x80 : 0x00);
+                        uint color = 0xffffff | (alpha << 24); // white highlight
+                        pixelSel[j * w + i] = color;
+                    }
+                }
+            }
+            texSelected.UnlockBits(texSelData);
+            g.DrawImage(texSelected, arrayLayoutRect);
             
-            // draw the selection
+            // draw the selection box
             Rectangle? rect = GetSelectionRect();
             if (rect != null) {
                 Pen stroke = Pens.White;
@@ -119,7 +199,6 @@ namespace SSCP.ShellPower {
             }
             dragPointB = new Point(e.X, e.Y);
             RecomputeSelection();
-            Debug.WriteLine(SelectedColors.Count + " colors selected");
             Refresh();
         }
     }
