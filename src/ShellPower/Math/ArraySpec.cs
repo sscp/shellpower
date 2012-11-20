@@ -23,6 +23,7 @@ namespace SSCP.ShellPower {
         public ArraySpec() {
             CellIDs = new Dictionary<Color, string>();
             Strings = new List<CellString>();
+            CellSpec = new CellSpec();
         }
         /// <summary>
         /// The shape of the array.
@@ -50,7 +51,6 @@ namespace SSCP.ShellPower {
         /// Assigns cells to strings (a group of cells in series).
         /// </summary>
         public List<CellString> Strings { get; private set; }
-
         public class CellString {
             public CellString() {
                 CellIDs = new List<string>();
@@ -58,5 +58,7 @@ namespace SSCP.ShellPower {
             public List<String> CellIDs { get; private set; }
             //TODO: bypass diodes
         }
+
+        public CellSpec CellSpec { get; private set; }
     }
 }

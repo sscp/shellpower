@@ -151,6 +151,8 @@
     <Compile Include="Geom\ShadowVolume.cs" />
     <Compile Include="Math\ArraySimulator.cs" />
     <Compile Include="Math\ArraySpec.cs" />
+    <Compile Include="Math\CellSpec.cs" />
+    <Compile Include="Math\Constants.cs" />
     <Compile Include="Sprites\MeshTriangle.cs" />
     <Compile Include="Utilities\Cache.cs" />
     <Compile Include="Utilities\GLUtils.cs" />
@@ -178,6 +180,12 @@
     <Compile Include="Utilities\GeoNames.cs" />
     <Compile Include="FileFormats\IgesParser.cs" />
     <Compile Include="FileFormats\IgesEntity.cs" />
+    <Compile Include="View\CellParamsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\CellParamsForm.Designer.cs">
+      <DependentUpon>CellParamsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -191,10 +199,19 @@
     <Compile Include="Sprites\Sprite.cs" />
     <Compile Include="ThirdParty\TexLib.cs" />
     <Compile Include="Geom\Matrix3.cs" />
+    <Compile Include="View\SimpleGraph.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\SimpleGraph.Designer.cs">
+      <DependentUpon>SimpleGraph.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="View\ArrayLayoutForm.resx">
       <DependentUpon>ArrayLayoutForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\CellParamsForm.resx">
+      <DependentUpon>CellParamsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="View\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

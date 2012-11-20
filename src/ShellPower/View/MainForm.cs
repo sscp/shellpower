@@ -20,21 +20,38 @@ namespace SSCP.ShellPower {
         ArraySimulationStepInput simInput = new ArraySimulationStepInput();
         ArraySimulationStepOutput simOutput = new ArraySimulationStepOutput();
 
-        /* view */
+        /* sub views */
         ArrayLayoutForm arrayLayoutForm;
+        CellParamsForm cellParamsForm;
 
         public MainForm() {
+            // init view
             InitializeComponent();
-            GuiSimStepInputs(null, null);
             arrayLayoutForm = new ArrayLayoutForm(array);
+            cellParamsForm = new CellParamsForm(array);
 
-            //TODO: remove hack, here to make debugging faster
-            LoadModel("C:/shellpower/meshes/sunbadThinCarWholeRotSmall.stl");
-            LoadArrayTexture("C:/shellpower/arrays/texture.png");
+            // init model
+            InitializeArraySpec();
+
+            // run the first update step
+            CalculateSimInput();
             CalculateSimStep();
         }
 
-        private void LoadArrayTexture(String arrayTex) {
+        private void InitializeArraySpec() {
+            //TODO: remove hack, here to make debugging faster
+            LoadModel("C:/shellpower/meshes/sunbadThinCarWholeRotSmall.stl");
+
+            // Sunpower C60 Bin I
+            // http://www.kyletsai.com/uploads/9/7/5/3/9753015/sunpower_c60_bin_ghi.pdf
+            array.CellSpec.IscStc = 6.27;
+            array.CellSpec.VocStc = 0.686;
+            array.CellSpec.DIscDT = -0.0020; // approx, computed
+            array.CellSpec.DVocDT = -0.0018;
+            array.CellSpec.Area = 0.015555; // m^2
+            array.CellSpec.Temperature = 25; // deg c
+            array.CellSpec.NIdeal = 1.26; // fudge
+            array.CellSpec.SeriesR = 0.003; // ohms
         }
 
         private void LoadModel(string filename) {
@@ -253,7 +270,14 @@ namespace SSCP.ShellPower {
         private void UpdateModel() {
         }
 
+        /// <summary>
+        /// Called when one of the sim input GUIs changes.
+        /// </summary>
         private void GuiSimStepInputs(object sender, EventArgs e) {
+            CalculateSimInput();
+        }
+
+        private void CalculateSimInput(){
             var lat = double.Parse(textBoxLat.Text);
             var lon = double.Parse(textBoxLon.Text);
 
@@ -314,6 +338,10 @@ namespace SSCP.ShellPower {
 
         private void layoutToolStripMenuItem_Click(object sender, EventArgs e) {
             arrayLayoutForm.ShowDialog();
+        }
+
+        private void cellParametersToolStripMenuItem_Click(object sender, EventArgs e) {
+            cellParamsForm.ShowDialog();
         }
     }
 }

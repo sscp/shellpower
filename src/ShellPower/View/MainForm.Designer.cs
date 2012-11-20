@@ -31,6 +31,8 @@
             this.openModelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openSimParamsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.layoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageRun = new System.Windows.Forms.TabPage();
@@ -62,10 +64,9 @@
             this.buttonRun = new System.Windows.Forms.Button();
             this.labelSimAvgPower = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
-            this.openFileDialogModel = new System.Windows.Forms.OpenFileDialog();
             this.glControl = new SSCP.ShellPower.ArrayModelControl();
-            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.layoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openFileDialogModel = new System.Windows.Forms.OpenFileDialog();
+            this.cellParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -136,6 +137,22 @@
             this.openSimParamsToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
             this.openSimParamsToolStripMenuItem.Text = "Open sim params";
             this.openSimParamsToolStripMenuItem.Click += new System.EventHandler(this.openSimParamsToolStripMenuItem_Click);
+            // 
+            // editToolStripMenuItem
+            // 
+            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.layoutToolStripMenuItem,
+            this.cellParametersToolStripMenuItem});
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
+            this.editToolStripMenuItem.Text = "Edit";
+            // 
+            // layoutToolStripMenuItem
+            // 
+            this.layoutToolStripMenuItem.Name = "layoutToolStripMenuItem";
+            this.layoutToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.layoutToolStripMenuItem.Text = "Layout";
+            this.layoutToolStripMenuItem.Click += new System.EventHandler(this.layoutToolStripMenuItem_Click);
             // 
             // splitContainer1
             // 
@@ -467,11 +484,6 @@
             this.label10.TabIndex = 13;
             this.label10.Text = "Avg power:";
             // 
-            // openFileDialogModel
-            // 
-            this.openFileDialogModel.Filter = "3DXML files|*.3dxml|STL Files (ascii)|*.stl|All files|*.*";
-            this.openFileDialogModel.Title = "Load solar car model";
-            // 
             // glControl
             // 
             this.glControl.BackColor = System.Drawing.Color.Black;
@@ -484,20 +496,17 @@
             this.glControl.TabIndex = 0;
             this.glControl.VSync = true;
             // 
-            // editToolStripMenuItem
+            // openFileDialogModel
             // 
-            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.layoutToolStripMenuItem});
-            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
-            this.editToolStripMenuItem.Text = "Edit";
+            this.openFileDialogModel.Filter = "3DXML files|*.3dxml|STL Files (ascii)|*.stl|All files|*.*";
+            this.openFileDialogModel.Title = "Load solar car model";
             // 
-            // layoutToolStripMenuItem
+            // cellParametersToolStripMenuItem
             // 
-            this.layoutToolStripMenuItem.Name = "layoutToolStripMenuItem";
-            this.layoutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.layoutToolStripMenuItem.Text = "Layout";
-            this.layoutToolStripMenuItem.Click += new System.EventHandler(this.layoutToolStripMenuItem_Click);
+            this.cellParametersToolStripMenuItem.Name = "cellParametersToolStripMenuItem";
+            this.cellParametersToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.cellParametersToolStripMenuItem.Text = "Cell Parameters";
+            this.cellParametersToolStripMenuItem.Click += new System.EventHandler(this.cellParametersToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -575,5 +584,6 @@
         private System.Windows.Forms.Button btnRecalc;
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem layoutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cellParametersToolStripMenuItem;
     }
 }
