@@ -13,3 +13,9 @@ TestResults
 meshes/*
 arrays/
 test*.png
+
+# latex
+*.aux
+*.log
+*.gz
+*.pdf
