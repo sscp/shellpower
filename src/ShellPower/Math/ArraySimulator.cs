@@ -13,6 +13,7 @@ namespace SSCP.ShellPower {
         /* opengl for computation program and args */
         private int shaderVert, shaderFrag, shaderProg;
         private int uniformPixelArea, uniformSolarCells;
+        private int uniformX0, uniformX1, uniformZ0, uniformZ1;
         private int texArray;
 
         /* ... program outputs to a texture */
@@ -57,6 +58,7 @@ namespace SSCP.ShellPower {
             shaderFrag = GL.CreateShader(ShaderType.FragmentShader);
             shaderVert = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(shaderVert, @"
+uniform float x0, x1, z0, z1;
 varying float cosRule;
 void main()
 {
@@ -65,7 +67,7 @@ void main()
     vec3 normal = gl_NormalMatrix * gl_Normal;
     cosRule = dot(normal, vec3(0,0,1));
 
-    gl_TexCoord[0] = vec4(-gl_Vertex.x / 4.0 + 0.5, gl_Vertex.z / 4.0 + 0.5, 0,0);
+    gl_TexCoord[0] = vec4((gl_Vertex.x - x0) / (x1 - x0), (gl_Vertex.z - z0) / (z1 - z0), 0,0);
 }");
             GL.ShaderSource(shaderFrag, @"
 uniform float pixelArea;
@@ -91,6 +93,17 @@ void main()
             GL.UseProgram(shaderProg);
             Debug.WriteLine("shader attached.");
 
+            // init values for the uniforms
+
+            uniformX0 = GL.GetUniformLocation(shaderProg, "x0");
+            uniformX1 = GL.GetUniformLocation(shaderProg, "x1");
+            uniformZ0 = GL.GetUniformLocation(shaderProg, "z0");
+            uniformZ1 = GL.GetUniformLocation(shaderProg, "z1");
+            // TODO: set these at render time using ArraySpec.TexBounds
+            GL.Uniform1(uniformX0, -2.1f); // front of car
+            GL.Uniform1(uniformX1, 2.35f); // back of car
+            GL.Uniform1(uniformZ0, -0.8f); // left side
+            GL.Uniform1(uniformZ1, 0.8f); // right side
             uniformPixelArea = GL.GetUniformLocation(shaderProg, "pixelArea");
             GL.Uniform1(uniformPixelArea, 1.0f);
             uniformSolarCells = GL.GetUniformLocation(shaderProg, "solarCells");
@@ -266,18 +279,18 @@ void main()
         /// Uses this to calculate IV curves, etc, and ultimately array power.
         /// </summary>
         private ArraySimulationStepOutput AnalyzeComputeTex() {
-            byte[] cellIdsB = new byte[computeWidth*computeHeight*4];
-            Color[] cellIdsC = new Color[computeWidth*computeHeight];
-            string[] cellIds = new string[computeWidth * computeHeight];
-            float[] watts = new float[computeWidth * computeHeight];
+            byte[] texCellIdsRaw = new byte[computeWidth*computeHeight*4];
+            Color[] texCellIdsC = new Color[computeWidth*computeHeight];
+            string[] texCellIds = new string[computeWidth * computeHeight];
+            float[] texWattsIn = new float[computeWidth * computeHeight];
             unsafe{
-                fixed(byte* pb = cellIdsB){
+                fixed(byte* pb = texCellIdsRaw){
                     // cell id
                     GL.ReadBuffer((ReadBufferMode)FramebufferAttachment.ColorAttachment0);
                     GL.ReadPixels(0, 0, computeWidth, computeHeight,
                         OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, new IntPtr(pb));
                 }
-                fixed (float* pf = watts) {
+                fixed (float* pf = texWattsIn) {
                     // cell id
                     GL.ReadBuffer((ReadBufferMode)FramebufferAttachment.ColorAttachment1);
                     GL.ReadPixels(0, 0, computeWidth, computeHeight,
@@ -287,46 +300,68 @@ void main()
 
             // find the cell id of each fragment...
             for (int i = 0; i < computeWidth * computeHeight; i++) {
-                cellIdsC[i] = Color.FromArgb(
-                    cellIdsB[i * 4 + 3], // rgba to argb
-                    cellIdsB[i * 4 + 0],
-                    cellIdsB[i * 4 + 1],
-                    cellIdsB[i * 4 + 2]);
+                texCellIdsC[i] = Color.FromArgb(
+                    texCellIdsRaw[i * 4 + 3], // rgba to argb
+                    texCellIdsRaw[i * 4 + 0],
+                    texCellIdsRaw[i * 4 + 1],
+                    texCellIdsRaw[i * 4 + 2]);
             }
             //TODO: let the user id the colors, spec how they're wired
-            var colorToId = new Dictionary<Color, string>();
-            int ix = 0;
+            var colorToId = spec.CellIDs;
             for (int i = 0; i < computeWidth * computeHeight; i++) {
-                Color color = cellIdsC[i];
+                Color color = texCellIdsC[i];
+                if (color.R == color.G && color.G == color.B) {
+                    // ignore grayscale
+                    continue;
+                }
                 string cellId;
                 if (colorToId.ContainsKey(color)) {
                     cellId = colorToId[color];
                 } else {
-                    cellId = "c" + (ix++);
-                    colorToId[color] = cellId;
+                    continue;
                 }
-                cellIds[i] = cellId;
+                texCellIds[i] = cellId;
             }
 
             // now, find the total insolation for each cell id
             var idToInsolation = new Dictionary<string, double>();
+            //var cellIds = new ArrayList<string>(colorToId.Values);
             foreach (String cellId in colorToId.Values) {
                 idToInsolation[cellId] = 0.0;
             }
             for (int i = 0; i < computeWidth * computeHeight; i++) {
-                String cellId = cellIds[i];
-                double insolation = watts[i];
+                String cellId = texCellIds[i];
+                if (cellId == null) continue;
+                double insolation = texWattsIn[i];
                 idToInsolation[cellId] += insolation;
             }
             foreach (String cellId in idToInsolation.Keys) {
                 Debug.WriteLine("cell " + cellId + " insolation " + idToInsolation[cellId]);
             }
 
+            // find totals
+            double totalArea = 0, totalWattsIn = 0;
+            for (int i = 0; i < computeWidth * computeHeight; i++) {
+                totalWattsIn += texWattsIn[i];
+                totalArea += 0; // texArea[i];
+            }
+
+            // MPPT sweeps, first for each cell...
+            double totalWattsOutByCell = 0, totalWattsOutByString = 0;
+            foreach(String cellId in idToInsolation.Keys){
+                double ff, vmp, imp;
+                double[] veci, vecv;
+                this.Array.CellSpec.CalcSweep(out ff, out vmp, out imp, out veci, out vecv);
+                totalWattsOutByCell += vmp*imp;
+            }
+            // TODO: ... then MPPT for each string
+            totalWattsOutByString = totalWattsOutByCell;
+
             ArraySimulationStepOutput output = new ArraySimulationStepOutput();
-            output.ArrayArea = 10;
-            output.ArrayLitArea = 9;
-            output.WattsInsolation = 6500;
-            output.WattsOutput = 1000;
+            output.ArrayArea = output.ArrayLitArea = totalArea;
+            output.WattsInsolation = totalWattsIn;
+            output.WattsOutputByCell = totalWattsOutByCell;
+            output.WattsOutput = totalWattsOutByString;
             return output;
         }
 
