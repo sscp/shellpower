@@ -7,29 +7,24 @@ using OpenTK;
 
 namespace SSCP.ShellPower {
     public class Shadow {
-        private class Edge {
-            public List<int> triangles = new List<int>();
-            public int pointA, pointB;
-        }
 
         public Vector4 Light { get; set; }
         public Mesh Mesh { get; private set; }
         public List<Pair<int>> SilhouetteEdges { get; private set; }
-        public bool[] VertShadows { get; private set; }
 
+        private class Edge {
+            public List<int> triangles = new List<int>();
+            public int pointA, pointB;
+        }
         private List<Edge>[] edgeBuckets;
         private List<Edge> edges = new List<Edge>();
-        private List<ShadowVolume> ShadowVolumes { get; set; }
 
         public Shadow(Mesh mesh) {
             this.Mesh = mesh;
-            this.ShadowVolumes = new List<ShadowVolume>();
             this.SilhouetteEdges = new List<Pair<int>>();
-            this.VertShadows = new bool[mesh.points.Length];
         }
 
         public void Initialize() {
-            //MeshUtils.JoinVertices(Mesh);
             ComputeEdges();
         }
 
@@ -56,26 +51,7 @@ namespace SSCP.ShellPower {
                 edgeMap[ac].triangles.Add(i);
                 edgeMap[bc].triangles.Add(i);
             }
-            //DeleteLoneEdges(edgeMap.Values);
             edges = edgeMap.Values.ToList();
-
-            /* compute normals 
-            foreach (var edge in edges) {
-                foreach (var triIx in edge.triangles) {
-                    var triangle = Mesh.triangles[triIx];
-                    var normal = Vector3.Cross(
-                        Mesh.points[triangle.vertexB] - Mesh.points[triangle.vertexA], 
-                        Mesh.points[triangle.vertexC] - Mesh.points[triangle.vertexA]);
-                    if (normal.Y < 0) {
-                        normal = -normal;
-                    }
-                    normal.Normalize();
-                    if ((normal - triangle.normal).LengthSquared > 1e-4) {
-                        Logger.warn("wtf: {0} vs {1}", normal, triangle.normal);
-                    }
-                    edge.addNormal(normal);
-                }
-            }*/
 
             /* sanity check--output # of regular edges (w/ 2 adj triangles) */
             int numRegular = 0;
@@ -134,20 +110,7 @@ namespace SSCP.ShellPower {
         public void ComputeShadows() {
             LightXYZ = Light.Xyz / (Light.W + 0.01f);
             ComputeSilhouette();
-            ComputeVertShadows();
         }
-
-        public void ComputeVertShadows() {
-            int np = Mesh.points.Length;
-            this.VertShadows = new bool[np];
-            for (int i = 0; i < np; i++) {
-                if ((i % 1000) == 0) {
-                    Logger.info("vert shadows " + i);
-                }
-                VertShadows[i] = IsInShadow(Mesh.points[i]);
-            }
-        }
-
         
         /// <summary>
         /// find each edge in the mesh, and find out whether its part of a silhouette
@@ -175,18 +138,15 @@ namespace SSCP.ShellPower {
                     }
                     var norm1 = Mesh.triangles[edge.triangles[0]].normal;
                     var norm2 = Mesh.triangles[edge.triangles[1]].normal;
+
                     float xy =
                         Vector3.Dot(norm1, new Vector3(Light.X, Light.Y, Light.Z)) *
                         Vector3.Dot(norm2, new Vector3(Light.X, Light.Y, Light.Z));
                     // xy will be exactly zero for edges on the mesh boundary, with only one adj face
                     return xy <= 0;
                 })) {
-                // HACK
                 var pA = Mesh.points[edge.pointA];
                 var pB = Mesh.points[edge.pointB];
-                if (pA.Z > 0.5 || pA.Z < -0.5) {
-                    continue;
-                }
 
                 // add to internal lookup table
                 int bucketA = GetBucket(pA);
@@ -201,87 +161,16 @@ namespace SSCP.ShellPower {
             }
         }
 
-        /// <summary>
-        /// Shitty and probably obsolete.
-        /// </summary>
-        private void ComputeShadowVolumes() {
-            
-            /* keep joining silhouette edges until each one is a closed path */
-            var volumes = new HashSet<ShadowVolume>();
-            var volumeTable = new Dictionary<int, ShadowVolume>();
-            foreach(Pair<int> edgeIxs in SilhouetteEdges){
-                int v1 = edgeIxs.First, v2 = edgeIxs.Second;
-                if (volumeTable.ContainsKey(v1)) {
-                    if (volumeTable.ContainsKey(v2)) {
-                        var vol1 = volumeTable[v1];
-                        var vol2 = volumeTable[v2];
-                        //Debug.Assert(vol1 != vol2);
-                        if (vol1 == vol2)
-                            continue;
-                        if (vol1.SilhouettePoints.IndexOf(v1) > vol1.SilhouettePoints.Count / 2) {
-                            vol1.SilhouettePoints.Reverse();
-                            //Debug.Assert(vol1.silhouettePoints[0] == v1);
-                            while (vol1.SilhouettePoints[0] != v1) {
-                                volumeTable.Remove(vol1.SilhouettePoints[0]);
-                                vol1.SilhouettePoints.RemoveAt(0);
-                            }
-                        }
-                        if (vol2.SilhouettePoints.IndexOf(v2) <= vol2.SilhouettePoints.Count / 2) {
-                            //Debug.Assert(vol2.silhouettePoints[0] == v2);
-                            while (vol2.SilhouettePoints[0] != v2) {
-                                volumeTable.Remove(vol2.SilhouettePoints[0]);
-                                vol2.SilhouettePoints.RemoveAt(0);
-                            }
-                            vol2.SilhouettePoints.Reverse();
-                        }
-                        /* vol2 now ends next to the current edge,
-                         * and vol1 begins next to the current edge,
-                         * so we can join them */
-                        vol2.SilhouettePoints.AddRange(vol1.SilhouettePoints);
-                        foreach (var pointIx in vol1.SilhouettePoints)
-                            volumeTable[pointIx] = vol2;
-                        volumes.Add(vol2);
-                    } else {
-                        var pointIx = v1;
-                        var vol = volumeTable[pointIx];
-                        if (vol.SilhouettePoints[0] == pointIx ||
-                            vol.SilhouettePoints[vol.SilhouettePoints.Count - 1] == pointIx) {
-                            if (vol.SilhouettePoints[0] == pointIx)
-                                vol.SilhouettePoints.Reverse();
-                            vol.SilhouettePoints.Add(v2);
-                            volumeTable.Add(v2, vol);
-                        }
-                    }
-                } else if (volumeTable.ContainsKey(v2)) {
-                    var pointIx = v2;
-                    var vol = volumeTable[pointIx];
-                    if (vol.SilhouettePoints[0] == pointIx ||
-                        vol.SilhouettePoints[vol.SilhouettePoints.Count - 1] == pointIx) {
-                        if (vol.SilhouettePoints[0] == pointIx)
-                            vol.SilhouettePoints.Reverse();
-                        vol.SilhouettePoints.Add(v1);
-                        volumeTable.Add(v1, vol);
-                    }
-                } else {
-                    var vol = new ShadowVolume(Mesh, Light);
-                    vol.SilhouettePoints.Add(v1);
-                    vol.SilhouettePoints.Add(v2);
-                    volumeTable.Add(v1, vol);
-                    volumeTable.Add(v2, vol);
-                }
-            }
-
-            /* finally, now that we have all the shadow volumes, copy to list
-             * and process so that we can quickly calc whether a point is in one of them */
-            ShadowVolumes = new List<ShadowVolume>();
-            foreach (var volume in volumes) {
-                volume.CalculateQuadMatrices();
-                ShadowVolumes.Add(volume);
-            }
+        private Vector3 ComputeNormal(Mesh.Triangle triangle) {
+            var normal = Vector3.Cross(
+                Mesh.points[triangle.vertexB] - Mesh.points[triangle.vertexA],
+                Mesh.points[triangle.vertexC] - Mesh.points[triangle.vertexA]);
+            normal.Normalize();
+            return normal;
         }
 
         /// <summary>
-        /// The math is simpler and easier assuming a point light source
+        /// The math is easier assuming a point light source
         /// that has XYZ coordinates (instead of a light source at infinity,
         /// XYZW with W=0). 
         /// 
