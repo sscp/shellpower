@@ -3,7 +3,17 @@ using OpenTK;
 
 namespace SSCP.ShellPower {
 
+    /// <summary>
+    /// API for getting place names and timezones given lat,lon.
+    /// </summary>
     class GeoNames {
+
+        /// <summary>
+        /// Example JSON: 
+        /// {"time":"2010-09-24 13:48","countryName":"Australia","sunset":"2010-09-25 18:23",
+        /// "rawOffset":9.5,"dstOffset":9.5,"countryCode":"AU","gmtOffset":9.5,
+        /// "lng":135.5,"sunrise":"2010-09-25 06:16","timezoneId":"Australia/Darwin","lat":-12.5}
+        /// </summary>
         public class TimezoneResponse {
             public string Status { get; set; }
             public double Lng { get; set; }
@@ -15,7 +25,6 @@ namespace SSCP.ShellPower {
             public DateTime Sunset { get; set; }
             public DateTime Sunrise { get; set; }
             public string TimezoneId { get; set; }
-            //{"time":"2010-09-24 13:48","countryName":"Australia","sunset":"2010-09-25 18:23","rawOffset":9.5,"dstOffset":9.5,"countryCode":"AU","gmtOffset":9.5,"lng":135.5,"sunrise":"2010-09-25 06:16","timezoneId":"Australia/Darwin","lat":-12.5}
         }
 
         /* LRU cache */

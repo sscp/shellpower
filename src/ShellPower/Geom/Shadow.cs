@@ -35,9 +35,9 @@ namespace SSCP.ShellPower {
             Dictionary<Pair<int>, Edge> edgeMap = new Dictionary<Pair<int>, Edge>();
             for (int i = 0; i < Mesh.triangles.Length; i++) {
                 var triangle = Mesh.triangles[i];
-                var ab = PairUtils.Order(triangle.vertexA, triangle.vertexB);
-                var ac = PairUtils.Order(triangle.vertexA, triangle.vertexC);
-                var bc = PairUtils.Order(triangle.vertexB, triangle.vertexC);
+                var ab = OrderedPair(triangle.vertexA, triangle.vertexB);
+                var ac = OrderedPair(triangle.vertexA, triangle.vertexC);
+                var bc = OrderedPair(triangle.vertexB, triangle.vertexC);
                 if (!edgeMap.ContainsKey(ab)) {
                     edgeMap.Add(ab, new Edge() { pointA = triangle.vertexA, pointB = triangle.vertexB });
                 } 
@@ -156,9 +156,13 @@ namespace SSCP.ShellPower {
                 }
 
                 // add to public silhouette
-                Pair<int> edgeIxs = PairUtils.Order(edge.pointA, edge.pointB);
+                Pair<int> edgeIxs = OrderedPair(edge.pointA, edge.pointB);
                 SilhouetteEdges.Add(edgeIxs);
             }
+        }
+
+        private Pair<int> OrderedPair(int a, int b) {
+            return new Pair<int>(Math.Min(a, b), Math.Max(a, b));
         }
 
         private Vector3 ComputeNormal(Mesh.Triangle triangle) {

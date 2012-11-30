@@ -50,5 +50,7 @@ namespace SSCP.ShellPower {
         public static DateTime sidereal_time(DateTime utc, double longitude) {
             return utc + new TimeSpan((long)(longitude * 24.0 * 60 * 60 * 10000000 / 360));
         }
+
+
     }
 }

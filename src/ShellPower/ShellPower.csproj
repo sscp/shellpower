@@ -149,16 +149,16 @@
     <Compile Include="Geom\IArea.cs" />
     <Compile Include="Geom\Shadow.cs" />
     <Compile Include="Geom\ShadowVolume.cs" />
-    <Compile Include="Math\ArraySimulator.cs" />
-    <Compile Include="Math\ArraySpec.cs" />
-    <Compile Include="Math\CellSpec.cs" />
+    <Compile Include="Simulation\ArraySimulator.cs" />
+    <Compile Include="Spec\ArraySpec.cs" />
+    <Compile Include="Spec\CellSpec.cs" />
     <Compile Include="Math\Constants.cs" />
     <Compile Include="Sprites\MeshTriangle.cs" />
     <Compile Include="Utilities\Cache.cs" />
     <Compile Include="Utilities\GLUtils.cs" />
     <Compile Include="Utilities\Logger.cs" />
     <Compile Include="Geom\KDTree.cs" />
-    <Compile Include="Utilities\Utility.cs" />
+    <Compile Include="Utilities\Pair.cs" />
     <Compile Include="Utilities\Web.cs" />
     <Compile Include="View\ArrayLayoutControl.cs">
       <SubType>UserControl</SubType>
@@ -193,7 +193,7 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
-    <Compile Include="Model\SimulationState.cs" />
+    <Compile Include="Simulation\ArraySimulationIO.cs" />
     <Compile Include="Sprites\MeshSprite.cs" />
     <Compile Include="Sprites\ShadowMeshSprite.cs" />
     <Compile Include="Sprites\Sprite.cs" />

@@ -34,9 +34,9 @@ namespace SSCP.ShellPower {
             InitializeArraySpec();
 
             // run the first update step
-            CalculateSimInput();
-            CalculateSimStep();
+            CalculateSimStepGui();
         }
+
 
         private void InitializeArraySpec() {
             //TODO: remove hack, here to make debugging faster
@@ -96,7 +96,67 @@ namespace SSCP.ShellPower {
             glControl.Sprite = shadowSprite;
         }
 
-        private Vector3 GetSunDir() {
+
+        /// <summary>
+        /// Called whenever the array changes.
+        /// Uses our model of the array (mesh, texture, etc) to
+        /// * update the view
+        /// * update the simulator
+        /// * recalculate
+        /// </summary>
+        private void UpdateModel() {
+        }
+
+        /// <summary>
+        /// Gets sim inputs from the GUI controls.
+        /// Runs CalculateSimStep(), calculating array power, etc.
+        /// Displays the results.
+        /// </summary>
+        private void CalculateSimStepGui() {
+            /* update the model */
+            UpdateInputsFromControls();
+            /* compute array power automatically? 
+             * currently, only on Compute button press */
+            
+            /* update the view */
+            UpdateSimStateView();
+            UpdateShadowView();
+        }
+
+        private void UpdateInputsFromControls() {
+            /* get location */
+            var lat = double.Parse(textBoxLat.Text);
+            var lon = double.Parse(textBoxLon.Text);
+
+            /* get time */
+            var tz = geoNamesApi.GetTimezone(lat, lon);
+            DateTime utcTime = dateTimePicker.Value;
+            DateTime localTime = utcTime + new TimeSpan((long)(tz * 60 * 60 * 10000000));
+
+            /* get car orientation */
+            double heading = 2 * Math.PI * trackBarCarDirection.Value / (trackBarCarDirection.Maximum + 1);
+
+            /* get all sim inputs */
+            simInput.Heading = heading;
+            simInput.Latitude = lat;
+            simInput.Longitude = lon;
+            simInput.Timezone = tz;
+            simInput.LocalTime = localTime;
+            simInput.Utc = utcTime;
+
+            Logger.info("sim inputs\n\t" +
+                "lat {0:0.0} lon {1:0.0} heading {2:0.0} utc {3} sidereal {4}",
+                simInput.Latitude,
+                simInput.Longitude,
+                Astro.rad2deg(simInput.Heading),
+                utcTime,
+                Astro.sidereal_time(utcTime, simInput.Longitude));
+        }
+
+        /// <summary>
+        /// Finds the position of the sun, or returns (0,0,0) if it's below the horizon.
+        /// </summary>
+        private Vector3 CalculateSunDir() {
             // update the astronomy model
             var utc_time = simInput.LocalTime - new TimeSpan((long)(simInput.Timezone * 3600.0) * 10000000);
             var sidereal = Astro.sidereal_time(
@@ -111,16 +171,6 @@ namespace SSCP.ShellPower {
                 (int)sidereal.TimeOfDay.TotalSeconds,
                 simInput.LocalTime.DayOfYear,
                 simInput.Latitude);
-            Logger.info("sim step\n\t" +
-                "lat {0:0.0} lon {1:0.0} heading {2:0.0}\n\t" +
-                "azith {3:0.0} elev {4:0.0} utc {5} sidereal {6}",
-                simInput.Latitude,
-                simInput.Longitude,
-                Astro.rad2deg(simInput.Heading),
-                Astro.rad2deg(azimuth),
-                Astro.rad2deg(elevation),
-                utc_time,
-                sidereal);
 
             //recalculate the shadows
             var lightDir = new Vector3(
@@ -128,62 +178,22 @@ namespace SSCP.ShellPower {
                 (float)(-Math.Cos(elevation) * Math.Sin(azimuth)));
             if (elevation < 0) {
                 lightDir = Vector3.Zero;
-            }
-            if (shadow != null && lightDir.LengthSquared > 0) {
-                shadow.Light = new Vector4(lightDir, 0);
-                shadow.ComputeShadows();
             }
             return lightDir;
         }
 
-        private void CalculateSimStep() {
-            // TODO: move this elsewhere. 
-
-            // update the astronomy model
-            var utc_time = simInput.LocalTime - new TimeSpan((long)(simInput.Timezone * 3600.0) * 10000000);
-            var sidereal = Astro.sidereal_time(
-                utc_time,
-                simInput.Longitude);
-            var azimuth = Astro.solar_azimuth(
-                (int)sidereal.TimeOfDay.TotalSeconds,
-                simInput.LocalTime.DayOfYear,
-                simInput.Latitude)
-                - (float)simInput.Heading;
-            var elevation = Astro.solar_elevation(
-                (int)sidereal.TimeOfDay.TotalSeconds,
-                simInput.LocalTime.DayOfYear,
-                simInput.Latitude);
-            Logger.info("sim step\n\t" +
-                "lat {0:0.0} lon {1:0.0} heading {2:0.0}\n\t" +
-                "azith {3:0.0} elev {4:0.0} utc {5} sidereal {6}",
-                simInput.Latitude,
-                simInput.Longitude,
-                Astro.rad2deg(simInput.Heading),
-                Astro.rad2deg(azimuth),
-                Astro.rad2deg(elevation),
-                utc_time,
-                sidereal);
-
-            //recalculate the shadows
-            var lightDir = new Vector3(
-                (float)(-Math.Cos(elevation) * Math.Cos(azimuth)), (float)(Math.Sin(elevation)),
-                (float)(-Math.Cos(elevation) * Math.Sin(azimuth)));
-            if (elevation < 0) {
-                lightDir = Vector3.Zero;
-            }
+        /// <summary>
+        /// Updates 3D rendering (view) from sim inputs (model).
+        /// </summary>
+        private void UpdateShadowView() {
+            /* compute the sun's position */
+            Vector3 lightDir = CalculateSunDir();
             if (shadow != null && lightDir.LengthSquared > 0) {
                 shadow.Light = new Vector4(lightDir, 0);
                 shadow.ComputeShadows();
             }
 
-            // update the view
-            glControl.SunDirection = lightDir;
-        }
-
-        /// <summary>
-        /// Updates 3D rendering (view) from environment (model).
-        /// </summary>
-        private void RefreshModelView() {
+            glControl.SunDirection = CalculateSunDir();
             glControl.Refresh();
         }
 
@@ -210,8 +220,7 @@ namespace SSCP.ShellPower {
         private void openModelToolStripMenuItem_Click(object sender, EventArgs e) {
             if (openFileDialogModel.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
                 LoadModel(openFileDialogModel.FileName);
-                CalculateSimStep();
-                RefreshModelView();
+                CalculateSimStepGui();
             }
         }
 
@@ -226,51 +235,11 @@ namespace SSCP.ShellPower {
 
         }
 
-
-        /// <summary>
-        /// Called whenever the array changes.
-        /// Uses our model of the array (mesh, texture, etc) to
-        /// * update the view
-        /// * update the simulator
-        /// * recalculate
-        /// </summary>
-        private void UpdateModel() {
-        }
-
         /// <summary>
         /// Called when one of the sim input GUIs changes.
         /// </summary>
-        private void GuiSimStepInputs(object sender, EventArgs e) {
-            CalculateSimInput();
-        }
-
-        private void CalculateSimInput(){
-            var lat = double.Parse(textBoxLat.Text);
-            var lon = double.Parse(textBoxLon.Text);
-
-            /* get timezone */
-            var tz = geoNamesApi.GetTimezone(lat, lon);
-
-            /* get local time */
-            DateTime utcTime = dateTimePicker.Value;
-            DateTime localTime = utcTime + new TimeSpan((long)(tz * 60 * 60 * 10000000));
-
-            /* get car orientation */
-            double dir = 2 * Math.PI * trackBarCarDirection.Value / (trackBarCarDirection.Maximum + 1);
-
-            /* set direction */
-            double heading = 2 * Math.PI * trackBarCarDirection.Value / (trackBarCarDirection.Maximum + 1);
-
-            /* update sim input */
-            simInput.Heading = heading;
-            simInput.Latitude = lat;
-            simInput.Longitude = lon;
-            simInput.Timezone = tz;
-            simInput.LocalTime = localTime;
-            simInput.Utc = utcTime;
-            UpdateSimStateView();
-            CalculateSimStep();
-            RefreshModelView();
+        private void simInputs_AnyChange(object sender, EventArgs e) {
+            CalculateSimStepGui();
         }
 
         private void buttonRun_Click(object sender, EventArgs e) {

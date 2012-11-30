@@ -287,7 +287,7 @@
             this.trackBarCarDirection.Size = new System.Drawing.Size(104, 20);
             this.trackBarCarDirection.TabIndex = 11;
             this.trackBarCarDirection.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.trackBarCarDirection.Scroll += new System.EventHandler(this.GuiSimStepInputs);
+            this.trackBarCarDirection.Scroll += new System.EventHandler(this.simInputs_AnyChange);
             // 
             // labelTimezone
             // 
@@ -333,7 +333,7 @@
             this.textBoxLon.Size = new System.Drawing.Size(147, 20);
             this.textBoxLon.TabIndex = 6;
             this.textBoxLon.Text = "130.84";
-            this.textBoxLon.Leave += new System.EventHandler(this.GuiSimStepInputs);
+            this.textBoxLon.Leave += new System.EventHandler(this.simInputs_AnyChange);
             // 
             // label3
             // 
@@ -351,7 +351,7 @@
             this.textBoxLat.Size = new System.Drawing.Size(147, 20);
             this.textBoxLat.TabIndex = 4;
             this.textBoxLat.Text = "-12.46";
-            this.textBoxLat.Leave += new System.EventHandler(this.GuiSimStepInputs);
+            this.textBoxLat.Leave += new System.EventHandler(this.simInputs_AnyChange);
             // 
             // label2
             // 
@@ -388,7 +388,7 @@
             this.dateTimePicker.Size = new System.Drawing.Size(182, 20);
             this.dateTimePicker.TabIndex = 0;
             this.dateTimePicker.Value = new System.DateTime(2011, 10, 24, 23, 0, 0, 0);
-            this.dateTimePicker.ValueChanged += new System.EventHandler(this.GuiSimStepInputs);
+            this.dateTimePicker.ValueChanged += new System.EventHandler(this.simInputs_AnyChange);
             // 
             // groupBoxSimulation
             // 
