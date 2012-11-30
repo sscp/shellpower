@@ -19,6 +19,7 @@ namespace SSCP.ShellPower {
         public double ArrayArea { get; set; }
         public double ArrayLitArea { get; set; }
         public double WattsInsolation { get; set; }
+        public double WattsOutputByCell { get; set; }
         public double WattsOutput { get; set; }
         // TODO: WattsInsolationNoShadow, WattsOutputNoShadow
     }

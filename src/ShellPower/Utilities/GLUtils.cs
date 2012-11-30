@@ -9,7 +9,9 @@ namespace SSCP.ShellPower {
     public class GLUtils {
         public static void SetCameraProjectionPerspective(int w, int h) {
             // perspective projection
-            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView((float)Math.PI / 6, w / (float)h, 1.0f, 640.0f);
+            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView((float)Math.PI / 6, w / (float)h, 0.1f, 1000.0f);
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadMatrix(ref projection);
         }
         public static void SetCameraProjectionOrtho(int w, int h) {
             // orthographic projection

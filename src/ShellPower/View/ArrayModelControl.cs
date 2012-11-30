@@ -30,7 +30,6 @@ namespace SSCP.ShellPower {
         public MeshSprite Sprite { get; set; }
         public Vector3 SunDirection { get; set; }
 
-
         public ArrayModelControl() : base(new OpenTK.Graphics.GraphicsMode(32, 24, 0, 4)) {
             VSync = true;
 
@@ -178,7 +177,7 @@ namespace SSCP.ShellPower {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             SetModelViewCamera();
-            GLUtils.SetCameraProjectionOrtho(Width, Height);
+            GLUtils.SetCameraProjectionPerspective(Width, Height);
 
             /* render obj display list */
             if (Sprite != null) {

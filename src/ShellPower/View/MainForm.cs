@@ -137,6 +137,8 @@ namespace SSCP.ShellPower {
         }
 
         private void CalculateSimStep() {
+            // TODO: move this elsewhere. 
+
             // update the astronomy model
             var utc_time = simInput.LocalTime - new TimeSpan((long)(simInput.Timezone * 3600.0) * 10000000);
             var sidereal = Astro.sidereal_time(
@@ -174,43 +176,8 @@ namespace SSCP.ShellPower {
                 shadow.ComputeShadows();
             }
 
-            // TODO: clean up MainForm. delete the above.
-
             // update the view
             glControl.SunDirection = lightDir;
-
-            // calculate array params
-            //TODO: fix this hackery
-            const float insolation = 1000f; // W/m^2
-            const float efficiency = 0.227f; 
-            float arrayArea = 0.0f, shadedArea = 0.0f, totalWatts = 0.0f;
-            int nt = array.Mesh == null ? 0 : array.Mesh.triangles.Length;
-            for (int i = 0; i < nt; i++) {
-                var tri = array.Mesh.triangles[i];
-                var vA = array.Mesh.points[tri.vertexA];
-                var vB = array.Mesh.points[tri.vertexB];
-                var vC = array.Mesh.points[tri.vertexC];
-                float area = Vector3.Cross(vC - vA, vB - vA).Length / 2;
-                arrayArea += area;
-
-                int nshad = 0;
-                if (shadow.VertShadows[tri.vertexA]) nshad++;
-                if (shadow.VertShadows[tri.vertexB]) nshad++;
-                if (shadow.VertShadows[tri.vertexC]) nshad++;
-                shadedArea += area * nshad / 3.0f;
-
-                // if we're not in a shadow, get cosine rule insolation.
-                if (nshad < 2) {
-                    var cosInsolation = Math.Max(Vector3.Dot(tri.normal, lightDir), 0f) * insolation;
-                    var watts = cosInsolation * efficiency * area;
-                    totalWatts += watts;
-                }
-            }
-
-            //update ui
-            this.labelArrPower.Text = string.Format(
-                "{0:0}W over {1:0.00}m\u00B2, {2:0.00}m\u00B2 shaded",
-                totalWatts, arrayArea, shadedArea);
         }
 
         /// <summary>
@@ -330,7 +297,13 @@ namespace SSCP.ShellPower {
                 Debug.WriteLine("array simulation output");
                 Debug.WriteLine("   ... " + simOutput.ArrayLitArea + " m^2 exposed to sunlight");
                 Debug.WriteLine("   ... " + simOutput.WattsInsolation + " W insolation");
+                Debug.WriteLine("   ... " + simOutput.WattsOutputByCell + " W output (assuming mppt per cell)");
                 Debug.WriteLine("   ... " + simOutput.WattsOutput + " W output");
+
+                //update ui
+                this.labelArrPower.Text = string.Format(
+                    "{0:0}W over {1:0.00}m\u00B2, {2:0.00}m\u00B2 shaded",
+                    simOutput.WattsOutput, simOutput.ArrayArea, simOutput.ArrayArea-simOutput.ArrayLitArea);
             } catch (Exception exc) {
                 MessageBox.Show(exc.Message);
             }
