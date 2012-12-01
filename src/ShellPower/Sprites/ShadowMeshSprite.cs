@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
@@ -10,12 +11,21 @@ namespace SSCP.ShellPower {
     /// </summary>
     public class ShadowMeshSprite : MeshSprite {
         Shadow shadow;
+        public Shadow Shadow {
+            get { return shadow; }
+        }
 
         public ShadowMeshSprite(Shadow shadow) : base(shadow.Mesh) {
             this.shadow = shadow;
         }
 
         public override void Render() {
+            RenderMesh();
+            RenderShadowVolume();
+            RenderShadowOutline();
+        }
+
+        public void RenderMesh() {
             /* render normally */
             GL.Color3(1f, 1, 1);
             GL.Begin(BeginMode.Triangles);
@@ -38,12 +48,9 @@ namespace SSCP.ShellPower {
                 GL.Vertex4(new Vector4(Mesh.points[triangle.vertexC], 1));
             }
             GL.End();
-
-            DebugRenderShadowVolume();
-            DebugRenderEdges();
         }
 
-        private void DebugRenderShadowVolume() {
+        public void RenderShadowVolume() {
             /* no upward shadows */
             if (shadow.Light.Y <= 0) {
                 return;
@@ -71,7 +78,10 @@ namespace SSCP.ShellPower {
             GL.Enable(EnableCap.Lighting);
         }
 
-        private void DebugRenderEdges() {
+        public void RenderShadowOutline() {
+            if (shadow.Light.Y <= 0) {
+                return;
+            }
             GL.Disable(EnableCap.Lighting);
             GL.Color3(1.0f, 0, 0);
             GL.Begin(BeginMode.Lines);

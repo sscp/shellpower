@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Diagnostics;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
@@ -28,6 +31,28 @@ namespace SSCP.ShellPower {
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Clamp);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Clamp);
+        }
+
+        /// <summary>
+        /// Loads the given image as a 32bpp RGBA texture.
+        /// </summary>
+        public static void LoadTexture(Bitmap bmpTex, TextureUnit slot) {
+            Debug.WriteLine("loading array texture");
+            BitmapData bmpDataTex = bmpTex.LockBits(
+                new Rectangle(0, 0, bmpTex.Width, bmpTex.Height),
+                ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            Debug.WriteLine("loaded " + bmpTex.Width + "x" + bmpTex.Height + " tex, binding");
+
+            // set it as texture 0
+            GL.ActiveTexture(slot);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
+                bmpTex.Width, bmpTex.Height, 0,
+                OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte,
+                bmpDataTex.Scan0);
+
+            // clean up
+            bmpTex.UnlockBits(bmpDataTex);
+            Debug.WriteLine("array texture loaded");
         }
     }
 }

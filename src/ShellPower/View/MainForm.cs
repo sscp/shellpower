@@ -29,6 +29,7 @@ namespace SSCP.ShellPower {
             InitializeComponent();
             arrayLayoutForm = new ArrayLayoutForm(array);
             cellParamsForm = new CellParamsForm(array);
+            glControl.Array = array;
 
             // init model
             InitializeArraySpec();
@@ -188,12 +189,8 @@ namespace SSCP.ShellPower {
         private void UpdateShadowView() {
             /* compute the sun's position */
             Vector3 lightDir = CalculateSunDir();
-            if (shadow != null && lightDir.LengthSquared > 0) {
-                shadow.Light = new Vector4(lightDir, 0);
-                shadow.ComputeShadows();
-            }
-
-            glControl.SunDirection = CalculateSunDir();
+            shadow.Light = new Vector4(lightDir, 0);
+            shadow.ComputeShadows();
             glControl.Refresh();
         }
 

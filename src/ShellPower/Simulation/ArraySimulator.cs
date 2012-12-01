@@ -27,6 +27,7 @@ namespace SSCP.ShellPower {
 
             InitGLArrayComputeShaders();
             InitGLComputeBuffer();
+            InitGLArrayTextures();
         }
         public ArraySpec Array {
             get {
@@ -34,21 +35,7 @@ namespace SSCP.ShellPower {
             }
         }
 
-        /// <summary>
-        /// (TODO) Calculates an array simulation
-        /// for a single array, single set of parameters, single moment in time.
-        /// 
-        /// Returns array output in watts, along with some other data.
-        /// </summary>
-        public ArraySimulationStepOutput Simulate(ArraySimulationStepInput simInput) {
-            // validate that we're gtg
-            if (Array.Mesh == null) throw new InvalidOperationException("No array shape (mesh) loaded.");
-            if (Array.LayoutTexture == null) throw new InvalidOperationException("No array layout (texture) loaded.");
 
-            InitGLArrayTextures();
-            ComputeRender(simInput);
-            return AnalyzeComputeTex();
-        }
 
         /// <summary>
         /// Shaders to compute array properties
@@ -78,8 +65,8 @@ void main()
 {
     vec4 solarCell = texture2D(solarCells, gl_TexCoord[0].xy);
     float watts = pixelArea*cosRule;
-    gl_FragData[0] = vec4(solarCell.xyz, 1.0);
-    gl_FragData[1] = vec4(watts, 0, 0, 1.0);
+    gl_FragData[0] = vec4(solarCell.xyz, 1.0); // cell id
+    gl_FragData[1] = vec4(watts, 0, 0, 1.0);   // watts insolation
 }");
 
             GL.CompileShader(shaderVert);
@@ -90,27 +77,22 @@ void main()
             GL.AttachShader(shaderProg, shaderVert);
             GL.AttachShader(shaderProg, shaderFrag);
             GL.LinkProgram(shaderProg);
-            GL.UseProgram(shaderProg);
-            Debug.WriteLine("shader attached.");
+            Debug.WriteLine("shader linked");
 
-            // init values for the uniforms
-
+            // get uniform locations
             uniformX0 = GL.GetUniformLocation(shaderProg, "x0");
             uniformX1 = GL.GetUniformLocation(shaderProg, "x1");
             uniformZ0 = GL.GetUniformLocation(shaderProg, "z0");
             uniformZ1 = GL.GetUniformLocation(shaderProg, "z1");
-            // TODO: set these at render time using ArraySpec.TexBounds
-            GL.Uniform1(uniformX0, -2.1f); // front of car
-            GL.Uniform1(uniformX1, 2.35f); // back of car
-            GL.Uniform1(uniformZ0, -0.8f); // left side
-            GL.Uniform1(uniformZ1, 0.8f); // right side
             uniformPixelArea = GL.GetUniformLocation(shaderProg, "pixelArea");
-            GL.Uniform1(uniformPixelArea, 1.0f);
             uniformSolarCells = GL.GetUniformLocation(shaderProg, "solarCells");
-            GL.Uniform1(uniformSolarCells, (float)TextureUnit.Texture0);
-            Debug.WriteLine("uniforms set.");
+            Debug.Assert(uniformX0 >= 0 && uniformX1 >= 0 && uniformZ0 >= 0 && uniformZ1 >= 0
+                && uniformPixelArea >= 0 && uniformSolarCells >= 0);
         }
 
+        /// <summary>
+        /// Creates the output buffers.
+        /// </summary>
         private void InitGLComputeBuffer() {
             computeWidth = computeHeight = 2048;
 
@@ -162,7 +144,24 @@ void main()
             /*GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, 
                 (float)TextureEnvMode.Modulate);*/
             GLUtils.FastTexSettings();
-            LoadGLArrayTexture();
+        }
+
+
+        /// <summary>
+        /// (TODO) Calculates an array simulation
+        /// for a single array, single set of parameters, single moment in time.
+        /// 
+        /// Returns array output in watts, along with some other data.
+        /// </summary>
+        public ArraySimulationStepOutput Simulate(ArraySimulationStepInput simInput) {
+            // validate that we're gtg
+            if (Array.Mesh == null) throw new InvalidOperationException("No array shape (mesh) loaded.");
+            if (Array.LayoutTexture == null) throw new InvalidOperationException("No array layout (texture) loaded.");
+
+            SetUniforms();
+            GLUtils.LoadTexture(Array.LayoutTexture, TextureUnit.Texture0);
+            ComputeRender(simInput);
+            return AnalyzeComputeTex();
         }
 
         public void ComputeRender(ArraySimulationStepInput simInput) {
@@ -231,7 +230,6 @@ void main()
             return lightDir;
         }
 
-
         /// <summary>
         /// Sets up the modelview matrix from the sun's point of view (for computation)
         /// </summary>
@@ -243,34 +241,16 @@ void main()
             GL.Light(LightName.Light0, LightParameter.Position, new Vector4(sunDir, 0));
         }
 
-        private void DebugSaveBuffers() {
-            Debug.WriteLine("saving the ext fbo buffers");
-            DebugSaveBuffer(FramebufferAttachment.ColorAttachment0, "../../../../test0.png");
-            DebugSaveBuffer(FramebufferAttachment.ColorAttachment1, "../../../../test1.png");
+        private void SetUniforms() {
+            GL.UseProgram(shaderProg);
+            GL.Uniform1(uniformX0, -2.1f); // front of car
+            GL.Uniform1(uniformX1, 2.35f); // back of car
+            GL.Uniform1(uniformZ0, -0.8f); // left side
+            GL.Uniform1(uniformZ1, 0.8f); // right side
+            GL.Uniform1(uniformPixelArea, 1.0f);
+            GL.Uniform1(uniformSolarCells, (float)TextureUnit.Texture0);
+            Debug.WriteLine("uniforms set.");
         }
-
-        /// <summary>
-        /// Reads an OpenGL buffer. Returns the contents as an image (specifically, 32-bpp ARGB bitmap).
-        /// </summary>
-        private Bitmap ReadBuffer(FramebufferAttachment buf) {
-            GL.ReadBuffer((ReadBufferMode)buf);
-            Bitmap bmp = new Bitmap(computeWidth, computeHeight,
-                System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            BitmapData bmpData = bmp.LockBits(
-                new Rectangle(0, 0, computeWidth, computeHeight),
-                ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            GL.ReadPixels(0, 0, computeWidth, computeHeight,
-                OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, bmpData.Scan0);
-            bmp.UnlockBits(bmpData);
-            return bmp;
-        }
-
-        private void DebugSaveBuffer(FramebufferAttachment buf, String fname) {
-            Bitmap bmp = ReadBuffer(buf);
-            Debug.WriteLine("writing " + fname);
-            bmp.Save(fname);
-        }
-
 
         /// <summary>
         /// Reads the compute textures from OpenGL.
@@ -366,30 +346,31 @@ void main()
         }
 
         /// <summary>
-        /// Reads an image from the given file.
-        /// Sets it as Texture 0. See InitGLArrayTexture() for the Texture 0 params.
+        /// Reads an OpenGL buffer. Returns the contents as an image (specifically, 32-bpp ARGB bitmap).
         /// </summary>
-        private void LoadGLArrayTexture() {
-            // read the image
-            Debug.WriteLine("loading array texture");
-            var bmpTex = Array.LayoutTexture;
-            BitmapData bmpDataTex = bmpTex.LockBits(
-                new Rectangle(0, 0, bmpTex.Width, bmpTex.Height),
-                ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            Debug.WriteLine("loaded " + bmpTex.Width + "x" + bmpTex.Height + " tex, binding");
-
-            // set it as texture 0
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
-                bmpTex.Width, bmpTex.Height, 0,
-                OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte,
-                bmpDataTex.Scan0);
-
-            // clean up
-            bmpTex.UnlockBits(bmpDataTex);
-            Debug.WriteLine("array texture ready");
+        private Bitmap ReadBuffer(FramebufferAttachment buf) {
+            GL.ReadBuffer((ReadBufferMode)buf);
+            Bitmap bmp = new Bitmap(computeWidth, computeHeight,
+                System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            BitmapData bmpData = bmp.LockBits(
+                new Rectangle(0, 0, computeWidth, computeHeight),
+                ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            GL.ReadPixels(0, 0, computeWidth, computeHeight,
+                OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, bmpData.Scan0);
+            bmp.UnlockBits(bmpData);
+            return bmp;
         }
 
+        private void DebugSaveBuffers() {
+            Debug.WriteLine("saving the ext fbo buffers");
+            DebugSaveBuffer(FramebufferAttachment.ColorAttachment0, "../../../../test0.png");
+            DebugSaveBuffer(FramebufferAttachment.ColorAttachment1, "../../../../test1.png");
+        }
+        private void DebugSaveBuffer(FramebufferAttachment buf, String fname) {
+            Bitmap bmp = ReadBuffer(buf);
+            Debug.WriteLine("writing " + fname);
+            bmp.Save(fname);
+        }
 
     }
 }

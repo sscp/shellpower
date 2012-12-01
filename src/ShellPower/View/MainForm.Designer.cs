@@ -492,7 +492,6 @@
             this.glControl.Name = "glControl";
             this.glControl.Size = new System.Drawing.Size(644, 421);
             this.glControl.Sprite = null;
-            this.glControl.SunDirection = ((OpenTK.Vector3)(resources.GetObject("glControl.SunDirection")));
             this.glControl.TabIndex = 0;
             this.glControl.VSync = true;
             // 
