@@ -23,6 +23,7 @@ namespace SSCP.ShellPower {
         /* sub views */
         ArrayLayoutForm arrayLayoutForm;
         CellParamsForm cellParamsForm;
+        ArrayDimensionsControl arrayDimsForm;
 
         public MainForm() {
             // init view
@@ -42,6 +43,7 @@ namespace SSCP.ShellPower {
         private void InitializeArraySpec() {
             //TODO: remove hack, here to make debugging faster
             LoadModel("C:/shellpower/meshes/sunbadThinCarWholeRotSmall.stl");
+            array.LayoutBoundsXZ = new RectangleF(-2.1f, -0.8f, 4.45f, 1.6f);
 
             // Sunpower C60 Bin I
             // http://www.kyletsai.com/uploads/9/7/5/3/9753015/sunpower_c60_bin_ghi.pdf
@@ -228,10 +230,6 @@ namespace SSCP.ShellPower {
             }
         }
 
-        private void openSimParamsToolStripMenuItem_Click(object sender, EventArgs e) {
-
-        }
-
         /// <summary>
         /// Called when one of the sim input GUIs changes.
         /// </summary>
@@ -281,6 +279,16 @@ namespace SSCP.ShellPower {
 
         private void cellParametersToolStripMenuItem_Click(object sender, EventArgs e) {
             cellParamsForm.ShowDialog();
+        }
+
+        private void layoutTextureDimensionsToolStripMenuItem_Click(object sender, EventArgs e) {
+            if (arrayDimsForm != null && !arrayDimsForm.IsDisposed) {
+                arrayDimsForm.BringToFront();
+            } else {
+                arrayDimsForm = new ArrayDimensionsControl();
+                arrayDimsForm.Array = array;
+                arrayDimsForm.Show();
+            }
         }
     }
 }

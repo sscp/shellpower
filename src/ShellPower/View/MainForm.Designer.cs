@@ -23,16 +23,15 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openModelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openSimParamsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.layoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cellParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageRun = new System.Windows.Forms.TabPage();
@@ -66,7 +65,7 @@
             this.label10 = new System.Windows.Forms.Label();
             this.glControl = new SSCP.ShellPower.ArrayModelControl();
             this.openFileDialogModel = new System.Windows.Forms.OpenFileDialog();
-            this.cellParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.layoutTextureDimensionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -111,8 +110,7 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openModelToolStripMenuItem,
-            this.openLayoutToolStripMenuItem,
-            this.openSimParamsToolStripMenuItem});
+            this.openLayoutToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
@@ -120,29 +118,26 @@
             // openModelToolStripMenuItem
             // 
             this.openModelToolStripMenuItem.Name = "openModelToolStripMenuItem";
-            this.openModelToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.openModelToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.openModelToolStripMenuItem.Text = "Open model";
+            this.openModelToolStripMenuItem.ToolTipText = "Open a 3D mesh file that defines the shape of the array.";
             this.openModelToolStripMenuItem.Click += new System.EventHandler(this.openModelToolStripMenuItem_Click);
             // 
             // openLayoutToolStripMenuItem
             // 
             this.openLayoutToolStripMenuItem.Name = "openLayoutToolStripMenuItem";
-            this.openLayoutToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
-            this.openLayoutToolStripMenuItem.Text = "Open layout ";
+            this.openLayoutToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.openLayoutToolStripMenuItem.Text = "Open layout texture";
+            this.openLayoutToolStripMenuItem.ToolTipText = "Open a texture (image file, lossless compression like GIF or PNG, no antialiasing" +
+    ") that defines where each cell is on your array.";
             this.openLayoutToolStripMenuItem.Click += new System.EventHandler(this.openLayoutToolStripMenuItem_Click);
-            // 
-            // openSimParamsToolStripMenuItem
-            // 
-            this.openSimParamsToolStripMenuItem.Name = "openSimParamsToolStripMenuItem";
-            this.openSimParamsToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
-            this.openSimParamsToolStripMenuItem.Text = "Open sim params";
-            this.openSimParamsToolStripMenuItem.Click += new System.EventHandler(this.openSimParamsToolStripMenuItem_Click);
             // 
             // editToolStripMenuItem
             // 
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.layoutToolStripMenuItem,
-            this.cellParametersToolStripMenuItem});
+            this.cellParametersToolStripMenuItem,
+            this.layoutTextureDimensionsToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editToolStripMenuItem.Text = "Edit";
@@ -150,9 +145,19 @@
             // layoutToolStripMenuItem
             // 
             this.layoutToolStripMenuItem.Name = "layoutToolStripMenuItem";
-            this.layoutToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.layoutToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
             this.layoutToolStripMenuItem.Text = "Layout";
+            this.layoutToolStripMenuItem.ToolTipText = "Define how the individual cells are wired.";
             this.layoutToolStripMenuItem.Click += new System.EventHandler(this.layoutToolStripMenuItem_Click);
+            // 
+            // cellParametersToolStripMenuItem
+            // 
+            this.cellParametersToolStripMenuItem.Name = "cellParametersToolStripMenuItem";
+            this.cellParametersToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
+            this.cellParametersToolStripMenuItem.Text = "Cell Parameters";
+            this.cellParametersToolStripMenuItem.ToolTipText = "Define the characteristics of the indiviudual cell. Efficiency, fill factor, etc." +
+    "";
+            this.cellParametersToolStripMenuItem.Click += new System.EventHandler(this.cellParametersToolStripMenuItem_Click);
             // 
             // splitContainer1
             // 
@@ -486,6 +491,7 @@
             // 
             // glControl
             // 
+            this.glControl.Array = null;
             this.glControl.BackColor = System.Drawing.Color.Black;
             this.glControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.glControl.Location = new System.Drawing.Point(0, 0);
@@ -500,12 +506,14 @@
             this.openFileDialogModel.Filter = "3DXML files|*.3dxml|STL Files (ascii)|*.stl|All files|*.*";
             this.openFileDialogModel.Title = "Load solar car model";
             // 
-            // cellParametersToolStripMenuItem
+            // layoutTextureDimensionsToolStripMenuItem
             // 
-            this.cellParametersToolStripMenuItem.Name = "cellParametersToolStripMenuItem";
-            this.cellParametersToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
-            this.cellParametersToolStripMenuItem.Text = "Cell Parameters";
-            this.cellParametersToolStripMenuItem.Click += new System.EventHandler(this.cellParametersToolStripMenuItem_Click);
+            this.layoutTextureDimensionsToolStripMenuItem.Name = "layoutTextureDimensionsToolStripMenuItem";
+            this.layoutTextureDimensionsToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
+            this.layoutTextureDimensionsToolStripMenuItem.Text = "Layout texture dimensions";
+            this.layoutTextureDimensionsToolStripMenuItem.ToolTipText = "Define which part of the model is covered by the layout texture image--in other w" +
+    "ords, where the cells are.";
+            this.layoutTextureDimensionsToolStripMenuItem.Click += new System.EventHandler(this.layoutTextureDimensionsToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -561,7 +569,6 @@
         private System.Windows.Forms.Button buttonRun;
         private System.Windows.Forms.Button buttonAnimate;
         private System.Windows.Forms.ToolStripMenuItem openLayoutToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openSimParamsToolStripMenuItem;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label labelArrayPower;
         private System.Windows.Forms.Label label5;
@@ -584,5 +591,6 @@
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem layoutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cellParametersToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem layoutTextureDimensionsToolStripMenuItem;
     }
 }

@@ -243,10 +243,10 @@ void main()
 
         private void SetUniforms() {
             GL.UseProgram(shaderProg);
-            GL.Uniform1(uniformX0, -2.1f); // front of car
-            GL.Uniform1(uniformX1, 2.35f); // back of car
-            GL.Uniform1(uniformZ0, -0.8f); // left side
-            GL.Uniform1(uniformZ1, 0.8f); // right side
+            GL.Uniform1(uniformX0, Array.LayoutBoundsXZ.Left); 
+            GL.Uniform1(uniformX1, Array.LayoutBoundsXZ.Right); 
+            GL.Uniform1(uniformZ0, Array.LayoutBoundsXZ.Top); 
+            GL.Uniform1(uniformZ1, Array.LayoutBoundsXZ.Bottom); 
             GL.Uniform1(uniformPixelArea, 1.0f);
             GL.Uniform1(uniformSolarCells, (float)TextureUnit.Texture0);
             Debug.WriteLine("uniforms set.");

@@ -142,6 +142,7 @@
             // 
             // labelMaxPower
             // 
+            this.labelMaxPower.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.labelMaxPower.AutoSize = true;
             this.labelMaxPower.Location = new System.Drawing.Point(339, 286);
             this.labelMaxPower.Name = "labelMaxPower";
@@ -212,6 +213,9 @@
             // 
             // chartIV
             // 
+            this.chartIV.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.chartIV.Location = new System.Drawing.Point(342, 6);
             this.chartIV.Margins = new int[] {
         10,
@@ -229,7 +233,7 @@
             this.AcceptButton = this.buttonOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(742, 378);
+            this.ClientSize = new System.Drawing.Size(734, 382);
             this.Controls.Add(this.textBoxSeriesR);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.textBoxNIdeal);

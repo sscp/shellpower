@@ -43,6 +43,11 @@ namespace SSCP.ShellPower {
             MouseDown += new MouseEventHandler(Mouse_ButtonDown);
             MouseUp += new MouseEventHandler(Mouse_ButtonUp);
             MouseWheel += new MouseEventHandler(Mouse_WheelChanged);
+
+            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+            timer.Interval = 40;
+            timer.Enabled = true;
+            timer.Tick += new EventHandler((obj, args) => Refresh());
         }
 
         private void InitGL() {
@@ -139,10 +144,10 @@ void main()
 
         private void SetUniforms() {
             GL.UseProgram(shaderProg);
-            GL.Uniform1(uniformX0, -2.1f); // front of car
-            GL.Uniform1(uniformX1, 2.35f); // back of car
-            GL.Uniform1(uniformZ0, -0.8f); // left side
-            GL.Uniform1(uniformZ1, 0.8f); // right side
+            GL.Uniform1(uniformX0, Array.LayoutBoundsXZ.Left);
+            GL.Uniform1(uniformX1, Array.LayoutBoundsXZ.Right);
+            GL.Uniform1(uniformZ0, Array.LayoutBoundsXZ.Top);
+            GL.Uniform1(uniformZ1, Array.LayoutBoundsXZ.Bottom); 
             GL.Uniform1(uniformSolarCells, (float)TextureUnit.Texture0);
             var sunDir = new Vector3();
             if (Sprite != null && Sprite.Shadow.Light.Length > 0) {
@@ -228,7 +233,6 @@ void main()
                     Matrix4.CreateRotationX(-ydelta * sensitivity);
             }
             lastMouse = e.Location;
-
             Refresh();
         }
         private void Game_KeyPress(object sender, KeyEventArgs e) {

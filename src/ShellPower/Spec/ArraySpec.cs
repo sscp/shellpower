@@ -38,11 +38,11 @@ namespace SSCP.ShellPower {
         /// Aligns the layout texture. 
         /// The texture is expected to be a top-down ortho projection.
         /// 
-        /// This is a vector [x1, z1, x2, z2]. [x1, z1] is the top-left corner
-        /// of the texture (in model coordinates, in meters) and [x2, z2]
+        /// This is a rectangle. [x0, z0] is the top-left corner
+        /// of the texture (in model coordinates, in meters) and [x1, z1]
         /// is the bottom-right corner.
         /// </summary>
-        public Vector4d LayoutBoundsXZ { get; set; }
+        public RectangleF LayoutBoundsXZ { get; set; }
         /// <summary>
         /// Assigns each cell in the texture an id (eg "c00").
         /// </summary>

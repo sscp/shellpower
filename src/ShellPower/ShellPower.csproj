@@ -180,6 +180,12 @@
     <Compile Include="Utilities\GeoNames.cs" />
     <Compile Include="FileFormats\IgesParser.cs" />
     <Compile Include="FileFormats\IgesEntity.cs" />
+    <Compile Include="View\ArrayDimensionsControl.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\ArrayDimensionsControl.Designer.cs">
+      <DependentUpon>ArrayDimensionsControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\CellParamsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -209,6 +215,9 @@
   <ItemGroup>
     <EmbeddedResource Include="View\ArrayLayoutForm.resx">
       <DependentUpon>ArrayLayoutForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\ArrayDimensionsControl.resx">
+      <DependentUpon>ArrayDimensionsControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="View\CellParamsForm.resx">
       <DependentUpon>CellParamsForm.cs</DependentUpon>
