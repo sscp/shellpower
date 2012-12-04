@@ -11,6 +11,7 @@ using System.Diagnostics;
 namespace SSCP.ShellPower {
     public partial class ArrayLayoutForm : Form {
         private ArraySpec spec;
+        private ArraySpec.CellString editingString;
 
         public ArrayLayoutForm(ArraySpec spec) {
             Debug.Assert(spec != null);
@@ -44,13 +45,32 @@ namespace SSCP.ShellPower {
             }
             // show the layout
             arrayLayoutControl.Array = this.spec;
-            // TODO: array bounds
 
             // show the strings
             listViewStrings.Clear();
             foreach (ArraySpec.CellString cellStr in spec.Strings) {
                 string cellStrStr = string.Join(",", cellStr.CellIDs);
                 listViewStrings.Items.Add(new ListViewItem(cellStrStr));
+            }
+            if (editingString != null) {
+                Debug.Assert(spec.Strings[spec.Strings.Count - 1] == editingString);
+                listViewStrings.SelectedIndices.Clear();
+                listViewStrings.SelectedIndices.Add(spec.Strings.Count - 1);
+                listViewStrings.Enabled = false;
+            } else {
+                listViewStrings.Enabled = true;
+            }
+        }
+
+        private void UpdateControls() {
+            if (editingString == null) {
+                buttonMakeString.Text = "Make string";
+                labelMakeString.Visible = true;
+                labelExplain.Visible = false;
+            } else {
+                buttonMakeString.Text = "Done";
+                labelMakeString.Visible = false;
+                labelExplain.Visible = true;
             }
         }
         #endregion
@@ -64,38 +84,17 @@ namespace SSCP.ShellPower {
             }
         }
 
-        private void buttonRelabel_Click(object sender, EventArgs e) {
-            Debug.WriteLine("relabel");
-        }
         private void buttonMakeString_Click(object sender, EventArgs e) {
-            HashSet<String> cellIds = arrayLayoutControl.SelectedIDs;
-            Debug.WriteLine("make string: " + string.Join(",", cellIds));
+            if (editingString != null) {
+                // create a new string, which we'll add cells to one at a time
+                editingString = new ArraySpec.CellString();
 
-            // remove from existing strings
-            List<ArraySpec.CellString> newStrings = new List<ArraySpec.CellString>();
-            foreach (ArraySpec.CellString cellStr in spec.Strings) {
-                List<string> stringIds = cellStr.CellIDs;
-                for (int i = stringIds.Count - 1; i >= 0; i--) {
-                    if (cellIds.Contains(stringIds[i])) {
-                        stringIds.RemoveAt(i);
-                        if (i < stringIds.Count) {
-                            i++;
-                        }
-                    }
-                }
-                if (cellStr.CellIDs.Count > 0) {
-                    newStrings.Add(cellStr);
-                }
+            } else {
+                editingString = null;
             }
-            spec.Strings.Clear();
-            spec.Strings.AddRange(newStrings);
-
-            // create the new string
-            ArraySpec.CellString newString = new ArraySpec.CellString();
-            newString.CellIDs.AddRange(cellIds);
-            spec.Strings.Add(newString);
 
             // update the view
+            UpdateControls();
             UpdateUI();
         }
         private void listViewStrings_SelectedIndexChanged(object sender, EventArgs e) {

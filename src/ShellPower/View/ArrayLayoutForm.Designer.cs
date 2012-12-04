@@ -26,16 +26,17 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.listViewStrings = new System.Windows.Forms.ListView();
             this.label1 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
+            this.labelExplain = new System.Windows.Forms.Label();
             this.buttonMakeString = new System.Windows.Forms.Button();
-            this.buttonRelabel = new System.Windows.Forms.Button();
             this.panelNoLayoutTexture = new System.Windows.Forms.Panel();
             this.label3 = new System.Windows.Forms.Label();
             this.linkLabelLoadLayoutTexture = new System.Windows.Forms.LinkLabel();
             this.labelNoLayout = new System.Windows.Forms.Label();
+            this.arrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.openFileDialogArray = new System.Windows.Forms.OpenFileDialog();
             this.directorySearcher1 = new System.DirectoryServices.DirectorySearcher();
-            this.arrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
+            this.labelMakeString = new System.Windows.Forms.Label();
+            this.buttonDeleteString = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -56,9 +57,10 @@
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.label4);
+            this.splitContainer1.Panel2.Controls.Add(this.buttonDeleteString);
+            this.splitContainer1.Panel2.Controls.Add(this.labelMakeString);
+            this.splitContainer1.Panel2.Controls.Add(this.labelExplain);
             this.splitContainer1.Panel2.Controls.Add(this.buttonMakeString);
-            this.splitContainer1.Panel2.Controls.Add(this.buttonRelabel);
             this.splitContainer1.Panel2.Controls.Add(this.panelNoLayoutTexture);
             this.splitContainer1.Panel2.Controls.Add(this.arrayLayoutControl);
             this.splitContainer1.Size = new System.Drawing.Size(578, 395);
@@ -82,42 +84,31 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(12, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(83, 13);
+            this.label1.Size = new System.Drawing.Size(39, 13);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Cells and strings";
+            this.label1.Text = "Strings";
             // 
-            // label4
+            // labelExplain
             // 
-            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(3, 352);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(260, 26);
-            this.label4.TabIndex = 8;
-            this.label4.Text = "A string is a list of cells wired in series.\r\nEach string should correspond to on" +
+            this.labelExplain.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.labelExplain.AutoSize = true;
+            this.labelExplain.Location = new System.Drawing.Point(3, 352);
+            this.labelExplain.Name = "labelExplain";
+            this.labelExplain.Size = new System.Drawing.Size(260, 26);
+            this.labelExplain.TabIndex = 8;
+            this.labelExplain.Text = "A string is a list of cells wired in series.\r\nEach string should correspond to on" +
     "e MPPT channel.";
             // 
             // buttonMakeString
             // 
             this.buttonMakeString.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonMakeString.Location = new System.Drawing.Point(112, 326);
+            this.buttonMakeString.Location = new System.Drawing.Point(6, 326);
             this.buttonMakeString.Name = "buttonMakeString";
             this.buttonMakeString.Size = new System.Drawing.Size(103, 23);
             this.buttonMakeString.TabIndex = 7;
-            this.buttonMakeString.Text = "Make string";
+            this.buttonMakeString.Text = "Create string";
             this.buttonMakeString.UseVisualStyleBackColor = true;
             this.buttonMakeString.Click += new System.EventHandler(this.buttonMakeString_Click);
-            // 
-            // buttonRelabel
-            // 
-            this.buttonRelabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.buttonRelabel.Location = new System.Drawing.Point(3, 326);
-            this.buttonRelabel.Name = "buttonRelabel";
-            this.buttonRelabel.Size = new System.Drawing.Size(103, 23);
-            this.buttonRelabel.TabIndex = 6;
-            this.buttonRelabel.Text = "Relabel selected";
-            this.buttonRelabel.UseVisualStyleBackColor = true;
-            this.buttonRelabel.Click += new System.EventHandler(this.buttonRelabel_Click);
             // 
             // panelNoLayoutTexture
             // 
@@ -166,6 +157,17 @@
             this.labelNoLayout.TabIndex = 2;
             this.labelNoLayout.Text = "  No layout texture loaded.";
             // 
+            // arrayLayoutControl
+            // 
+            this.arrayLayoutControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.arrayLayoutControl.Array = null;
+            this.arrayLayoutControl.Location = new System.Drawing.Point(3, 3);
+            this.arrayLayoutControl.Name = "arrayLayoutControl";
+            this.arrayLayoutControl.Size = new System.Drawing.Size(379, 317);
+            this.arrayLayoutControl.TabIndex = 9;
+            // 
             // openFileDialogArray
             // 
             this.openFileDialogArray.Filter = "PNG Files|*.png|JPG Files|*.jpg|Bitmap files|*.bmp";
@@ -177,16 +179,26 @@
             this.directorySearcher1.ServerPageTimeLimit = System.TimeSpan.Parse("-00:00:01");
             this.directorySearcher1.ServerTimeLimit = System.TimeSpan.Parse("-00:00:01");
             // 
-            // arrayLayoutControl
+            // labelMakeString
             // 
-            this.arrayLayoutControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.arrayLayoutControl.Array = null;
-            this.arrayLayoutControl.Location = new System.Drawing.Point(3, 3);
-            this.arrayLayoutControl.Name = "arrayLayoutControl";
-            this.arrayLayoutControl.Size = new System.Drawing.Size(379, 317);
-            this.arrayLayoutControl.TabIndex = 9;
+            this.labelMakeString.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.labelMakeString.AutoSize = true;
+            this.labelMakeString.BackColor = System.Drawing.SystemColors.Control;
+            this.labelMakeString.Location = new System.Drawing.Point(6, 352);
+            this.labelMakeString.Name = "labelMakeString";
+            this.labelMakeString.Size = new System.Drawing.Size(243, 13);
+            this.labelMakeString.TabIndex = 10;
+            this.labelMakeString.Text = "Click on each cell, in the order that they are wired.";
+            // 
+            // buttonDeleteString
+            // 
+            this.buttonDeleteString.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonDeleteString.Location = new System.Drawing.Point(115, 326);
+            this.buttonDeleteString.Name = "buttonDeleteString";
+            this.buttonDeleteString.Size = new System.Drawing.Size(103, 23);
+            this.buttonDeleteString.TabIndex = 11;
+            this.buttonDeleteString.Text = "Delete string";
+            this.buttonDeleteString.UseVisualStyleBackColor = true;
             // 
             // ArrayLayoutForm
             // 
@@ -217,11 +229,12 @@
         private System.Windows.Forms.Panel panelNoLayoutTexture;
         private System.Windows.Forms.LinkLabel linkLabelLoadLayoutTexture;
         private System.Windows.Forms.ListView listViewStrings;
-        private System.Windows.Forms.Button buttonRelabel;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label labelExplain;
         private System.Windows.Forms.Button buttonMakeString;
         private System.Windows.Forms.OpenFileDialog openFileDialogArray;
         private System.DirectoryServices.DirectorySearcher directorySearcher1;
         private SSCP.ShellPower.ArrayLayoutControl arrayLayoutControl;
+        private System.Windows.Forms.Button buttonDeleteString;
+        private System.Windows.Forms.Label labelMakeString;
     }
 }
