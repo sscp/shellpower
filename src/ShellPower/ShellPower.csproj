@@ -155,6 +155,7 @@
     <Compile Include="Math\Constants.cs" />
     <Compile Include="Sprites\MeshTriangle.cs" />
     <Compile Include="Utilities\Cache.cs" />
+    <Compile Include="Utilities\ColorUtils.cs" />
     <Compile Include="Utilities\GLUtils.cs" />
     <Compile Include="Utilities\Logger.cs" />
     <Compile Include="Geom\KDTree.cs" />
@@ -205,6 +206,9 @@
     <Compile Include="Sprites\Sprite.cs" />
     <Compile Include="ThirdParty\TexLib.cs" />
     <Compile Include="Geom\Matrix3.cs" />
+    <Compile Include="View\RefreshListBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="View\SimpleGraph.cs">
       <SubType>UserControl</SubType>
     </Compile>

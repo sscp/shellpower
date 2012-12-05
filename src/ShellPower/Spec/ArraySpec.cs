@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Diagnostics;
 using OpenTK;
 
 namespace SSCP.ShellPower {
@@ -21,7 +22,6 @@ namespace SSCP.ShellPower {
     /// </summary>
     public class ArraySpec {
         public ArraySpec() {
-            CellIDs = new Dictionary<Color, string>();
             Strings = new List<CellString>();
             CellSpec = new CellSpec();
         }
@@ -44,19 +44,51 @@ namespace SSCP.ShellPower {
         /// </summary>
         public RectangleF LayoutBoundsXZ { get; set; }
         /// <summary>
-        /// Assigns each cell in the texture an id (eg "c00").
-        /// </summary>
-        public Dictionary<Color, string> CellIDs { get; private set; }
-        /// <summary>
         /// Assigns cells to strings (a group of cells in series).
         /// </summary>
         public List<CellString> Strings { get; private set; }
         public class CellString {
             public CellString() {
-                CellIDs = new List<string>();
+                Cells = new List<Cell>();
+                Name = "NewString";
             }
-            public List<String> CellIDs { get; private set; }
+            public List<Cell> Cells { get; private set; }
+            public String Name { get; set; }
             //TODO: bypass diodes
+            public override string ToString() {
+                return Name + " ("+Cells.Count+" cells)";
+            }
+        }
+        public class Cell {
+            public Color Color { get; set; }
+            public List<Pair<int>> Pixels { get; private set; } //must be sorted, scanline order
+            public Cell() {
+                Pixels = new List<Pair<int>>();
+            }
+            public override int GetHashCode() {
+                if (Pixels.Count == 0) return 0;
+                return Pixels[0].GetHashCode();
+            }
+            public override bool Equals(Object other) {
+                Cell a = this;
+                Cell b = other as Cell;
+                if (b == null) return false;
+                bool equal;
+                if (a.Pixels.Count == 0 || b.Pixels.Count == 0) {
+                    equal = a.Pixels.Count == b.Pixels.Count; // both empty
+                } else {
+                    equal = a.Pixels[0].Equals(b.Pixels[0]); // remember, sorted
+                }
+                // validate...
+                if(equal){
+                    Debug.Assert(a.Pixels.Count == b.Pixels.Count);
+                    for (int i = 0; i < a.Pixels.Count; i++) {
+                        Debug.Assert(a.Pixels[i].Equals(b.Pixels[i]));
+                    }
+                    Debug.Assert(a.Color == b.Color);
+                }
+                return equal;
+            }
         }
 
         public CellSpec CellSpec { get; private set; }

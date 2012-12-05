@@ -252,6 +252,44 @@ void main()
             Debug.WriteLine("uniforms set.");
         }
 
+        private float[] ReadFloatTexture(FramebufferAttachment fb) {
+            float[] tex = new float[computeWidth * computeHeight];
+            unsafe {
+                fixed (float* pf = tex) {
+                    // cell id
+                    GL.ReadBuffer((ReadBufferMode)fb);
+                    GL.ReadPixels(0, 0, computeWidth, computeHeight,
+                        OpenTK.Graphics.OpenGL.PixelFormat.Blue, PixelType.Float, new IntPtr(pf));
+                }
+            }
+            return tex;
+        }
+
+        /// <summary>
+        /// Reads an ARGB texture.
+        /// Returns an array of colors (scanline order).
+        /// </summary>
+        private Color[] ReadColorTexture(FramebufferAttachment fb) {
+            byte[] texRaw = new byte[computeWidth*computeHeight*4];
+            Color[] tex = new Color[computeWidth*computeHeight];
+            unsafe {
+                fixed (byte* pb = texRaw) {
+                    // cell id
+                    GL.ReadBuffer((ReadBufferMode)fb);
+                    GL.ReadPixels(0, 0, computeWidth, computeHeight,
+                        OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, new IntPtr(pb));
+                }
+            }
+            for (int i = 0; i < computeWidth * computeHeight; i++) {
+                tex[i] = Color.FromArgb(
+                    texRaw[i * 4 + 3], // rgba to argb
+                    texRaw[i * 4 + 0],
+                    texRaw[i * 4 + 1],
+                    texRaw[i * 4 + 2]);
+            }
+            return tex;
+        }
+
         /// <summary>
         /// Reads the compute textures from OpenGL.
         /// This gives insolation for each cell.
@@ -259,79 +297,55 @@ void main()
         /// Uses this to calculate IV curves, etc, and ultimately array power.
         /// </summary>
         private ArraySimulationStepOutput AnalyzeComputeTex() {
-            byte[] texCellIdsRaw = new byte[computeWidth*computeHeight*4];
-            Color[] texCellIdsC = new Color[computeWidth*computeHeight];
-            string[] texCellIds = new string[computeWidth * computeHeight];
-            float[] texWattsIn = new float[computeWidth * computeHeight];
-            unsafe{
-                fixed(byte* pb = texCellIdsRaw){
-                    // cell id
-                    GL.ReadBuffer((ReadBufferMode)FramebufferAttachment.ColorAttachment0);
-                    GL.ReadPixels(0, 0, computeWidth, computeHeight,
-                        OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, new IntPtr(pb));
-                }
-                fixed (float* pf = texWattsIn) {
-                    // cell id
-                    GL.ReadBuffer((ReadBufferMode)FramebufferAttachment.ColorAttachment1);
-                    GL.ReadPixels(0, 0, computeWidth, computeHeight,
-                        OpenTK.Graphics.OpenGL.PixelFormat.Blue, PixelType.Float, new IntPtr(pf));
+            Color[] texColors = ReadColorTexture(FramebufferAttachment.ColorAttachment0);
+            float[] texWattsIn = ReadFloatTexture(FramebufferAttachment.ColorAttachment1);
+            float[] texArea = new float[computeWidth * computeHeight];
+
+            // find the cell at each fragment...
+            int ncells = 0;
+            var cells = new List<ArraySpec.Cell>();
+            var colorToId = new Dictionary<Color, int>();
+            foreach (ArraySpec.CellString cellStr in spec.Strings) {
+                foreach (ArraySpec.Cell cell in cellStr.Cells) {
+                    cells.Add(cell);
+                    colorToId.Add(cell.Color, ncells);
+                    ncells++;
                 }
             }
 
-            // find the cell id of each fragment...
+            // finally, find the area and insolation for each cell
+            double[] wattsIn = new double[ncells];
+            double[] area = new double[ncells];
             for (int i = 0; i < computeWidth * computeHeight; i++) {
-                texCellIdsC[i] = Color.FromArgb(
-                    texCellIdsRaw[i * 4 + 3], // rgba to argb
-                    texCellIdsRaw[i * 4 + 0],
-                    texCellIdsRaw[i * 4 + 1],
-                    texCellIdsRaw[i * 4 + 2]);
-            }
-            //TODO: let the user id the colors, spec how they're wired
-            var colorToId = spec.CellIDs;
-            for (int i = 0; i < computeWidth * computeHeight; i++) {
-                Color color = texCellIdsC[i];
-                if (color.R == color.G && color.G == color.B) {
-                    // ignore grayscale
-                    continue;
-                }
-                string cellId;
+                Color color = texColors[i];
+                if (ColorUtils.IsGrayscale(color)) continue;
                 if (colorToId.ContainsKey(color)) {
-                    cellId = colorToId[color];
-                } else {
-                    continue;
-                }
-                texCellIds[i] = cellId;
-            }
+                    int id = colorToId[color];
 
-            // now, find the total insolation for each cell id
-            var idToInsolation = new Dictionary<string, double>();
-            //var cellIds = new ArrayList<string>(colorToId.Values);
-            foreach (String cellId in colorToId.Values) {
-                idToInsolation[cellId] = 0.0;
-            }
-            for (int i = 0; i < computeWidth * computeHeight; i++) {
-                String cellId = texCellIds[i];
-                if (cellId == null) continue;
-                double insolation = texWattsIn[i];
-                idToInsolation[cellId] += insolation;
-            }
-            foreach (String cellId in idToInsolation.Keys) {
-                Debug.WriteLine("cell " + cellId + " insolation " + idToInsolation[cellId]);
+                    wattsIn[id] += texWattsIn[i];
+                    area[id] += texArea[i];
+                } else {
+                    Logger.warn("Texture fragment is not grayscale, "+
+                        "but also doesn't correspond to any cell. {0} at {1},{2}",
+                        ColorTranslator.ToHtml(color), i % computeWidth, i / computeWidth);
+                }
             }
 
             // find totals
             double totalArea = 0, totalWattsIn = 0;
-            for (int i = 0; i < computeWidth * computeHeight; i++) {
-                totalWattsIn += texWattsIn[i];
-                totalArea += 0; // texArea[i];
+            for (int i = 0; i < ncells; i++) {
+                totalWattsIn += wattsIn[i];
+                totalArea += area[i];
+                Debug.WriteLine("cell {0}: {1}W, {2}m^2", i, wattsIn[i], area[i]);
             }
+            Debug.WriteLine("total: {0}W, {1}m^2", totalWattsIn, totalArea);
 
             // MPPT sweeps, first for each cell...
             double totalWattsOutByCell = 0, totalWattsOutByString = 0;
-            foreach(String cellId in idToInsolation.Keys){
+            for(int i = 0; i < ncells; i++){
                 double ff, vmp, imp;
                 double[] veci, vecv;
-                this.Array.CellSpec.CalcSweep(out ff, out vmp, out imp, out veci, out vecv);
+                this.Array.CellSpec.CalcSweep(wattsIn[i], out ff, out vmp, out imp, out veci, out vecv);
                 totalWattsOutByCell += vmp*imp;
             }
             // TODO: ... then MPPT for each string

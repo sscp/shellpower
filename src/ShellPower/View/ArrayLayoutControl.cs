@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Drawing.Drawing2D;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -10,13 +11,15 @@ using System.Windows.Forms;
 using System.Diagnostics;
 
 namespace SSCP.ShellPower {
+    /// <summary>
+    /// Allows user to define individual strings.
+    /// </summary>
     public partial class ArrayLayoutControl : UserControl {
 
         public ArraySpec Array { get; set; }
-
-        public int[,] SelectionMask { get; private set; }
-
-        public event EventHandler SelectionChanged;
+        public ArraySpec.CellString CellString { get; set; }
+        public bool Editable { get; set; }
+        public event EventHandler CellStringChanged;
 
         private int frame = 0;
         private int nextId = 1;
@@ -37,7 +40,10 @@ namespace SSCP.ShellPower {
                           ControlStyles.SupportsTransparentBackColor, 
                           true);
 
+            // init model
+            Editable = true;
 
+            // animate selection
             System.Windows.Forms.Timer timer = new Timer();
             timer.Interval = 40;
             timer.Tick += new EventHandler(timer_Tick);
@@ -50,21 +56,6 @@ namespace SSCP.ShellPower {
             double scale = Math.Min(Width / texW, Height / texH);
             return new RectangleF(0, 0, (float)(scale * texW), (float)(scale * texH));
         }
-
-        /*private Rectangle? GetSelectionRect() {
-            if(dragPointA == null || dragPointB == null){
-                return null;
-            }
-            int minX = Math.Min(dragPointA.Value.X, dragPointB.Value.X);
-            int maxX = Math.Max(dragPointA.Value.X, dragPointB.Value.X);
-            int minY = Math.Min(dragPointA.Value.Y, dragPointB.Value.Y);
-            int maxY = Math.Max(dragPointA.Value.Y, dragPointB.Value.Y);
-            return new Rectangle(minX, minY, maxX-minX, maxY-minY);
-        }*/
-
-        /// <summary>
-        /// Gets the array layout texture.
-        /// </summary>
         private void CreateTextureIfNeeded() {
             Debug.Assert(Array != null && Array.LayoutTexture != null);
             Debug.Assert(tex == null || tex == Array.LayoutTexture);
@@ -92,9 +83,33 @@ namespace SSCP.ShellPower {
                 }
             }
             tex.UnlockBits(texData);
-
-            // init select mask
-            SelectionMask = new int[w, h];
+        }
+        private void UpdateTexSelected() {
+            if (texSelected == null || texSelected.Width != w || texSelected.Height != h) {
+                texSelected = new Bitmap(w, h);
+            }
+            BitmapData texSelData = texSelected.LockBits(
+                new Rectangle(0, 0, w, h),
+                ImageLockMode.WriteOnly,
+                PixelFormat.Format32bppArgb);
+            unsafe {
+                uint* ptr = (uint*)texSelData.Scan0.ToPointer();
+                for (int i = 0; i < w * h; i++) {
+                    ptr[i] = 0;
+                }
+                if (CellString != null) {
+                    foreach (ArraySpec.Cell cell in CellString.Cells) {
+                        foreach (Pair<int> pixel in cell.Pixels) {
+                            int i = pixel.First, j = pixel.Second;
+                            bool mask = (j + i + frame) % 16 < 8;
+                            uint alpha = (uint)(mask ? 0x80 : 0x00);
+                            uint color = 0xffffff | (alpha << 24); // white highlight
+                            ptr[j * w + i] = color;
+                        }
+                    }
+                }
+            }
+            texSelected.UnlockBits(texSelData);
         }
 
         protected override void OnPaint(PaintEventArgs e) {
@@ -104,55 +119,56 @@ namespace SSCP.ShellPower {
             if(Array == null || Array.LayoutTexture == null){
                 return;
             }
+            g.CompositingQuality = CompositingQuality.HighQuality;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // draw the array layout
             RectangleF arrayLayoutRect = GetArrayLayoutRect();
             g.DrawImage(Array.LayoutTexture, arrayLayoutRect);
 
             // highlight the selected cells
-            if (SelectionMask == null) return;
-            if (texSelected == null || texSelected.Width != w || texSelected.Height != h) {
-                texSelected = new Bitmap(w, h);
-            }
-            BitmapData texSelData = texSelected.LockBits(
-                new Rectangle(0, 0, w, h),
-                ImageLockMode.WriteOnly,
-                PixelFormat.Format32bppArgb);
-            var selMask = SelectionMask;
-            unsafe {
-                uint* pixelSel = (uint*)texSelData.Scan0.ToPointer();
-                for (int i = 0; i < w; i++) {
-                    for (int j = 0; j < h; j++) {
-                        bool sel = selMask[i, j] > 0;
-                        bool mask = (j + i + frame) % 16 < 8;
-                        uint alpha = (uint)((sel && mask) ? 0x80 : 0x00);
-                        uint color = 0xffffff | (alpha << 24); // white highlight
-                        pixelSel[j * w + i] = color;
-                    }
-                }
-            }
-            texSelected.UnlockBits(texSelData);
+            if (tex == null) return;
+            UpdateTexSelected();
             g.DrawImage(texSelected, arrayLayoutRect);
-        }
 
+            // draw the wiring
+            if (CellString == null) return;
+            int n = CellString.Cells.Count;
+            PointF[] points = new PointF[n];
+            float scale = arrayLayoutRect.Width / Array.LayoutTexture.Width;
+            for(int i = 0; i < n; i++){
+                ArraySpec.Cell cell = CellString.Cells[i];
+                int sx=0,sy=0;
+                foreach (Pair<int> xy in cell.Pixels) {
+                    sx += xy.First;
+                    sy += xy.Second;
+                }
+                int m = cell.Pixels.Count;
+                points[i] = new PointF(
+                    (float)sx / m * scale + arrayLayoutRect.X, 
+                    (float)sy / m * scale + arrayLayoutRect.Y);
+            }
+            if (points.Length > 1) {
+                g.DrawLines(new Pen(Color.FromArgb(80, Color.Black), 3.0f), points);
+                g.DrawLines(new Pen(Color.LightYellow, 1.0f), points);
+            }
+        }
         protected override void OnMouseDown(MouseEventArgs e) {
         }
         protected override void OnMouseUp(MouseEventArgs e) {
-            CreateTextureIfNeeded();
-            RectangleF drawRect = GetArrayLayoutRect();
-            int x = (int)((e.X - drawRect.X) * w / drawRect.Width);
-            int y = (int)((e.Y - drawRect.Y) * h / drawRect.Height);
-            if (x < 0 || x >= w || y < 0 || y >= h) return;
+            if (!Editable || CellString==null) return;
+
+            // find click texture coords
+            int x, y;
+            if (!GetTexCoord(e, out x, out y)) return;
+            Color color = pixels[x, y];
+            if (ColorUtils.IsGrayscale(color)) return;
 
             // flood fill
             int selId = nextId++;
             HashSet<Pair<int>> ffS = new HashSet<Pair<int>>();
             Queue<Pair<int>> ffQ = new Queue<Pair<int>>();
             ffQ.Enqueue(new Pair<int>(x, y));
-            Color color = pixels[x,y];
-            if (color.R == color.G && color.G == color.B) {
-                return; // grayscale, not selectable
-            }
             while (ffQ.Count > 0) {
                 Pair<int> xy = ffQ.Dequeue();
 
@@ -160,23 +176,53 @@ namespace SSCP.ShellPower {
                 if (ffS.Contains(xy)) continue;
                 ffS.Add(xy);
 
-                // select the pixel
-                SelectionMask[xy.First, xy.Second] = selId;
-
                 // enqueue the neighbors
                 for(int x2 = xy.First-1; x2 <= xy.First+1; x2++){
                     for(int y2 = xy.Second-1; y2 <= xy.Second+1; y2++){
                         if(x2 <= 0 || x2 >= w || y2 <= 0 || y2 >= h) continue;
-                        if(pixels[xy.First, xy.Second] != color) continue;
+                        if(pixels[x2,y2] != color) continue;
                         ffQ.Enqueue(new Pair<int>(x2,y2));
                     }
                 }
             }
+
+            // create the new cell
+            ArraySpec.Cell newCell = new ArraySpec.Cell();
+            newCell.Color = color;
+            newCell.Pixels.AddRange(ffS);
+            newCell.Pixels.Sort(new Comparison<Pair<int>>((a, b) => {
+                if (a.Second < b.Second) return -1; // scan line order
+                if (a.Second > b.Second) return 1;
+                if (a.First < b.First) return -1;
+                if (a.First > b.First) return 1;
+                return 0;
+            }));
+
+            // either add it to the current string, or remove it if it's already there
+            if (!CellString.Cells.Remove(newCell)) {
+                CellString.Cells.Add(newCell);
+            }
+
+            if (CellStringChanged!=null) CellStringChanged(this, null);
             Refresh();
         }
         protected override void OnMouseMove(MouseEventArgs e) {
+            int x, y;
+            if (GetTexCoord(e, out x, out y)) {
+                if (ColorUtils.IsGrayscale(pixels[x, y])) {
+                    this.Cursor = Cursors.Arrow; // not clickable
+                } else {
+                    this.Cursor = Cursors.Hand;
+                }
+            }
         }
-
+        private bool GetTexCoord(MouseEventArgs e, out int x, out int y) {
+            CreateTextureIfNeeded();
+            RectangleF drawRect = GetArrayLayoutRect();
+            x = (int)((e.X - drawRect.X) * w / drawRect.Width);
+            y = (int)((e.Y - drawRect.Y) * h / drawRect.Height);
+            return !(x < 0 || x >= w || y < 0 || y >= h) ;
+        }
         private void timer_Tick(object sender, EventArgs e) {
             frame++;
             Refresh();

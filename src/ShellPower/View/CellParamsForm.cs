@@ -87,12 +87,13 @@ namespace SSCP.ShellPower {
             UpdateSpec(spec);
 
             // show sanity checks
-            double i0 = spec.CalcI0();
-            double isc = spec.CalcIsc();
-            double voc = spec.CalcVoc();
+            double wattsIn = CellSpec.STC_INSOLATION;
+            double i0 = spec.CalcI0(wattsIn);
+            double isc = spec.CalcIsc(wattsIn);
+            double voc = spec.CalcVoc(wattsIn);
             double ff, vmp, imp;
             double[] veci, vecv;
-            spec.CalcSweep(out ff, out vmp, out imp, out veci, out vecv);
+            spec.CalcSweep(wattsIn, out ff, out vmp, out imp, out veci, out vecv);
             labelMaxPower.Text = string.Format(
                 "Isc={0:0.000}A Voc={1:0.000}V @{2:0.00}C\n" +
                 "Imp={3:0.000}A Vmp={4:0.000}V Pmp={5:0.000}W\n"+
