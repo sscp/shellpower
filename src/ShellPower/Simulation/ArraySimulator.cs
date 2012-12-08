@@ -404,8 +404,8 @@ void main()
                 strings[i].String = cellStr;
                 CellSpec cellSpec = input.Array.CellSpec;
                 strings[i].Area = cellStr.Cells.Count*cellSpec.Area;
-                IVTrace cellSweepIdeal = CellSimulator.CalcSweep(cellSpec,input.Insolation*cellSpec.Area,input.Temperature);
-                strings[i].WattsOutputIdeal = cellSweepIdeal.Pmp;
+                IVTrace cellSweepIdeal = CellSimulator.CalcSweep(cellSpec,input.Insolation,input.Temperature);
+                strings[i].WattsOutputIdeal = cellSweepIdeal.Pmp * cellStr.Cells.Count;
             }
             totalWattsOutByString = totalWattsOutByCell;
 

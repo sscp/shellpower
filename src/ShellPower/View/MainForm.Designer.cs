@@ -35,6 +35,7 @@
             this.cellParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.layoutTextureDimensionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialogModel = new System.Windows.Forms.OpenFileDialog();
+            this.saveFileDialogLayout = new System.Windows.Forms.SaveFileDialog();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageRun = new System.Windows.Forms.TabPage();
@@ -67,11 +68,13 @@
             this.labelSimAvgPower = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.tabPageOutputs = new System.Windows.Forms.TabPage();
+            this.outputStringPerfectMPPTLabel = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
             this.outputStringLabel = new System.Windows.Forms.Label();
             this.outputStringIVLinkLabel = new System.Windows.Forms.LinkLabel();
-            this.outputStringPowerLossLabel = new System.Windows.Forms.Label();
+            this.outputStringShadedLabel = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
-            this.outputStringAreaShadedLabel = new System.Windows.Forms.Label();
+            this.outputStringAreaLabel = new System.Windows.Forms.Label();
             this.label16 = new System.Windows.Forms.Label();
             this.outputStringPowerLabel = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
@@ -81,7 +84,8 @@
             this.outputStringsListBox = new System.Windows.Forms.ListBox();
             this.outputArrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.glControl = new SSCP.ShellPower.ArrayModelControl();
-            this.saveFileDialogLayout = new System.Windows.Forms.SaveFileDialog();
+            this.outputStringFlattenedLabel = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -197,6 +201,10 @@
             // 
             this.openFileDialogModel.Filter = "3DXML files|*.3dxml|STL Files (ascii)|*.stl|All files|*.*";
             this.openFileDialogModel.Title = "Load solar car model";
+            // 
+            // saveFileDialogLayout
+            // 
+            this.saveFileDialogLayout.Filter = "PNG Images|*.png|GIF Images|*.gif|Bitmap images|*.bmp";
             // 
             // splitContainer1
             // 
@@ -531,11 +539,15 @@
             // 
             // tabPageOutputs
             // 
+            this.tabPageOutputs.Controls.Add(this.outputStringFlattenedLabel);
+            this.tabPageOutputs.Controls.Add(this.label17);
+            this.tabPageOutputs.Controls.Add(this.outputStringPerfectMPPTLabel);
+            this.tabPageOutputs.Controls.Add(this.label15);
             this.tabPageOutputs.Controls.Add(this.outputStringLabel);
             this.tabPageOutputs.Controls.Add(this.outputStringIVLinkLabel);
-            this.tabPageOutputs.Controls.Add(this.outputStringPowerLossLabel);
+            this.tabPageOutputs.Controls.Add(this.outputStringShadedLabel);
             this.tabPageOutputs.Controls.Add(this.label13);
-            this.tabPageOutputs.Controls.Add(this.outputStringAreaShadedLabel);
+            this.tabPageOutputs.Controls.Add(this.outputStringAreaLabel);
             this.tabPageOutputs.Controls.Add(this.label16);
             this.tabPageOutputs.Controls.Add(this.outputStringPowerLabel);
             this.tabPageOutputs.Controls.Add(this.label14);
@@ -552,6 +564,24 @@
             this.tabPageOutputs.Text = "Outputs";
             this.tabPageOutputs.UseVisualStyleBackColor = true;
             // 
+            // outputStringPerfectMPPTLabel
+            // 
+            this.outputStringPerfectMPPTLabel.AutoSize = true;
+            this.outputStringPerfectMPPTLabel.Location = new System.Drawing.Point(305, 87);
+            this.outputStringPerfectMPPTLabel.Name = "outputStringPerfectMPPTLabel";
+            this.outputStringPerfectMPPTLabel.Size = new System.Drawing.Size(27, 13);
+            this.outputStringPerfectMPPTLabel.TabIndex = 14;
+            this.outputStringPerfectMPPTLabel.Text = "0 W";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(214, 87);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(85, 13);
+            this.label15.TabIndex = 13;
+            this.label15.Text = "...perfect MPPT:";
+            // 
             // outputStringLabel
             // 
             this.outputStringLabel.AutoSize = true;
@@ -564,53 +594,54 @@
             // outputStringIVLinkLabel
             // 
             this.outputStringIVLinkLabel.AutoSize = true;
-            this.outputStringIVLinkLabel.Location = new System.Drawing.Point(316, 151);
+            this.outputStringIVLinkLabel.Enabled = false;
+            this.outputStringIVLinkLabel.Location = new System.Drawing.Point(305, 178);
             this.outputStringIVLinkLabel.Name = "outputStringIVLinkLabel";
             this.outputStringIVLinkLabel.Size = new System.Drawing.Size(78, 13);
             this.outputStringIVLinkLabel.TabIndex = 11;
             this.outputStringIVLinkLabel.TabStop = true;
             this.outputStringIVLinkLabel.Text = "Show IV Trace";
             // 
-            // outputStringPowerLossLabel
+            // outputStringShadedLabel
             // 
-            this.outputStringPowerLossLabel.AutoSize = true;
-            this.outputStringPowerLossLabel.Location = new System.Drawing.Point(316, 125);
-            this.outputStringPowerLossLabel.Name = "outputStringPowerLossLabel";
-            this.outputStringPowerLossLabel.Size = new System.Drawing.Size(24, 13);
-            this.outputStringPowerLossLabel.TabIndex = 10;
-            this.outputStringPowerLossLabel.Text = "0 %";
+            this.outputStringShadedLabel.AutoSize = true;
+            this.outputStringShadedLabel.Location = new System.Drawing.Point(305, 152);
+            this.outputStringShadedLabel.Name = "outputStringShadedLabel";
+            this.outputStringShadedLabel.Size = new System.Drawing.Size(36, 13);
+            this.outputStringShadedLabel.TabIndex = 10;
+            this.outputStringShadedLabel.Text = "0 m^2";
             // 
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(241, 125);
+            this.label13.Location = new System.Drawing.Point(245, 152);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(69, 13);
+            this.label13.Size = new System.Drawing.Size(54, 13);
             this.label13.TabIndex = 9;
-            this.label13.Text = "...power loss:";
+            this.label13.Text = "...shaded:";
             // 
-            // outputStringAreaShadedLabel
+            // outputStringAreaLabel
             // 
-            this.outputStringAreaShadedLabel.AutoSize = true;
-            this.outputStringAreaShadedLabel.Location = new System.Drawing.Point(316, 102);
-            this.outputStringAreaShadedLabel.Name = "outputStringAreaShadedLabel";
-            this.outputStringAreaShadedLabel.Size = new System.Drawing.Size(24, 13);
-            this.outputStringAreaShadedLabel.TabIndex = 8;
-            this.outputStringAreaShadedLabel.Text = "0 %";
+            this.outputStringAreaLabel.AutoSize = true;
+            this.outputStringAreaLabel.Location = new System.Drawing.Point(305, 132);
+            this.outputStringAreaLabel.Name = "outputStringAreaLabel";
+            this.outputStringAreaLabel.Size = new System.Drawing.Size(36, 13);
+            this.outputStringAreaLabel.TabIndex = 8;
+            this.outputStringAreaLabel.Text = "0 m^2";
             // 
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(230, 102);
+            this.label16.Location = new System.Drawing.Point(267, 132);
             this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(80, 13);
+            this.label16.Size = new System.Drawing.Size(32, 13);
             this.label16.TabIndex = 7;
-            this.label16.Text = "% area shaded:";
+            this.label16.Text = "Area:";
             // 
             // outputStringPowerLabel
             // 
             this.outputStringPowerLabel.AutoSize = true;
-            this.outputStringPowerLabel.Location = new System.Drawing.Point(316, 76);
+            this.outputStringPowerLabel.Location = new System.Drawing.Point(305, 67);
             this.outputStringPowerLabel.Name = "outputStringPowerLabel";
             this.outputStringPowerLabel.Size = new System.Drawing.Size(27, 13);
             this.outputStringPowerLabel.TabIndex = 6;
@@ -619,7 +650,7 @@
             // label14
             // 
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(236, 76);
+            this.label14.Location = new System.Drawing.Point(225, 67);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(74, 13);
             this.label14.TabIndex = 5;
@@ -628,7 +659,7 @@
             // outputStringInsolationLabel
             // 
             this.outputStringInsolationLabel.AutoSize = true;
-            this.outputStringInsolationLabel.Location = new System.Drawing.Point(316, 52);
+            this.outputStringInsolationLabel.Location = new System.Drawing.Point(305, 46);
             this.outputStringInsolationLabel.Name = "outputStringInsolationLabel";
             this.outputStringInsolationLabel.Size = new System.Drawing.Size(27, 13);
             this.outputStringInsolationLabel.TabIndex = 4;
@@ -637,7 +668,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(255, 52);
+            this.label9.Location = new System.Drawing.Point(244, 46);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(55, 13);
             this.label9.TabIndex = 3;
@@ -669,7 +700,7 @@
             this.outputArrayLayoutControl.Array = null;
             this.outputArrayLayoutControl.CellString = null;
             this.outputArrayLayoutControl.Editable = false;
-            this.outputArrayLayoutControl.Location = new System.Drawing.Point(0, 215);
+            this.outputArrayLayoutControl.Location = new System.Drawing.Point(-11, 206);
             this.outputArrayLayoutControl.Name = "outputArrayLayoutControl";
             this.outputArrayLayoutControl.Size = new System.Drawing.Size(406, 180);
             this.outputArrayLayoutControl.TabIndex = 0;
@@ -686,9 +717,23 @@
             this.glControl.TabIndex = 0;
             this.glControl.VSync = true;
             // 
-            // saveFileDialogLayout
+            // outputStringFlattenedLabel
             // 
-            this.saveFileDialogLayout.Filter = "PNG Images|*.png|GIF Images|*.gif|Bitmap images|*.bmp";
+            this.outputStringFlattenedLabel.AutoSize = true;
+            this.outputStringFlattenedLabel.Location = new System.Drawing.Point(305, 108);
+            this.outputStringFlattenedLabel.Name = "outputStringFlattenedLabel";
+            this.outputStringFlattenedLabel.Size = new System.Drawing.Size(27, 13);
+            this.outputStringFlattenedLabel.TabIndex = 16;
+            this.outputStringFlattenedLabel.Text = "0 W";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(239, 108);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(60, 13);
+            this.label17.TabIndex = 15;
+            this.label17.Text = "...flattened:";
             // 
             // MainForm
             // 
@@ -773,17 +818,21 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.ListBox outputStringsListBox;
         private ArrayLayoutControl outputArrayLayoutControl;
-        private System.Windows.Forms.Label outputStringAreaShadedLabel;
+        private System.Windows.Forms.Label outputStringAreaLabel;
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Label outputStringPowerLabel;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.Label outputStringInsolationLabel;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Label outputStringPowerLossLabel;
+        private System.Windows.Forms.Label outputStringShadedLabel;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.LinkLabel outputStringIVLinkLabel;
         private System.Windows.Forms.Label outputStringLabel;
         private System.Windows.Forms.ToolStripMenuItem saveLayoutTextureToolStripMenuItem;
         private System.Windows.Forms.SaveFileDialog saveFileDialogLayout;
+        private System.Windows.Forms.Label outputStringPerfectMPPTLabel;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.Label outputStringFlattenedLabel;
+        private System.Windows.Forms.Label label17;
     }
 }

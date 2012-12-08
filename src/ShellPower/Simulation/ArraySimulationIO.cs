@@ -35,6 +35,7 @@ namespace SSCP.ShellPower {
         public double WattsOutputByCell { get; set; }
         public double WattsOutputIdeal { get; set; }
         public double Area { get; set; }
+        public double AreaShaded { get; set; }
         public ArraySpec.CellString String { get; set; }
 
         public override string ToString() {

@@ -314,10 +314,18 @@ namespace SSCP.ShellPower {
 
             // show details
             outputStringLabel.Text = "" + output.String;
-            outputStringInsolationLabel.Text = string.Format("{0:0.0} W", output.WattsIn);
-            outputStringPowerLabel.Text = string.Format("{0:0.0} W", output.WattsOutput);
-            double powerFrac = output.WattsOutput/output.WattsOutputIdeal;
-            outputStringPowerLossLabel.Text = string.Format("{0:0.0} %", 100 * powerFrac);
+            outputStringInsolationLabel.Text = string.Format("{0:0.0} W", 
+                output.WattsIn);
+            outputStringPowerLabel.Text = string.Format("{0:0.0} W ({1:0.0} %)", 
+                output.WattsOutput, 100*output.WattsOutput/output.WattsOutputIdeal);
+            outputStringPerfectMPPTLabel.Text = string.Format("{0:0.0} W ({1:0.0} %)",
+                output.WattsOutputByCell, 100 * output.WattsOutputByCell / output.WattsOutputIdeal);
+            outputStringFlattenedLabel.Text = string.Format("{0:0.0} W",
+                output.WattsOutputIdeal);
+            outputStringAreaLabel.Text = string.Format("{0:0.000} m^2",
+                output.Area);
+            outputStringShadedLabel.Text = string.Format("{0:0.000} m^2 ({1:0.0} %)",
+                output.AreaShaded, 100*output.AreaShaded / output.Area);
             
             // show it on the layout
             outputArrayLayoutControl.CellString = output.String;
