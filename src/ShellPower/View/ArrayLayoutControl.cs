@@ -16,9 +16,18 @@ namespace SSCP.ShellPower {
     /// </summary>
     public partial class ArrayLayoutControl : UserControl {
 
-        public ArraySpec Array { get; set; }
-        public ArraySpec.CellString CellString { get; set; }
+        public ArraySpec _array;
+        public ArraySpec.CellString _cellStr;
+        public ArraySpec Array {
+            get { return _array; }
+            set { _array = value; Refresh(); }
+        }
+        public ArraySpec.CellString CellString {
+            get { return _cellStr; }
+            set { _cellStr = value; Refresh(); }
+        }
         public bool Editable { get; set; }
+        public bool AnimatedSelection { get; set; }
         public event EventHandler CellStringChanged;
 
         private int frame = 0;
@@ -42,6 +51,7 @@ namespace SSCP.ShellPower {
 
             // init model
             Editable = true;
+            AnimatedSelection = false;
 
             // animate selection
             System.Windows.Forms.Timer timer = new Timer();
@@ -224,8 +234,10 @@ namespace SSCP.ShellPower {
             return !(x < 0 || x >= w || y < 0 || y >= h) ;
         }
         private void timer_Tick(object sender, EventArgs e) {
-            frame++;
-            Refresh();
+            if (AnimatedSelection) {
+                frame++;
+                Refresh();
+            }
         }
     }
 }

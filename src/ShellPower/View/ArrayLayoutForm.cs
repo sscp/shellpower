@@ -11,11 +11,11 @@ using System.Diagnostics;
 
 namespace SSCP.ShellPower {
     public partial class ArrayLayoutForm : Form {
-        private ArraySpec spec;
+        private ArraySpec array;
 
         public ArrayLayoutForm(ArraySpec spec) {
             Debug.Assert(spec != null);
-            this.spec = spec;
+            this.array = spec;
 
             InitializeComponent();
             UpdateView();
@@ -38,7 +38,7 @@ namespace SSCP.ShellPower {
         }
         private void UpdateArrayLayout() {
             // do we even have an array layout yet?
-            bool hasLayout = (spec.LayoutTexture != null);
+            bool hasLayout = (array.LayoutTexture != null);
             arrayLayoutControl.Visible = hasLayout;
             panelNoLayoutTexture.Visible = !hasLayout;
             if (!hasLayout) {
@@ -46,17 +46,17 @@ namespace SSCP.ShellPower {
             }
 
             // show the layout
-            arrayLayoutControl.Array = this.spec;
+            arrayLayoutControl.Array = this.array;
         }
         private void UpdateStrings() {
             // show the strings
             for (int i = listViewStrings.Items.Count - 1; i >= 0; i--) {
-                if (!spec.Strings.Contains(listViewStrings.Items[i])) {
+                if (!array.Strings.Contains(listViewStrings.Items[i])) {
                     listViewStrings.Items.RemoveAt(i);
                 }
             }
             int ix = 0;
-            foreach(ArraySpec.CellString cellStr in spec.Strings){
+            foreach(ArraySpec.CellString cellStr in array.Strings){
                 if (ix == listViewStrings.Items.Count) {
                     listViewStrings.Items.Add(cellStr);
                 } else if(listViewStrings.Items[ix] != cellStr){
@@ -65,14 +65,14 @@ namespace SSCP.ShellPower {
                 }
                 ix++;
             }
-            Debug.Assert(spec.Strings.Count == listViewStrings.Items.Count);
-            for (int i = 0; i < spec.Strings.Count; i++) {
-                Debug.Assert(spec.Strings[i] == listViewStrings.Items[i]);
-                spec.Strings[i].Name = "String " + (i + 1);
+            Debug.Assert(array.Strings.Count == listViewStrings.Items.Count);
+            for (int i = 0; i < array.Strings.Count; i++) {
+                Debug.Assert(array.Strings[i] == listViewStrings.Items[i]);
+                array.Strings[i].Name = "String " + (i + 1);
             }
             if (arrayLayoutControl.Editable) {
-                Debug.Assert(spec.Strings[spec.Strings.Count - 1] == arrayLayoutControl.CellString);
-                Debug.Assert(listViewStrings.SelectedIndex == spec.Strings.Count - 1);
+                Debug.Assert(array.Strings[array.Strings.Count - 1] == arrayLayoutControl.CellString);
+                Debug.Assert(listViewStrings.SelectedIndex == array.Strings.Count - 1);
                 listViewStrings.Enabled = false;
             } else {
                 listViewStrings.Enabled = true;
@@ -106,7 +106,8 @@ namespace SSCP.ShellPower {
         private void linkLabelLoadLayoutTexture_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
             Bitmap bmp = PromptUserForLayoutTexture();
             if (bmp != null) {
-                spec.LayoutTexture = bmp;
+                array.LayoutTexture = bmp;
+                array.ReadStringsFromColors();
                 UpdateView();
             }
         }
@@ -115,7 +116,7 @@ namespace SSCP.ShellPower {
             if (!arrayLayoutControl.Editable) {
                 // just clicked "Done"
                 var editedStr = arrayLayoutControl.CellString;
-                spec.Strings.RemoveAll((cellStr) => {
+                array.Strings.RemoveAll((cellStr) => {
                     if (cellStr != editedStr) {
                         cellStr.Cells.RemoveAll((cell) => {
                             return editedStr.Cells.Contains(cell);
@@ -136,19 +137,35 @@ namespace SSCP.ShellPower {
         }
         private void buttonCreateString_Click(object sender, EventArgs e) {
             var newString = new ArraySpec.CellString();
-            spec.Strings.Add(newString);
+            array.Strings.Add(newString);
             arrayLayoutControl.CellString = newString;
             arrayLayoutControl.Editable = true;
+            arrayLayoutControl.AnimatedSelection = true;
             listViewStrings.Items.Add(newString);
             listViewStrings.SelectedItem = newString; // calls UpdateView()
         }
         private void buttonDeleteString_Click(object sender, EventArgs e) {
-            spec.Strings.Remove((ArraySpec.CellString)listViewStrings.SelectedItem);
+            array.Strings.Remove((ArraySpec.CellString)listViewStrings.SelectedItem);
             UpdateView();
         }
         private void arrayLayoutControl_CellStringChanged(object sender, EventArgs e) {
             listViewStrings.RefreshItems();
         }
         #endregion
+
+        private void buttonOK_Click(object sender, EventArgs e) {
+            if (array.LayoutTexture != null) {
+                array.Recolor();
+            }
+            this.Close();
+        }
+
+        private void buttonCancel_Click(object sender, EventArgs e) {
+            //TODO: support cancel
+        }
+
+        private void ArrayLayoutForm_Load(object sender, EventArgs e) {
+            UpdateView();
+        }
     }
 }

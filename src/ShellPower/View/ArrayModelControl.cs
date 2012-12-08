@@ -281,19 +281,6 @@ void main()
         }
 
         /// <summary>
-        /// Called when your window is resized. Set your viewport here. It is also
-        /// a good place to set up your projection matrix (which probably changes
-        /// along when the aspect ratio of your window).
-        /// </summary>
-        /// <param name="e">Not used.</param>
-        protected override void OnResize(EventArgs e) {
-            base.OnResize(e);
-            /*if (loaded) {
-                SetViewport();
-            }*/
-        }
-
-        /// <summary>
         /// Called when it is time to render the next frame. Add your rendering code here.
         /// </summary>
         /// <param name="e">Contains timing information.</param>

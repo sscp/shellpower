@@ -36,6 +36,12 @@ namespace SSCP.ShellPower {
             arrayLayoutForm = new ArrayLayoutForm(simInput.Array);
             cellParamsForm = new CellParamsForm(simInput);
             glControl.Array = simInput.Array;
+            InitOutputView();
+        }
+
+        private void InitOutputView() {
+            outputArrayLayoutControl.Editable = false;
+            outputArrayLayoutControl.Array = simInput.Array;
         }
 
         /// <summary>
@@ -234,6 +240,7 @@ namespace SSCP.ShellPower {
             Bitmap bitmap = arrayLayoutForm.PromptUserForLayoutTexture();
             if (bitmap != null) {
                 simInput.Array.LayoutTexture = bitmap;
+                simInput.Array.ReadStringsFromColors();
             }
         }
 
@@ -265,7 +272,7 @@ namespace SSCP.ShellPower {
             try {
                 simOutput = simulator.Simulate(simInput);
 
-                Debug.WriteLine("array simulation output");
+                Debug.WriteLine("Array simulation output");
                 Debug.WriteLine("   ... " + simOutput.ArrayLitArea + " m^2 exposed to sunlight");
                 Debug.WriteLine("   ... " + simOutput.WattsInsolation + " W insolation");
                 Debug.WriteLine("   ... " + simOutput.WattsOutputByCell + " W output (assuming mppt per cell)");
@@ -275,6 +282,9 @@ namespace SSCP.ShellPower {
                 this.labelArrPower.Text = string.Format(
                     "{0:0}W over {1:0.00}m\u00B2, {2:0.00}m\u00B2 shaded",
                     simOutput.WattsOutput, simOutput.ArrayArea, simOutput.ArrayArea-simOutput.ArrayLitArea);
+
+                outputStringsListBox.Items.Clear();
+                outputStringsListBox.Items.AddRange(simOutput.Strings);
             } catch (Exception exc) {
                 MessageBox.Show(exc.Message);
             }
@@ -296,6 +306,31 @@ namespace SSCP.ShellPower {
                 arrayDimsForm.Array = simInput.Array;
                 arrayDimsForm.Show();
             }
+        }
+
+        private void outputStringsListBox_SelectedIndexChanged(object sender, EventArgs e) {
+            ArraySimStringOutput output = (ArraySimStringOutput)outputStringsListBox.SelectedItem;
+            if (output == null) return;
+
+            // show details
+            outputStringLabel.Text = "" + output.String;
+            outputStringInsolationLabel.Text = string.Format("{0:0.0} W", output.WattsIn);
+            outputStringPowerLabel.Text = string.Format("{0:0.0} W", output.WattsOutput);
+            double powerFrac = output.WattsOutput/output.WattsOutputIdeal;
+            outputStringPowerLossLabel.Text = string.Format("{0:0.0} %", 100 * powerFrac);
+            
+            // show it on the layout
+            outputArrayLayoutControl.CellString = output.String;
+        }
+
+        private void saveLayoutTextureToolStripMenuItem_Click(object sender, EventArgs e) {
+            if(simInput.Array.LayoutTexture == null){
+                MessageBox.Show("Nothing to save. Try opening and editing a layout first.");
+                return;
+            }
+            DialogResult result = saveFileDialogLayout.ShowDialog();
+            if (result != DialogResult.OK) return;
+            simInput.Array.LayoutTexture.Save(saveFileDialogLayout.FileName);
         }
     }
 }

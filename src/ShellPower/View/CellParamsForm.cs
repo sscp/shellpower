@@ -92,20 +92,18 @@ namespace SSCP.ShellPower {
             double i0 = spec.CalcI0(wattsIn, tempC);
             double isc = spec.CalcIsc(wattsIn, tempC);
             double voc = spec.CalcVoc(wattsIn, tempC);
-            double ff, vmp, imp;
-            double[] veci, vecv;
-            spec.CalcSweep(wattsIn, tempC, out ff, out vmp, out imp, out veci, out vecv);
+            IVTrace sweep = CellSimulator.CalcSweep(spec, wattsIn, tempC);
             labelMaxPower.Text = string.Format(
                 "Isc={0:0.000}A Voc={1:0.000}V @{2:0.00}C\n" +
                 "Imp={3:0.000}A Vmp={4:0.000}V Pmp={5:0.000}W\n" +
                 "Rev. sat. current {6:0.000}A, fill factor {7:0.0}%",
                 isc, voc, tempC,
-                imp, vmp, imp * vmp,
-                i0, ff * 100.0);
+                sweep.Imp, sweep.Vmp, sweep.Pmp,
+                i0, sweep.FillFactor * 100.0);
 
             // show an iv plot
-            chartIV.X = vecv;
-            chartIV.Y = veci;
+            chartIV.X = sweep.V;
+            chartIV.Y = sweep.I;
         }
 
         private void textBox_TextChanged(object sender, EventArgs e) {

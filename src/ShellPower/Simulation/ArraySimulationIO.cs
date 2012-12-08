@@ -25,6 +25,20 @@ namespace SSCP.ShellPower {
         public double WattsOutputByCell { get; set; }
         public double WattsOutput { get; set; }
         // TODO: WattsInsolationNoShadow, WattsOutputNoShadow
+
+        public ArraySimStringOutput[] Strings { get; set; }
     }
 
+    public class ArraySimStringOutput {
+        public double WattsIn { get; set; }
+        public double WattsOutput { get; set; }
+        public double WattsOutputByCell { get; set; }
+        public double WattsOutputIdeal { get; set; }
+        public double Area { get; set; }
+        public ArraySpec.CellString String { get; set; }
+
+        public override string ToString() {
+            return string.Format("{0}: {1:0.0} W", String, WattsOutput);
+        }
+    }
 }

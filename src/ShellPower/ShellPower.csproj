@@ -150,6 +150,9 @@
     <Compile Include="Geom\Shadow.cs" />
     <Compile Include="Geom\ShadowVolume.cs" />
     <Compile Include="Simulation\ArraySimulator.cs" />
+    <Compile Include="Simulation\CellSimulator.cs" />
+    <Compile Include="Simulation\IVTrace.cs" />
+    <Compile Include="Simulation\StringSimulator.cs" />
     <Compile Include="Spec\ArraySpec.cs" />
     <Compile Include="Spec\CellSpec.cs" />
     <Compile Include="Math\Constants.cs" />

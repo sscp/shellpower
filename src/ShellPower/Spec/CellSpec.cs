@@ -38,88 +38,36 @@ namespace SSCP.ShellPower {
         /// </summary>
         public double SeriesR { get; set; }
 
-        public double CalcTempK(double tempC) {
+        /// <summary>
+        /// Computes temperature in deg kelvin.
+        /// </summary>
+        private double CalcTempK(double tempC) {
             return tempC + Constants.C_IN_KELVIN;
         }
+        /// <summary>
+        /// Open-circuit voltage.
+        /// </summary>
         public double CalcVoc(double insolationW, double tempC) {
             // TODO: adjust for insolation
             return VocStc + (tempC - STC_TEMP) * DVocDT;
         }
+        /// <summary>
+        /// Short-circuit current.
+        /// </summary>
         public double CalcIsc(double insolationW, double tempC) {
             return insolationW / STC_INSOLATION * (IscStc + (tempC - STC_TEMP) * DIscDT);
         }
-
         /// <summary>
         /// Reverse saturation current for a cell.
         /// </summary>
-        public double CalcI0(double insolationW, double tempC){
+        public double CalcI0(double insolationW, double tempC) {
             double voc = CalcVoc(insolationW, tempC);
             double isc = CalcIsc(insolationW, tempC);
             double t = CalcTempK(tempC);
             double k = Constants.BOLTZMANN_K;
             double q = Constants.ELECTRON_CHARGE_Q;
-            double i0 = isc / (Math.Exp((q*voc) / (NIdeal*k*t)) - 1.0);
+            double i0 = isc / (Math.Exp((q * voc) / (NIdeal * k * t)) - 1.0);
             return i0;
-        }
-        /// <summary>
-        /// Calculates current flow for a given voltage.
-        /// </summary>
-        public double CalcI(double v, double insolationW, double tempC) {
-            double[] veci = CalcIV(new double[] { v }, insolationW, tempC);
-            return veci[0];
-        }
-        /// <summary>
-        /// Computes an IV curve.
-        /// </summary>
-        public double[] CalcIV(double[] vecv, double insolationW, double tempC) {
-            double[] veci = new double[vecv.Length];
-            double i0 = CalcI0(insolationW, tempC);
-            double isc = CalcIsc(insolationW, tempC);
-            double t = CalcTempK(tempC);
-            double k = Constants.BOLTZMANN_K;
-            double q = Constants.ELECTRON_CHARGE_Q;
-            double ni = NIdeal;
-            double rs = SeriesR;
-            for (int i = 0; i < vecv.Length; i++) {
-                double v = vecv[i];
-                // iterate to convergence
-                double iprev = 0.0, icurr = 0.0;
-                for(int j = 0; j < 2000; j++){
-                    double vdrop = iprev * rs;
-                    double idark = i0 * (Math.Exp((q * (v + vdrop)) / (ni * k * t)) - 1.0);
-                    icurr = isc - idark;
-                    if(Math.Abs(icurr-iprev) < 1e-6){
-                        Debug.WriteLine("converged in "+j);
-                        break;
-                    }
-                    iprev = 0.95*iprev + 0.05*icurr;
-                }
-                veci[i] = icurr;
-            }
-            return veci;
-        }
-        public void CalcSweep(double insolationW, double tempC, out double ff, out double vmp, out double imp, out double[] veci, out double[] vecv) {
-            double voc = CalcVoc(insolationW, tempC);
-            double isc = CalcIsc(insolationW, tempC);
-            int n = 100;
-            vecv = new double[n + 1];
-            for (int i = 0; i <= n; i++) {
-                vecv[i] = voc*(double)i/n;
-            }
-            veci = CalcIV(vecv, insolationW, tempC);
-            //Debug.Assert(Math.Abs(veci[0] - isc) < 0.001);
-            //Debug.Assert(Math.Abs(veci[n]) < 0.001);
-            double pmp = 0.0;
-            imp = vmp = 0.0;
-            for (int i = 0; i < n; i++) {
-                double p = veci[i] * vecv[i];
-                if (p > pmp) {
-                    pmp = p;
-                    vmp = vecv[i];
-                    imp = veci[i];
-                }
-            }
-            ff = pmp / (isc * voc);
         }
     }
 }

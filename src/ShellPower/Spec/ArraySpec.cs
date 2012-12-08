@@ -44,9 +44,14 @@ namespace SSCP.ShellPower {
         /// </summary>
         public RectangleF LayoutBoundsXZ { get; set; }
         /// <summary>
+        /// Defines individual-cell properties, such as area and efficiency.
+        /// </summary>
+        public CellSpec CellSpec { get; private set; }
+        /// <summary>
         /// Assigns cells to strings (a group of cells in series).
         /// </summary>
         public List<CellString> Strings { get; private set; }
+
         public class CellString {
             public CellString() {
                 Cells = new List<Cell>();
@@ -59,6 +64,7 @@ namespace SSCP.ShellPower {
                 return Name + " ("+Cells.Count+" cells)";
             }
         }
+
         public class Cell {
             public Color Color { get; set; }
             public List<Pair<int>> Pixels { get; private set; } //must be sorted, scanline order
@@ -91,6 +97,113 @@ namespace SSCP.ShellPower {
             }
         }
 
-        public CellSpec CellSpec { get; private set; }
+        public void Recolor() {
+            Debug.Assert(LayoutTexture != null);
+            Debug.Assert(Strings.Count < 256);
+
+            // first, change the cell colors...
+            int nstrings = Strings.Count;
+            int nsteps = (int)Math.Ceiling(Math.Sqrt(nstrings));
+            int colorIx = 0;
+            for (int i = 0; i < nstrings; i++) {
+                List<Cell> cells = Strings[i].Cells;
+                if (cells.Count == 0) continue;
+                if ((colorIx / nsteps) == (colorIx % nsteps)) colorIx++;
+                int red = 255 * (colorIx / nsteps) / nsteps;
+                int green = 255 * (colorIx % nsteps) / nsteps;
+                colorIx++;
+                int ncells = cells.Count;
+                for (int j = 0; j < ncells; j++) {
+                    int blue = 255 * j / ncells;
+                    cells[j].Color = Color.FromArgb(255, red, green, blue);
+                }
+            }
+
+            // then, mod the texture
+            int texW = LayoutTexture.Width, texH =LayoutTexture.Height;
+            BitmapData data = LayoutTexture.LockBits(
+                new Rectangle(0, 0, texW, texH),
+                ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            unsafe {
+                int* ptr = (int*)data.Scan0.ToPointer();
+                byte* bptr = (byte*)data.Scan0.ToPointer();
+                // first, clear
+                for (int y = 0; y < texH; y++) {
+                    for (int x = 0; x < texW; x++) {
+                        int ix = y*texW+x;
+                        byte r = bptr[4 * ix + 1];
+                        byte g = bptr[4 * ix + 2];
+                        byte b = bptr[4 * ix + 3];
+                        if (r == g && g == b) {
+                            // grayscale
+                            int gray = r > 200 ? 200 : r;
+                            ptr[ix] = Color.FromArgb(255, gray, gray, gray).ToArgb();
+                        } else {
+                            // all colors become white
+                            ptr[ix] = unchecked((int)0xffffffff);
+                        }
+                    }
+                }
+                // then, color
+                foreach (CellString cellStr in Strings) {
+                    foreach (Cell cell in cellStr.Cells) {
+                        foreach (Pair<int> pixel in cell.Pixels) {
+                            int x = pixel.First, y = pixel.Second;
+                            ptr[y * texW + x] = cell.Color.ToArgb();
+                        }
+                    }
+                }
+            }
+            LayoutTexture.UnlockBits(data);
+        }
+        public void ReadStringsFromColors() {
+
+            // first, read out all the strings
+            Strings.Clear();
+            var cellMap = new Dictionary<Color, Cell>();
+            var stringMap = new Dictionary<Color, CellString>();
+
+            int texW = LayoutTexture.Width, texH = LayoutTexture.Height;
+            BitmapData data = LayoutTexture.LockBits(
+                new Rectangle(0, 0, texW, texH),
+                ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            unsafe {
+                int* ptr = (int*)data.Scan0.ToPointer();
+                for (int y = 0; y < texH; y++) {
+                    for (int x = 0; x < texW; x++) {
+                        Color color = Color.FromArgb(ptr[y * texW + x]);
+                        Debug.Assert(color.A == 255);
+                        if (ColorUtils.IsGrayscale(color)) continue;
+                        Color stringColor = Color.FromArgb(255, color.R, color.G, 0);
+
+                        if (!stringMap.ContainsKey(stringColor)) {
+                            CellString newString = new CellString();
+                            newString.Name = "String " + Strings.Count;
+                            Strings.Add(newString);
+                            stringMap.Add(stringColor, newString);
+                        }
+
+                        if (!cellMap.ContainsKey(color)) {
+                            Cell newCell = new Cell();
+                            newCell.Color = color;
+                            cellMap.Add(color, newCell);
+                            stringMap[stringColor].Cells.Add(newCell);
+                        }
+                        cellMap[color].Pixels.Add(new Pair<int>(x, y));
+
+                    }
+                }
+            }
+            LayoutTexture.UnlockBits(data);
+
+            // second, go through and sort the cells in each string in the order they're wired
+            foreach (CellString cellStr in Strings) {
+                cellStr.Cells.Sort((a, b) => {
+                    if (a.Color.B < b.Color.B) return -1;
+                    if (a.Color.B > b.Color.B) return 1;
+                    return 0;
+                });
+            }
+        }
     }
 }

@@ -296,10 +296,10 @@ void main()
             }
             for (int i = 0; i < computeWidth * computeHeight; i++) {
                 tex[i] = Color.FromArgb(
-                    texRaw[i * 4 + 3], // rgba to argb
-                    texRaw[i * 4 + 0],
+                    texRaw[i * 4 + 3],
+                    texRaw[i * 4 + 2],
                     texRaw[i * 4 + 1],
-                    texRaw[i * 4 + 2]);
+                    texRaw[i * 4 + 0]);
             }
             return tex;
         }
@@ -320,7 +320,6 @@ void main()
                 dbgavg += texWattsIn[i];
             }
             dbgavg /= texWattsIn.Length;
-            Debug.WriteLine("?? {0} {1} {2}", dbgmin, dbgmax, dbgavg);
             float[] texArea = new float[computeWidth * computeHeight];
 
             // find the cell at each fragment...
@@ -344,7 +343,6 @@ void main()
                 if (ColorUtils.IsGrayscale(color)) continue;
                 if (colorToId.ContainsKey(color)) {
                     int id = colorToId[color];
-
                     wattsIn[id] += texWattsIn[i];
                     area[id] += texArea[i];
                 } else {
@@ -368,17 +366,47 @@ void main()
             }
             Debug.WriteLine("total: {0}W, {1}m^2", totalWattsIn, totalArea);
 
-            // MPPT sweeps, first for each cell...
+            // MPPT sweeps, for each cell and each string. 
+            // Inputs:
             CellSpec spec = input.Array.CellSpec;
             double tempC = input.Temperature;
-            double totalWattsOutByCell = 0, totalWattsOutByString = 0;
-            for(int i = 0; i < ncells; i++){
-                double ff, vmp, imp;
-                double[] veci, vecv;
-                spec.CalcSweep(wattsIn[i], tempC, out ff, out vmp, out imp, out veci, out vecv);
-                totalWattsOutByCell += vmp*imp;
+            int nstrings = input.Array.Strings.Count;
+            // Outputs:
+            double totalWattsOutByCell = 0;
+            double totalWattsOutByString = 0;
+            var strings = new ArraySimStringOutput[nstrings];
+            int cellIx = 0;
+            for(int i = 0; i < nstrings; i++){
+                var cellStr = input.Array.Strings[i];
+                double stringWattsIn = 0, stringWattsOutByCell = 0;
+
+                // per-cell sweeps
+                var cellSweeps = new IVTrace[cellStr.Cells.Count];
+                for(int j = 0; j < cellStr.Cells.Count; j++){
+                    double cellWattsIn = wattsIn[cellIx++];
+                    double cellInsolation = cellWattsIn / spec.Area;
+                    IVTrace cellSweep = CellSimulator.CalcSweep(spec, cellInsolation, tempC);
+                    cellSweeps[j] = cellSweep;
+
+                    stringWattsIn += cellWattsIn;
+                    stringWattsOutByCell += cellSweep.Pmp;
+                    totalWattsOutByCell += cellSweep.Pmp;
+                }
+
+                // string sweep
+                strings[i] = new ArraySimStringOutput();
+                strings[i].WattsIn = stringWattsIn;
+                strings[i].WattsOutputByCell = stringWattsOutByCell;
+                IVTrace stringSweep = StringSimulator.CalcStringIV(cellStr, cellSweeps);
+                strings[i].WattsOutput = strings[i].WattsOutputByCell; // stringSweep.Pmp;
+
+                // higher-level string info
+                strings[i].String = cellStr;
+                CellSpec cellSpec = input.Array.CellSpec;
+                strings[i].Area = cellStr.Cells.Count*cellSpec.Area;
+                IVTrace cellSweepIdeal = CellSimulator.CalcSweep(cellSpec,input.Insolation*cellSpec.Area,input.Temperature);
+                strings[i].WattsOutputIdeal = cellSweepIdeal.Pmp;
             }
-            // TODO: ... then MPPT for each string
             totalWattsOutByString = totalWattsOutByCell;
 
             ArraySimulationStepOutput output = new ArraySimulationStepOutput();
@@ -386,6 +414,7 @@ void main()
             output.WattsInsolation = totalWattsIn;
             output.WattsOutputByCell = totalWattsOutByCell;
             output.WattsOutput = totalWattsOutByString;
+            output.Strings = strings;
             return output;
         }
 

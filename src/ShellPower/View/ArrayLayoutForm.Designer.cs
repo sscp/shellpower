@@ -24,6 +24,8 @@
         /// </summary>
         private void InitializeComponent() {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.buttonCancel = new System.Windows.Forms.Button();
+            this.buttonOK = new System.Windows.Forms.Button();
             this.listViewStrings = new SSCP.ShellPower.RefreshListBox();
             this.label1 = new System.Windows.Forms.Label();
             this.buttonCreateString = new System.Windows.Forms.Button();
@@ -53,6 +55,8 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.buttonCancel);
+            this.splitContainer1.Panel1.Controls.Add(this.buttonOK);
             this.splitContainer1.Panel1.Controls.Add(this.listViewStrings);
             this.splitContainer1.Panel1.Controls.Add(this.label1);
             // 
@@ -68,6 +72,30 @@
             this.splitContainer1.Size = new System.Drawing.Size(578, 395);
             this.splitContainer1.SplitterDistance = 192;
             this.splitContainer1.TabIndex = 0;
+            // 
+            // buttonCancel
+            // 
+            this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.buttonCancel.Location = new System.Drawing.Point(89, 326);
+            this.buttonCancel.Name = "buttonCancel";
+            this.buttonCancel.Size = new System.Drawing.Size(71, 23);
+            this.buttonCancel.TabIndex = 14;
+            this.buttonCancel.Text = "Cancel";
+            this.buttonCancel.UseVisualStyleBackColor = true;
+            this.buttonCancel.Visible = false;
+            this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
+            // 
+            // buttonOK
+            // 
+            this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.buttonOK.Location = new System.Drawing.Point(12, 326);
+            this.buttonOK.Name = "buttonOK";
+            this.buttonOK.Size = new System.Drawing.Size(71, 23);
+            this.buttonOK.TabIndex = 13;
+            this.buttonOK.Text = "OK";
+            this.buttonOK.UseVisualStyleBackColor = true;
+            this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
             // listViewStrings
             // 
@@ -197,6 +225,7 @@
             this.arrayLayoutControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.arrayLayoutControl.AnimatedSelection = true;
             this.arrayLayoutControl.Array = null;
             this.arrayLayoutControl.CellString = null;
             this.arrayLayoutControl.Editable = false;
@@ -219,12 +248,15 @@
             // 
             // ArrayLayoutForm
             // 
+            this.AcceptButton = this.buttonOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.buttonCancel;
             this.ClientSize = new System.Drawing.Size(578, 395);
             this.Controls.Add(this.splitContainer1);
             this.Name = "ArrayLayoutForm";
             this.Text = "Solar Array Layout";
+            this.Load += new System.EventHandler(this.ArrayLayoutForm_Load);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
@@ -254,5 +286,7 @@
         private System.Windows.Forms.Label labelMakeString;
         private System.Windows.Forms.Button buttonCreateString;
         private RefreshListBox listViewStrings;
+        private System.Windows.Forms.Button buttonCancel;
+        private System.Windows.Forms.Button buttonOK;
     }
 }
