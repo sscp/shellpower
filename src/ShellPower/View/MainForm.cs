@@ -44,6 +44,7 @@ namespace SSCP.ShellPower {
             //TODO: remove hack, here to make debugging faster
             LoadModel("C:/shellpower/meshes/sunbadThinCarWholeRotSmall.stl");
             array.LayoutBoundsXZ = new RectangleF(-2.1f, -0.8f, 4.45f, 1.6f);
+            array.LayoutTexture = new Bitmap("C:/shellpower/arrays/sunbad_fat_cells_aliased.png");
 
             // Sunpower C60 Bin I
             // http://www.kyletsai.com/uploads/9/7/5/3/9753015/sunpower_c60_bin_ghi.pdf

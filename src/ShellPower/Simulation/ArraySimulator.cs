@@ -12,7 +12,7 @@ namespace SSCP.ShellPower {
 
         /* opengl for computation program and args */
         private int shaderVert, shaderFrag, shaderProg;
-        private int uniformPixelArea, uniformSolarCells;
+        private int uniformPixelWattsIn, uniformSolarCells;
         private int uniformX0, uniformX1, uniformZ0, uniformZ1;
         private int texArray;
 
@@ -35,7 +35,8 @@ namespace SSCP.ShellPower {
             }
         }
 
-
+        private const double ARRAY_DIM_M = 5; // largest dim in meters. TODO: make this not hardcoded
+        private const int COMPUTE_TEX_SIZE = 2048; // width and height of the compute textures
 
         /// <summary>
         /// Shaders to compute array properties
@@ -57,16 +58,18 @@ void main()
     gl_TexCoord[0] = vec4((gl_Vertex.x - x0) / (x1 - x0), (gl_Vertex.z - z0) / (z1 - z0), 0,0);
 }");
             GL.ShaderSource(shaderFrag, @"
-uniform float pixelArea;
 varying float cosRule;
+uniform float pixelWattsIn;
 uniform sampler2D solarCells;
 
 void main()
 {
     vec4 solarCell = texture2D(solarCells, gl_TexCoord[0].xy);
-    float watts = pixelArea*cosRule;
+    float watts10k = pixelWattsIn*max(cosRule,0)*10000.0;
     gl_FragData[0] = vec4(solarCell.xyz, 1.0); // cell id
-    gl_FragData[1] = vec4(watts, 0, 0, 1.0);   // watts insolation
+    float mwRed = floor(watts10k) * 2 / 255; // should come out R=2 for 0.1mw, 4 for 0.2mw, etc
+    float mwGreen = watts10k-floor(watts10k);
+    gl_FragData[1] = vec4(mwRed, mwGreen, 0.0, 1.0);   // watts insolation
 }");
 
             GL.CompileShader(shaderVert);
@@ -84,17 +87,17 @@ void main()
             uniformX1 = GL.GetUniformLocation(shaderProg, "x1");
             uniformZ0 = GL.GetUniformLocation(shaderProg, "z0");
             uniformZ1 = GL.GetUniformLocation(shaderProg, "z1");
-            uniformPixelArea = GL.GetUniformLocation(shaderProg, "pixelArea");
+            uniformPixelWattsIn = GL.GetUniformLocation(shaderProg, "pixelWattsIn");
             uniformSolarCells = GL.GetUniformLocation(shaderProg, "solarCells");
             Debug.Assert(uniformX0 >= 0 && uniformX1 >= 0 && uniformZ0 >= 0 && uniformZ1 >= 0
-                && uniformPixelArea >= 0 && uniformSolarCells >= 0);
+                && uniformPixelWattsIn >= 0 && uniformSolarCells >= 0);
         }
 
         /// <summary>
         /// Creates the output buffers.
         /// </summary>
         private void InitGLComputeBuffer() {
-            computeWidth = computeHeight = 2048;
+            computeWidth = computeHeight = COMPUTE_TEX_SIZE;
 
             // one buffer for insolation in W...
             texWatts = GL.GenTexture();
@@ -146,7 +149,6 @@ void main()
             GLUtils.FastTexSettings();
         }
 
-
         /// <summary>
         /// (TODO) Calculates an array simulation
         /// for a single array, single set of parameters, single moment in time.
@@ -175,7 +177,6 @@ void main()
             GL.DrawBuffers(2, new DrawBuffersEnum[]{
                 (DrawBuffersEnum)FramebufferAttachment.ColorAttachment0Ext,
                 (DrawBuffersEnum)FramebufferAttachment.ColorAttachment1Ext});
-            GL.PushAttrib(AttribMask.ViewportBit); // stores GL.Viewport() parameters
 
             GL.BindTexture(TextureTarget.Texture2D, texArray);
             GL.Viewport(0, 0, computeWidth, computeHeight);
@@ -183,19 +184,14 @@ void main()
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             SetModelViewSun(GetSunDir(simInput));
-            GLUtils.SetCameraProjectionOrtho(computeWidth, computeHeight);
+            GLUtils.SetCameraProjectionOrtho(ARRAY_DIM_M);
 
+            //render
             MeshSprite sprite = new MeshSprite(spec.Mesh);
             sprite.PushTransform();
             sprite.Render();
             sprite.PopTransform();
             DebugSaveBuffers();
-
-            //render
-            GL.PopAttrib();
-            // write to back buffer as normal
-            GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0);
-            GL.DrawBuffer(DrawBufferMode.Back);
         }
 
         private Vector3 GetSunDir(ArraySimulationStepInput simInput) {
@@ -246,23 +242,36 @@ void main()
             GL.Uniform1(uniformX0, Array.LayoutBoundsXZ.Left); 
             GL.Uniform1(uniformX1, Array.LayoutBoundsXZ.Right); 
             GL.Uniform1(uniformZ0, Array.LayoutBoundsXZ.Top); 
-            GL.Uniform1(uniformZ1, Array.LayoutBoundsXZ.Bottom); 
-            GL.Uniform1(uniformPixelArea, 1.0f);
+            GL.Uniform1(uniformZ1, Array.LayoutBoundsXZ.Bottom);
             GL.Uniform1(uniformSolarCells, (float)TextureUnit.Texture0);
+            double m2PerPixel = ARRAY_DIM_M*ARRAY_DIM_M/COMPUTE_TEX_SIZE/COMPUTE_TEX_SIZE;
+            double wattsPerPixel = m2PerPixel * 1000;
+            GL.Uniform1(uniformPixelWattsIn, (float)wattsPerPixel);
             Debug.WriteLine("uniforms set.");
         }
 
         private float[] ReadFloatTexture(FramebufferAttachment fb) {
-            float[] tex = new float[computeWidth * computeHeight];
+            // reading from an actual float texture is unreliable, so encode floats as colors instead
+            byte[] tex = new byte[computeWidth * computeHeight * 4];
             unsafe {
-                fixed (float* pf = tex) {
+                fixed (byte* pf = tex) {
                     // cell id
                     GL.ReadBuffer((ReadBufferMode)fb);
                     GL.ReadPixels(0, 0, computeWidth, computeHeight,
-                        OpenTK.Graphics.OpenGL.PixelFormat.Blue, PixelType.Float, new IntPtr(pf));
+                        OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, new IntPtr(pf));
                 }
             }
-            return tex;
+            float[] texDecoded = new float[computeWidth * computeHeight];
+            for (int i = 0; i < computeWidth * computeHeight; i++) {
+                byte r = tex[i * 4 + 0], g = tex[i * 4 + 1], b = tex[i * 4 + 2], a = tex[i * 4 + 3];
+                if (r == 255 && g == 255 && b == 255) continue;
+                Debug.Assert(a == 255);
+                Debug.Assert(r % 2 == 0 && r < 200); // shader worked, no antialiasing -> red must be a small even num
+                Debug.Assert(b == 0); // blue must be zero. green can be anything.
+                float watts = (float)(0.0001*(r / 2 + (double)g / 255));
+                texDecoded[i] = watts;
+            }
+            return texDecoded;
         }
 
         /// <summary>
@@ -299,6 +308,14 @@ void main()
         private ArraySimulationStepOutput AnalyzeComputeTex() {
             Color[] texColors = ReadColorTexture(FramebufferAttachment.ColorAttachment0);
             float[] texWattsIn = ReadFloatTexture(FramebufferAttachment.ColorAttachment1);
+            double dbgmin = texWattsIn[0], dbgmax = texWattsIn[0], dbgavg = 0;
+            for (int i = 0; i < texWattsIn.Length; i++) {
+                dbgmin = Math.Min(dbgmin, texWattsIn[i]);
+                dbgmax = Math.Max(dbgmax, texWattsIn[i]);
+                dbgavg += texWattsIn[i];
+            }
+            dbgavg /= texWattsIn.Length;
+            Debug.WriteLine("?? {0} {1} {2}", dbgmin, dbgmax, dbgavg);
             float[] texArea = new float[computeWidth * computeHeight];
 
             // find the cell at each fragment...
@@ -316,6 +333,7 @@ void main()
             // finally, find the area and insolation for each cell
             double[] wattsIn = new double[ncells];
             double[] area = new double[ncells];
+            double wattsInUnlinked = 0, areaUnlinked = 0;
             for (int i = 0; i < computeWidth * computeHeight; i++) {
                 Color color = texColors[i];
                 if (ColorUtils.IsGrayscale(color)) continue;
@@ -325,10 +343,15 @@ void main()
                     wattsIn[id] += texWattsIn[i];
                     area[id] += texArea[i];
                 } else {
-                    Logger.warn("Texture fragment is not grayscale, "+
-                        "but also doesn't correspond to any cell. {0} at {1},{2}",
-                        ColorTranslator.ToHtml(color), i % computeWidth, i / computeWidth);
+                    wattsInUnlinked += texWattsIn[i];
+                    areaUnlinked += texArea[i];
                 }
+            }
+            if (areaUnlinked > 0 || wattsInUnlinked > 0) {
+                Logger.warn("Found texels that are not grayscale, " +
+                    "but also doesn't correspond to any cell. Have you finished your layout?" +
+                    "\n\tTotal of {0}m^2 cell area not in any string, with {1}W insolation.", 
+                    areaUnlinked,wattsInUnlinked);
             }
 
             // find totals

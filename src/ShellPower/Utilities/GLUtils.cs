@@ -16,11 +16,19 @@ namespace SSCP.ShellPower {
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadMatrix(ref projection);
         }
-        public static void SetCameraProjectionOrtho(int w, int h) {
+
+        /// <summary>
+        /// Takes a texture width and height, plus a minimum dimension in meters.
+        /// Creates an ortho projection to the current viewport width, ensuring that the
+        /// smaller of width and height corresponds to the min dimension in meters.
+        /// </summary>
+        public static void SetCameraProjectionOrtho(double minDim) {
             // orthographic projection
-            float minWidth = 6f, minHeight = 4f; //meters
-            float scale = Math.Max(minWidth / w, minHeight / h);
-            float volWidth = scale * w, volHeight = scale * h;
+            int[] vp = new int[4];
+            GL.GetInteger(GetPName.Viewport, vp);
+            int w = vp[2], h = vp[3];
+            double scale = Math.Max(minDim / w, minDim / h);
+            float volWidth = (float)(scale * w), volHeight = (float)(scale * h);
             float zNear = 0.1f, zFar = 100.0f;
             Matrix4 projection = Matrix4.CreateOrthographic(volWidth, volHeight, zNear, zFar);
             GL.MatrixMode(MatrixMode.Projection);
