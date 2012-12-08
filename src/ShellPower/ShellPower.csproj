@@ -181,17 +181,23 @@
     <Compile Include="Utilities\GeoNames.cs" />
     <Compile Include="FileFormats\IgesParser.cs" />
     <Compile Include="FileFormats\IgesEntity.cs" />
-    <Compile Include="View\ArrayDimensionsControl.cs">
+    <Compile Include="View\ArrayDimensionsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="View\ArrayDimensionsControl.Designer.cs">
-      <DependentUpon>ArrayDimensionsControl.cs</DependentUpon>
+    <Compile Include="View\ArrayDimensionsForm.Designer.cs">
+      <DependentUpon>ArrayDimensionsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="View\CellParamsForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="View\CellParamsForm.Designer.cs">
       <DependentUpon>CellParamsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\SimConditionsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\SimConditionsForm.Designer.cs">
+      <DependentUpon>SimConditionsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="View\MainForm.cs">
       <SubType>Form</SubType>
@@ -220,11 +226,15 @@
     <EmbeddedResource Include="View\ArrayLayoutForm.resx">
       <DependentUpon>ArrayLayoutForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="View\ArrayDimensionsControl.resx">
-      <DependentUpon>ArrayDimensionsControl.cs</DependentUpon>
+    <EmbeddedResource Include="View\ArrayDimensionsForm.resx">
+      <DependentUpon>ArrayDimensionsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="View\CellParamsForm.resx">
       <DependentUpon>CellParamsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\SimConditionsForm.resx">
+      <DependentUpon>SimConditionsForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="View\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

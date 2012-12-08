@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using OpenTK;
 
 namespace SSCP.ShellPower {
-    public partial class ArrayDimensionsControl : Form {
+    public partial class SimConditionsForm : Form {
         private RectangleF originalLayoutBounds;
         private bool updatingView = false;
         private ArraySpec array;
@@ -24,7 +24,7 @@ namespace SSCP.ShellPower {
             }
         }
 
-        public ArrayDimensionsControl() {
+        public SimConditionsForm() {
             InitializeComponent();
             UpdateView();
         }

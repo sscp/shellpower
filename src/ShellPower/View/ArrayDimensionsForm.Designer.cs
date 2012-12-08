@@ -1,5 +1,5 @@
 ﻿namespace SSCP.ShellPower {
-    partial class ArrayDimensionsControl {
+    partial class ArrayDimensionsForm {
         /// <summary>
         /// Required designer variable.
         /// </summary>

@@ -44,12 +44,18 @@
             this.textBoxSeriesR = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.chartIV = new SSCP.ShellPower.SimpleGraph();
+            this.textBoxInsolation = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Location = new System.Drawing.Point(6, 17);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(65, 13);
             this.label1.TabIndex = 0;
@@ -57,7 +63,7 @@
             // 
             // textBoxVoc
             // 
-            this.textBoxVoc.Location = new System.Drawing.Point(193, 6);
+            this.textBoxVoc.Location = new System.Drawing.Point(187, 14);
             this.textBoxVoc.Name = "textBoxVoc";
             this.textBoxVoc.Size = new System.Drawing.Size(124, 20);
             this.textBoxVoc.TabIndex = 1;
@@ -65,7 +71,7 @@
             // 
             // textBoxIsc
             // 
-            this.textBoxIsc.Location = new System.Drawing.Point(193, 32);
+            this.textBoxIsc.Location = new System.Drawing.Point(187, 40);
             this.textBoxIsc.Name = "textBoxIsc";
             this.textBoxIsc.Size = new System.Drawing.Size(124, 20);
             this.textBoxIsc.TabIndex = 3;
@@ -74,7 +80,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 35);
+            this.label2.Location = new System.Drawing.Point(6, 43);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(60, 13);
             this.label2.TabIndex = 2;
@@ -82,7 +88,7 @@
             // 
             // textBoxVocTemp
             // 
-            this.textBoxVocTemp.Location = new System.Drawing.Point(193, 58);
+            this.textBoxVocTemp.Location = new System.Drawing.Point(187, 66);
             this.textBoxVocTemp.Name = "textBoxVocTemp";
             this.textBoxVocTemp.Size = new System.Drawing.Size(124, 20);
             this.textBoxVocTemp.TabIndex = 5;
@@ -91,15 +97,15 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 61);
+            this.label3.Location = new System.Drawing.Point(6, 69);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(166, 13);
+            this.label3.Size = new System.Drawing.Size(167, 13);
             this.label3.TabIndex = 4;
-            this.label3.Text = "Voc temp sensitivity (volts/deg k):";
+            this.label3.Text = "Voc temp sensitivity (volts/deg C):";
             // 
             // textBoxIscTemp
             // 
-            this.textBoxIscTemp.Location = new System.Drawing.Point(193, 84);
+            this.textBoxIscTemp.Location = new System.Drawing.Point(187, 92);
             this.textBoxIscTemp.Name = "textBoxIscTemp";
             this.textBoxIscTemp.Size = new System.Drawing.Size(124, 20);
             this.textBoxIscTemp.TabIndex = 7;
@@ -108,15 +114,15 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 87);
+            this.label4.Location = new System.Drawing.Point(6, 95);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(164, 13);
+            this.label4.Size = new System.Drawing.Size(165, 13);
             this.label4.TabIndex = 6;
-            this.label4.Text = "Isc temp sensitivity (amps/deg k):";
+            this.label4.Text = "Isc temp sensitivity (amps/deg C):";
             // 
             // textBoxArea
             // 
-            this.textBoxArea.Location = new System.Drawing.Point(193, 110);
+            this.textBoxArea.Location = new System.Drawing.Point(187, 118);
             this.textBoxArea.Name = "textBoxArea";
             this.textBoxArea.Size = new System.Drawing.Size(124, 20);
             this.textBoxArea.TabIndex = 9;
@@ -125,7 +131,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(12, 113);
+            this.label5.Location = new System.Drawing.Point(6, 121);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(61, 13);
             this.label5.TabIndex = 8;
@@ -134,7 +140,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(12, 231);
+            this.label6.Location = new System.Drawing.Point(12, 279);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(270, 91);
             this.label6.TabIndex = 10;
@@ -144,7 +150,7 @@
             // 
             this.labelMaxPower.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.labelMaxPower.AutoSize = true;
-            this.labelMaxPower.Location = new System.Drawing.Point(339, 286);
+            this.labelMaxPower.Location = new System.Drawing.Point(409, 326);
             this.labelMaxPower.Name = "labelMaxPower";
             this.labelMaxPower.Size = new System.Drawing.Size(29, 13);
             this.labelMaxPower.TabIndex = 11;
@@ -152,7 +158,7 @@
             // 
             // buttonOK
             // 
-            this.buttonOK.Location = new System.Drawing.Point(242, 334);
+            this.buttonOK.Location = new System.Drawing.Point(242, 382);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
             this.buttonOK.TabIndex = 13;
@@ -162,7 +168,7 @@
             // 
             // textBoxTemp
             // 
-            this.textBoxTemp.Location = new System.Drawing.Point(193, 136);
+            this.textBoxTemp.Location = new System.Drawing.Point(187, 13);
             this.textBoxTemp.Name = "textBoxTemp";
             this.textBoxTemp.Size = new System.Drawing.Size(124, 20);
             this.textBoxTemp.TabIndex = 15;
@@ -171,15 +177,15 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(12, 139);
+            this.label7.Location = new System.Drawing.Point(6, 16);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(70, 13);
+            this.label7.Size = new System.Drawing.Size(107, 13);
             this.label7.TabIndex = 14;
-            this.label7.Text = "Temperature:";
+            this.label7.Text = "Temperature (deg C):";
             // 
             // textBoxNIdeal
             // 
-            this.textBoxNIdeal.Location = new System.Drawing.Point(193, 162);
+            this.textBoxNIdeal.Location = new System.Drawing.Point(187, 144);
             this.textBoxNIdeal.Name = "textBoxNIdeal";
             this.textBoxNIdeal.Size = new System.Drawing.Size(124, 20);
             this.textBoxNIdeal.TabIndex = 18;
@@ -188,7 +194,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(12, 165);
+            this.label8.Location = new System.Drawing.Point(6, 147);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(87, 13);
             this.label8.TabIndex = 17;
@@ -196,7 +202,7 @@
             // 
             // textBoxSeriesR
             // 
-            this.textBoxSeriesR.Location = new System.Drawing.Point(193, 188);
+            this.textBoxSeriesR.Location = new System.Drawing.Point(187, 170);
             this.textBoxSeriesR.Name = "textBoxSeriesR";
             this.textBoxSeriesR.Size = new System.Drawing.Size(124, 20);
             this.textBoxSeriesR.TabIndex = 20;
@@ -205,7 +211,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(12, 191);
+            this.label9.Location = new System.Drawing.Point(6, 173);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(90, 13);
             this.label9.TabIndex = 19;
@@ -223,40 +229,84 @@
         20,
         20};
             this.chartIV.Name = "chartIV";
-            this.chartIV.Size = new System.Drawing.Size(388, 277);
+            this.chartIV.Size = new System.Drawing.Size(458, 317);
             this.chartIV.TabIndex = 16;
             this.chartIV.X = null;
             this.chartIV.Y = null;
+            // 
+            // textBoxInsolation
+            // 
+            this.textBoxInsolation.Location = new System.Drawing.Point(187, 39);
+            this.textBoxInsolation.Name = "textBoxInsolation";
+            this.textBoxInsolation.Size = new System.Drawing.Size(124, 20);
+            this.textBoxInsolation.TabIndex = 23;
+            this.textBoxInsolation.TextChanged += new System.EventHandler(this.textBox_TextChanged);
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(6, 42);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(100, 13);
+            this.label11.TabIndex = 22;
+            this.label11.Text = "Insolation (W/m^2):";
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.textBoxArea);
+            this.groupBox1.Controls.Add(this.label1);
+            this.groupBox1.Controls.Add(this.textBoxVoc);
+            this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.textBoxSeriesR);
+            this.groupBox1.Controls.Add(this.textBoxIsc);
+            this.groupBox1.Controls.Add(this.label9);
+            this.groupBox1.Controls.Add(this.label3);
+            this.groupBox1.Controls.Add(this.textBoxNIdeal);
+            this.groupBox1.Controls.Add(this.textBoxVocTemp);
+            this.groupBox1.Controls.Add(this.label8);
+            this.groupBox1.Controls.Add(this.label4);
+            this.groupBox1.Controls.Add(this.textBoxIscTemp);
+            this.groupBox1.Controls.Add(this.label5);
+            this.groupBox1.Location = new System.Drawing.Point(12, 0);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(324, 195);
+            this.groupBox1.TabIndex = 24;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Cells";
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.textBoxTemp);
+            this.groupBox2.Controls.Add(this.label7);
+            this.groupBox2.Controls.Add(this.textBoxInsolation);
+            this.groupBox2.Controls.Add(this.label11);
+            this.groupBox2.Location = new System.Drawing.Point(12, 201);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(323, 71);
+            this.groupBox2.TabIndex = 25;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Conditions";
             // 
             // CellParamsForm
             // 
             this.AcceptButton = this.buttonOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(734, 382);
-            this.Controls.Add(this.textBoxSeriesR);
-            this.Controls.Add(this.label9);
-            this.Controls.Add(this.textBoxNIdeal);
-            this.Controls.Add(this.label8);
+            this.ClientSize = new System.Drawing.Size(804, 422);
+            this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.chartIV);
-            this.Controls.Add(this.textBoxTemp);
-            this.Controls.Add(this.label7);
             this.Controls.Add(this.buttonOK);
             this.Controls.Add(this.labelMaxPower);
             this.Controls.Add(this.label6);
-            this.Controls.Add(this.textBoxArea);
-            this.Controls.Add(this.label5);
-            this.Controls.Add(this.textBoxIscTemp);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this.textBoxVocTemp);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.textBoxIsc);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.textBoxVoc);
-            this.Controls.Add(this.label1);
+            this.MinimumSize = new System.Drawing.Size(820, 460);
             this.Name = "CellParamsForm";
             this.Text = "Solar Cell Parameters";
             this.Load += new System.EventHandler(this.CellParamsForm_Load);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -284,5 +334,9 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox textBoxSeriesR;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox textBoxInsolation;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox groupBox2;
     }
 }

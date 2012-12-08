@@ -10,52 +10,58 @@ using OpenTK;
 namespace SSCP.ShellPower {
     public partial class MainForm : Form {
         /* model */
-        ArraySpec array = new ArraySpec();
+        ArraySimulationStepInput simInput = new ArraySimulationStepInput();
+        ArraySimulationStepOutput simOutput = new ArraySimulationStepOutput();
         Shadow shadow;
 
         /* apis */
         GeoNames geoNamesApi = new GeoNames();
 
-        /* current simulation state */
-        ArraySimulationStepInput simInput = new ArraySimulationStepInput();
-        ArraySimulationStepOutput simOutput = new ArraySimulationStepOutput();
-
         /* sub views */
         ArrayLayoutForm arrayLayoutForm;
         CellParamsForm cellParamsForm;
-        ArrayDimensionsControl arrayDimsForm;
+        ArrayDimensionsForm arrayDimsForm;
 
         public MainForm() {
             // init view
             InitializeComponent();
-            arrayLayoutForm = new ArrayLayoutForm(array);
-            cellParamsForm = new CellParamsForm(array);
-            glControl.Array = array;
 
             // init model
+            simInput.Array = new ArraySpec();
             InitializeArraySpec();
-
-            // run the first update step
+            InitializeConditions();
             CalculateSimStepGui();
+
+            // init subviews
+            arrayLayoutForm = new ArrayLayoutForm(simInput.Array);
+            cellParamsForm = new CellParamsForm(simInput);
+            glControl.Array = simInput.Array;
         }
 
-
+        /// <summary>
+        /// Hack to make debugging faster.
+        /// </summary>
         private void InitializeArraySpec() {
-            //TODO: remove hack, here to make debugging faster
-            LoadModel("C:/shellpower/meshes/sunbadThinCarWholeRotSmall.stl");
+            ArraySpec array = simInput.Array;
             array.LayoutBoundsXZ = new RectangleF(-2.1f, -0.8f, 4.45f, 1.6f);
             array.LayoutTexture = new Bitmap("C:/shellpower/arrays/sunbad_fat_cells_aliased.png");
+            LoadModel("C:/shellpower/meshes/sunbadThinCarWholeRotSmall.stl");
 
             // Sunpower C60 Bin I
             // http://www.kyletsai.com/uploads/9/7/5/3/9753015/sunpower_c60_bin_ghi.pdf
-            array.CellSpec.IscStc = 6.27;
-            array.CellSpec.VocStc = 0.686;
-            array.CellSpec.DIscDT = -0.0020; // approx, computed
-            array.CellSpec.DVocDT = -0.0018;
-            array.CellSpec.Area = 0.015555; // m^2
-            array.CellSpec.Temperature = 25; // deg c
-            array.CellSpec.NIdeal = 1.26; // fudge
-            array.CellSpec.SeriesR = 0.003; // ohms
+            CellSpec cellSpec = simInput.Array.CellSpec;
+            cellSpec.IscStc = 6.27;
+            cellSpec.VocStc = 0.686;
+            cellSpec.DIscDT = -0.0020; // approx, computed
+            cellSpec.DVocDT = -0.0018;
+            cellSpec.Area = 0.015555; // m^2
+            cellSpec.NIdeal = 1.26; // fudge
+            cellSpec.SeriesR = 0.003; // ohms
+        }
+
+        private void InitializeConditions() {
+            simInput.Temperature = 25; // STC, 25 Celcius
+            simInput.Insolation = 1000; // STC, 1000 W/m^2
         }
 
         private void LoadModel(string filename) {
@@ -86,7 +92,7 @@ namespace SSCP.ShellPower {
         /// Computes shadow volumes for rendering.
         /// </summary>
         private void SetModel(Mesh mesh) {
-            array.Mesh = mesh;
+            simInput.Array.Mesh = mesh;
             
             // create shadow volumes
             Logger.info("computing shadows...");
@@ -227,7 +233,7 @@ namespace SSCP.ShellPower {
         private void openLayoutToolStripMenuItem_Click(object sender, EventArgs e) {
             Bitmap bitmap = arrayLayoutForm.PromptUserForLayoutTexture();
             if (bitmap != null) {
-                array.LayoutTexture = bitmap;
+                simInput.Array.LayoutTexture = bitmap;
             }
         }
 
@@ -255,7 +261,7 @@ namespace SSCP.ShellPower {
         }
 
         private void btnRecalc_Click(object sender, EventArgs e) {
-            var simulator = new ArraySimulator(array);
+            var simulator = new ArraySimulator();
             try {
                 simOutput = simulator.Simulate(simInput);
 
@@ -286,8 +292,8 @@ namespace SSCP.ShellPower {
             if (arrayDimsForm != null && !arrayDimsForm.IsDisposed) {
                 arrayDimsForm.BringToFront();
             } else {
-                arrayDimsForm = new ArrayDimensionsControl();
-                arrayDimsForm.Array = array;
+                arrayDimsForm = new ArrayDimensionsForm();
+                arrayDimsForm.Array = simInput.Array;
                 arrayDimsForm.Show();
             }
         }

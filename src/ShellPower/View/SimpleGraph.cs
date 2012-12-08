@@ -91,6 +91,7 @@ namespace SSCP.ShellPower {
                 ymin = Math.Min(y[i], ymin);
                 ymax = Math.Max(y[i], ymax);
             }
+            if (xmax <= xmin || ymax <= ymin) return;
 
             // plot the axes
             int[] margins = Margins;

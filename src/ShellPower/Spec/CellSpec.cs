@@ -26,10 +26,6 @@ namespace SSCP.ShellPower {
         /// </summary>
         public double DIscDT { get; set; }
         /// <summary>
-        /// Cell temperature in Celsius.
-        /// </summary>
-        public double Temperature { get; set; }
-        /// <summary>
         /// Cell area in square meters.
         /// </summary>
         public double Area { get; set; }
@@ -42,24 +38,24 @@ namespace SSCP.ShellPower {
         /// </summary>
         public double SeriesR { get; set; }
 
-        public double CalcTempK() {
-            return Temperature + Constants.C_IN_KELVIN;
+        public double CalcTempK(double tempC) {
+            return tempC + Constants.C_IN_KELVIN;
         }
-        public double CalcVoc(double insolation) {
+        public double CalcVoc(double insolationW, double tempC) {
             // TODO: adjust for insolation
-            return VocStc + (Temperature - STC_TEMP) * DVocDT;
+            return VocStc + (tempC - STC_TEMP) * DVocDT;
         }
-        public double CalcIsc(double insolation) {
-            return insolation / STC_INSOLATION * (IscStc + (Temperature - STC_TEMP) * DIscDT);
+        public double CalcIsc(double insolationW, double tempC) {
+            return insolationW / STC_INSOLATION * (IscStc + (tempC - STC_TEMP) * DIscDT);
         }
 
         /// <summary>
         /// Reverse saturation current for a cell.
         /// </summary>
-        public double CalcI0(double insolation){
-            double voc = CalcVoc(insolation);
-            double isc = CalcIsc(insolation);
-            double t = CalcTempK();
+        public double CalcI0(double insolationW, double tempC){
+            double voc = CalcVoc(insolationW, tempC);
+            double isc = CalcIsc(insolationW, tempC);
+            double t = CalcTempK(tempC);
             double k = Constants.BOLTZMANN_K;
             double q = Constants.ELECTRON_CHARGE_Q;
             double i0 = isc / (Math.Exp((q*voc) / (NIdeal*k*t)) - 1.0);
@@ -68,18 +64,18 @@ namespace SSCP.ShellPower {
         /// <summary>
         /// Calculates current flow for a given voltage.
         /// </summary>
-        public double CalcI(double insolation, double v) {
-            double[] veci = CalcIV(insolation, new double[] { v });
+        public double CalcI(double v, double insolationW, double tempC) {
+            double[] veci = CalcIV(new double[] { v }, insolationW, tempC);
             return veci[0];
         }
         /// <summary>
         /// Computes an IV curve.
         /// </summary>
-        public double[] CalcIV(double insolation, double[] vecv) {
+        public double[] CalcIV(double[] vecv, double insolationW, double tempC) {
             double[] veci = new double[vecv.Length];
-            double i0 = CalcI0(insolation);
-            double isc = CalcIsc(insolation);
-            double t = CalcTempK();
+            double i0 = CalcI0(insolationW, tempC);
+            double isc = CalcIsc(insolationW, tempC);
+            double t = CalcTempK(tempC);
             double k = Constants.BOLTZMANN_K;
             double q = Constants.ELECTRON_CHARGE_Q;
             double ni = NIdeal;
@@ -102,15 +98,15 @@ namespace SSCP.ShellPower {
             }
             return veci;
         }
-        public void CalcSweep(double insolation, out double ff, out double vmp, out double imp, out double[] veci, out double[] vecv) {
-            double voc = CalcVoc(insolation);
-            double isc = CalcIsc(insolation);
+        public void CalcSweep(double insolationW, double tempC, out double ff, out double vmp, out double imp, out double[] veci, out double[] vecv) {
+            double voc = CalcVoc(insolationW, tempC);
+            double isc = CalcIsc(insolationW, tempC);
             int n = 100;
             vecv = new double[n + 1];
             for (int i = 0; i <= n; i++) {
                 vecv[i] = voc*(double)i/n;
             }
-            veci = CalcIV(insolation, vecv);
+            veci = CalcIV(vecv, insolationW, tempC);
             //Debug.Assert(Math.Abs(veci[0] - isc) < 0.001);
             //Debug.Assert(Math.Abs(veci[n]) < 0.001);
             double pmp = 0.0;

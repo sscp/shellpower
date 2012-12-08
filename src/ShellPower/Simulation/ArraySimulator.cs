@@ -13,6 +13,7 @@ namespace SSCP.ShellPower {
         /* opengl for computation program and args */
         private int shaderVert, shaderFrag, shaderProg;
         private int uniformPixelWattsIn, uniformSolarCells;
+        private Bitmap cacheSolarCells;
         private int uniformX0, uniformX1, uniformZ0, uniformZ1;
         private int texArray;
 
@@ -21,18 +22,10 @@ namespace SSCP.ShellPower {
         private int fboWatts;
 
         /* model */
-        private readonly ArraySpec spec;
-        public ArraySimulator(ArraySpec spec) {
-            this.spec = spec;
-
+        public ArraySimulator() {
             InitGLArrayComputeShaders();
             InitGLComputeBuffer();
             InitGLArrayTextures();
-        }
-        public ArraySpec Array {
-            get {
-                return spec;
-            }
         }
 
         private const double ARRAY_DIM_M = 5; // largest dim in meters. TODO: make this not hardcoded
@@ -157,13 +150,13 @@ void main()
         /// </summary>
         public ArraySimulationStepOutput Simulate(ArraySimulationStepInput simInput) {
             // validate that we're gtg
-            if (Array.Mesh == null) throw new InvalidOperationException("No array shape (mesh) loaded.");
-            if (Array.LayoutTexture == null) throw new InvalidOperationException("No array layout (texture) loaded.");
+            if (simInput == null || simInput.Array == null) throw new InvalidOperationException("No array specified.");
+            if (simInput.Array.Mesh == null) throw new InvalidOperationException("No array shape (mesh) loaded.");
+            if (simInput.Array.LayoutTexture == null) throw new InvalidOperationException("No array layout (texture) loaded.");
 
-            SetUniforms();
-            GLUtils.LoadTexture(Array.LayoutTexture, TextureUnit.Texture0);
+            SetUniforms(simInput.Array, simInput.Insolation);
             ComputeRender(simInput);
-            return AnalyzeComputeTex();
+            return AnalyzeComputeTex(simInput);
         }
 
         public void ComputeRender(ArraySimulationStepInput simInput) {
@@ -187,7 +180,7 @@ void main()
             GLUtils.SetCameraProjectionOrtho(ARRAY_DIM_M);
 
             //render
-            MeshSprite sprite = new MeshSprite(spec.Mesh);
+            MeshSprite sprite = new MeshSprite(simInput.Array.Mesh);
             sprite.PushTransform();
             sprite.Render();
             sprite.PopTransform();
@@ -237,16 +230,28 @@ void main()
             GL.Light(LightName.Light0, LightParameter.Position, new Vector4(sunDir, 0));
         }
 
-        private void SetUniforms() {
+        private void SetUniforms(ArraySpec array, double insolation) {
             GL.UseProgram(shaderProg);
-            GL.Uniform1(uniformX0, Array.LayoutBoundsXZ.Left); 
-            GL.Uniform1(uniformX1, Array.LayoutBoundsXZ.Right); 
-            GL.Uniform1(uniformZ0, Array.LayoutBoundsXZ.Top); 
-            GL.Uniform1(uniformZ1, Array.LayoutBoundsXZ.Bottom);
+
+            // array layout alignment
+            GL.Uniform1(uniformX0, array.LayoutBoundsXZ.Left); 
+            GL.Uniform1(uniformX1, array.LayoutBoundsXZ.Right); 
+            GL.Uniform1(uniformZ0, array.LayoutBoundsXZ.Top);
+            GL.Uniform1(uniformZ1, array.LayoutBoundsXZ.Bottom);
+
+            // array layout texture. shows where each cell is located.
+            if (cacheSolarCells != array.LayoutTexture) {
+                cacheSolarCells = array.LayoutTexture;
+                GLUtils.LoadTexture(array.LayoutTexture, TextureUnit.Texture0);
+            }
             GL.Uniform1(uniformSolarCells, (float)TextureUnit.Texture0);
+            
+            // solar insolation per pixel rendered 
+            // (since we are rendering orth projection from the sun's pov, this is a constant)
             double m2PerPixel = ARRAY_DIM_M*ARRAY_DIM_M/COMPUTE_TEX_SIZE/COMPUTE_TEX_SIZE;
-            double wattsPerPixel = m2PerPixel * 1000;
+            double wattsPerPixel = m2PerPixel * insolation;
             GL.Uniform1(uniformPixelWattsIn, (float)wattsPerPixel);
+            
             Debug.WriteLine("uniforms set.");
         }
 
@@ -305,7 +310,7 @@ void main()
         /// 
         /// Uses this to calculate IV curves, etc, and ultimately array power.
         /// </summary>
-        private ArraySimulationStepOutput AnalyzeComputeTex() {
+        private ArraySimulationStepOutput AnalyzeComputeTex(ArraySimulationStepInput input) {
             Color[] texColors = ReadColorTexture(FramebufferAttachment.ColorAttachment0);
             float[] texWattsIn = ReadFloatTexture(FramebufferAttachment.ColorAttachment1);
             double dbgmin = texWattsIn[0], dbgmax = texWattsIn[0], dbgavg = 0;
@@ -322,7 +327,7 @@ void main()
             int ncells = 0;
             var cells = new List<ArraySpec.Cell>();
             var colorToId = new Dictionary<Color, int>();
-            foreach (ArraySpec.CellString cellStr in spec.Strings) {
+            foreach (ArraySpec.CellString cellStr in input.Array.Strings) {
                 foreach (ArraySpec.Cell cell in cellStr.Cells) {
                     cells.Add(cell);
                     colorToId.Add(cell.Color, ncells);
@@ -364,11 +369,13 @@ void main()
             Debug.WriteLine("total: {0}W, {1}m^2", totalWattsIn, totalArea);
 
             // MPPT sweeps, first for each cell...
+            CellSpec spec = input.Array.CellSpec;
+            double tempC = input.Temperature;
             double totalWattsOutByCell = 0, totalWattsOutByString = 0;
             for(int i = 0; i < ncells; i++){
                 double ff, vmp, imp;
                 double[] veci, vecv;
-                this.Array.CellSpec.CalcSweep(wattsIn[i], out ff, out vmp, out imp, out veci, out vecv);
+                spec.CalcSweep(wattsIn[i], tempC, out ff, out vmp, out imp, out veci, out vecv);
                 totalWattsOutByCell += vmp*imp;
             }
             // TODO: ... then MPPT for each string
