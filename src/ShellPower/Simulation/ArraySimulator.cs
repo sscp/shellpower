@@ -360,7 +360,7 @@ void main()
 
             // finally, find the area and insolation for each cell
             double[] wattsIn = new double[ncells];
-            double[] area = new double[ncells];
+            double[] areas = new double[ncells];
             double wattsInUnlinked = 0, areaUnlinked = 0;
             for (int i = 0; i < computeWidth * computeHeight; i++) {
                 Color color = texColors[i];
@@ -368,7 +368,7 @@ void main()
                 if (colorToId.ContainsKey(color)) {
                     int id = colorToId[color];
                     wattsIn[id] += texWattsIn[i];
-                    area[id] += texArea[i];
+                    areas[id] += texArea[i];
                 } else {
                     wattsInUnlinked += texWattsIn[i];
                     areaUnlinked += texArea[i];
@@ -385,8 +385,8 @@ void main()
             double totalArea = 0, totalWattsIn = 0;
             for (int i = 0; i < ncells; i++) {
                 totalWattsIn += wattsIn[i];
-                totalArea += area[i];
-                Debug.WriteLine("cell {0}: {1}W, {2}m^2", i, wattsIn[i], area[i]);
+                totalArea += areas[i];
+                Debug.WriteLine("cell {0}: {1}W, {2}m^2", i, wattsIn[i], areas[i]);
             }
             Debug.WriteLine("total: {0}W, {1}m^2", totalWattsIn, totalArea);
 
@@ -402,7 +402,7 @@ void main()
             int cellIx = 0;
             for(int i = 0; i < nstrings; i++){
                 var cellStr = input.Array.Strings[i];
-                double stringWattsIn = 0, stringWattsOutByCell = 0;
+                double stringWattsIn = 0, stringWattsOutByCell = 0, stringLitArea = 0;
 
                 // per-cell sweeps
                 var cellSweeps = new IVTrace[cellStr.Cells.Count];
@@ -415,6 +415,9 @@ void main()
                     stringWattsIn += cellWattsIn;
                     stringWattsOutByCell += cellSweep.Pmp;
                     totalWattsOutByCell += cellSweep.Pmp;
+
+                    // shading stats
+                    stringLitArea += areas[i];
                 }
 
                 // string sweep
@@ -428,13 +431,15 @@ void main()
                 strings[i].String = cellStr;
                 CellSpec cellSpec = input.Array.CellSpec;
                 strings[i].Area = cellStr.Cells.Count*cellSpec.Area;
+                strings[i].AreaShaded = strings[i].Area - stringLitArea;
                 IVTrace cellSweepIdeal = CellSimulator.CalcSweep(cellSpec,input.Insolation,input.Temperature);
                 strings[i].WattsOutputIdeal = cellSweepIdeal.Pmp * cellStr.Cells.Count;
             }
             totalWattsOutByString = totalWattsOutByCell;
 
             ArraySimulationStepOutput output = new ArraySimulationStepOutput();
-            output.ArrayArea = output.ArrayLitArea = totalArea;
+            output.ArrayArea = ncells * spec.Area;
+            output.ArrayLitArea = totalArea;
             output.WattsInsolation = totalWattsIn;
             output.WattsOutputByCell = totalWattsOutByCell;
             output.WattsOutput = totalWattsOutByString;
