@@ -18,7 +18,8 @@ namespace SSCP.ShellPower {
         private int texArray;
 
         /* ... program outputs to a texture */
-        private int texWatts, texCells, computeWidth, computeHeight;
+        private int texWatts, texCells, texArea;
+        private int computeWidth, computeHeight;
         private int fboWatts;
 
         /* model */
@@ -41,28 +42,42 @@ namespace SSCP.ShellPower {
             GL.ShaderSource(shaderVert, @"
 uniform float x0, x1, z0, z1;
 varying float cosRule;
+varying float areaMult;
 void main()
 {
     vec4 mv = gl_ModelViewMatrix * gl_Vertex;
     gl_Position = gl_ProjectionMatrix * mv;
     vec3 normal = gl_NormalMatrix * gl_Normal;
-    cosRule = dot(normal, vec3(0,0,1));
+    cosRule = normal.z; //dot(normal, vec3(0,0,1));
+    areaMult = clamp(sqrt(dot(normal,normal))/normal.z, 0, 24);
 
     gl_TexCoord[0] = vec4((gl_Vertex.x - x0) / (x1 - x0), (gl_Vertex.z - z0) / (z1 - z0), 0,0);
 }");
             GL.ShaderSource(shaderFrag, @"
 varying float cosRule;
+varying float areaMult;
 uniform float pixelWattsIn;
+uniform float pixelArea;
 uniform sampler2D solarCells;
+
+// encodes a float as an RGBA color
+// precision: 1/256 (0.004) 
+// range: 0 to 100
+vec4 encodeFloat(float val){
+    float mwRed = floor(val) * 2 / 255; 
+    // should come out R=2 for val=0.1mw, 4 for 0.2mw, etc
+    float mwGreen = val-floor(val);
+    return vec4(mwRed, mwGreen, 0.0, 1.0);   // watts insolation
+}
 
 void main()
 {
     vec4 solarCell = texture2D(solarCells, gl_TexCoord[0].xy);
-    float watts10k = pixelWattsIn*max(cosRule,0)*10000.0;
+    float watts10k = pixelWattsIn*max(cosRule,0)*10000.0; 
+
     gl_FragData[0] = vec4(solarCell.xyz, 1.0); // cell id
-    float mwRed = floor(watts10k) * 2 / 255; // should come out R=2 for 0.1mw, 4 for 0.2mw, etc
-    float mwGreen = watts10k-floor(watts10k);
-    gl_FragData[1] = vec4(mwRed, mwGreen, 0.0, 1.0);   // watts insolation
+    gl_FragData[1] = encodeFloat(watts10k); // insolation in 0.1 mw
+    gl_FragData[2] = encodeFloat(areaMult*4); // pixel area
 }");
 
             GL.CompileShader(shaderVert);
@@ -109,7 +124,13 @@ void main()
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8,
                 computeWidth, computeHeight, 0,
                 OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
+
+            // a third buffer for area in m^2...
+            texArea = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, texArea);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8,
+                computeWidth, computeHeight, 0,
+                OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
 
             // depth buffer
             int texDepth = GL.GenTexture();
@@ -123,6 +144,7 @@ void main()
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, fboWatts);
             GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext, TextureTarget.Texture2D, texCells, 0);
             GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment1Ext, TextureTarget.Texture2D, texWatts, 0);
+            GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment2Ext, TextureTarget.Texture2D, texArea, 0);
             GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachment, TextureTarget.Texture2D, texDepth, 0);
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0); // return to visible framebuffer
         }
@@ -167,9 +189,10 @@ void main()
             GL.UseProgram(shaderProg);
 
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, fboWatts);
-            GL.DrawBuffers(2, new DrawBuffersEnum[]{
+            GL.DrawBuffers(3, new DrawBuffersEnum[]{
                 (DrawBuffersEnum)FramebufferAttachment.ColorAttachment0Ext,
-                (DrawBuffersEnum)FramebufferAttachment.ColorAttachment1Ext});
+                (DrawBuffersEnum)FramebufferAttachment.ColorAttachment1Ext,
+                (DrawBuffersEnum)FramebufferAttachment.ColorAttachment2Ext});
 
             GL.BindTexture(TextureTarget.Texture2D, texArray);
             GL.Viewport(0, 0, computeWidth, computeHeight);
@@ -255,7 +278,7 @@ void main()
             Debug.WriteLine("uniforms set.");
         }
 
-        private float[] ReadFloatTexture(FramebufferAttachment fb) {
+        private float[] ReadFloatTexture(FramebufferAttachment fb, double scale) {
             // reading from an actual float texture is unreliable, so encode floats as colors instead
             byte[] tex = new byte[computeWidth * computeHeight * 4];
             unsafe {
@@ -273,7 +296,7 @@ void main()
                 Debug.Assert(a == 255);
                 Debug.Assert(r % 2 == 0 && r < 200); // shader worked, no antialiasing -> red must be a small even num
                 Debug.Assert(b == 0); // blue must be zero. green can be anything.
-                float watts = (float)(0.0001*(r / 2 + (double)g / 255));
+                float watts = (float)(scale*(r / 2 + (double)g / 255));
                 texDecoded[i] = watts;
             }
             return texDecoded;
@@ -312,15 +335,16 @@ void main()
         /// </summary>
         private ArraySimulationStepOutput AnalyzeComputeTex(ArraySimulationStepInput input) {
             Color[] texColors = ReadColorTexture(FramebufferAttachment.ColorAttachment0);
-            float[] texWattsIn = ReadFloatTexture(FramebufferAttachment.ColorAttachment1);
-            double dbgmin = texWattsIn[0], dbgmax = texWattsIn[0], dbgavg = 0;
+            float[] texWattsIn = ReadFloatTexture(FramebufferAttachment.ColorAttachment1, 0.0001);
+            double areaPerPixel = ARRAY_DIM_M*ARRAY_DIM_M/COMPUTE_TEX_SIZE/COMPUTE_TEX_SIZE;
+            float[] texArea = ReadFloatTexture(FramebufferAttachment.ColorAttachment2, areaPerPixel/4);
+            /*double dbgmin = texWattsIn[0], dbgmax = texWattsIn[0], dbgavg = 0;
             for (int i = 0; i < texWattsIn.Length; i++) {
                 dbgmin = Math.Min(dbgmin, texWattsIn[i]);
                 dbgmax = Math.Max(dbgmax, texWattsIn[i]);
                 dbgavg += texWattsIn[i];
             }
-            dbgavg /= texWattsIn.Length;
-            float[] texArea = new float[computeWidth * computeHeight];
+            dbgavg /= texWattsIn.Length;*/
 
             // find the cell at each fragment...
             int ncells = 0;
@@ -438,6 +462,7 @@ void main()
             Debug.WriteLine("saving the ext fbo buffers");
             DebugSaveBuffer(FramebufferAttachment.ColorAttachment0, "../../../../test0.png");
             DebugSaveBuffer(FramebufferAttachment.ColorAttachment1, "../../../../test1.png");
+            DebugSaveBuffer(FramebufferAttachment.ColorAttachment2, "../../../../test2.png");
         }
         private void DebugSaveBuffer(FramebufferAttachment buf, String fname) {
             Bitmap bmp = ReadBuffer(buf);
