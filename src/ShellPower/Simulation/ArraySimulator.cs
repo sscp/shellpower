@@ -187,7 +187,6 @@ void main()
 
             /* gl state */
             GL.UseProgram(shaderProg);
-
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, fboWatts);
             GL.DrawBuffers(3, new DrawBuffersEnum[]{
                 (DrawBuffersEnum)FramebufferAttachment.ColorAttachment0Ext,
@@ -425,7 +424,8 @@ void main()
                 strings[i].WattsIn = stringWattsIn;
                 strings[i].WattsOutputByCell = stringWattsOutByCell;
                 IVTrace stringSweep = StringSimulator.CalcStringIV(cellStr, cellSweeps);
-                strings[i].WattsOutput = strings[i].WattsOutputByCell; // stringSweep.Pmp;
+                strings[i].WattsOutput = stringSweep.Pmp;
+                strings[i].IVTrace = stringSweep;
 
                 // higher-level string info
                 strings[i].String = cellStr;

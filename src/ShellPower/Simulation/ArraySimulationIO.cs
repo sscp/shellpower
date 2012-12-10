@@ -24,7 +24,6 @@ namespace SSCP.ShellPower {
         public double WattsInsolation { get; set; }
         public double WattsOutputByCell { get; set; }
         public double WattsOutput { get; set; }
-        // TODO: WattsInsolationNoShadow, WattsOutputNoShadow
 
         public ArraySimStringOutput[] Strings { get; set; }
     }
@@ -34,6 +33,7 @@ namespace SSCP.ShellPower {
         public double WattsOutput { get; set; }
         public double WattsOutputByCell { get; set; }
         public double WattsOutputIdeal { get; set; }
+        public IVTrace IVTrace { get; set; }
         public double Area { get; set; }
         public double AreaShaded { get; set; }
         public ArraySpec.CellString String { get; set; }

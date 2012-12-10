@@ -68,6 +68,8 @@
             this.labelSimAvgPower = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.tabPageOutputs = new System.Windows.Forms.TabPage();
+            this.outputStringFlattenedLabel = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
             this.outputStringPerfectMPPTLabel = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
             this.outputStringLabel = new System.Windows.Forms.Label();
@@ -84,8 +86,6 @@
             this.outputStringsListBox = new System.Windows.Forms.ListBox();
             this.outputArrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.glControl = new SSCP.ShellPower.ArrayModelControl();
-            this.outputStringFlattenedLabel = new System.Windows.Forms.Label();
-            this.label17 = new System.Windows.Forms.Label();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -564,6 +564,24 @@
             this.tabPageOutputs.Text = "Outputs";
             this.tabPageOutputs.UseVisualStyleBackColor = true;
             // 
+            // outputStringFlattenedLabel
+            // 
+            this.outputStringFlattenedLabel.AutoSize = true;
+            this.outputStringFlattenedLabel.Location = new System.Drawing.Point(305, 108);
+            this.outputStringFlattenedLabel.Name = "outputStringFlattenedLabel";
+            this.outputStringFlattenedLabel.Size = new System.Drawing.Size(27, 13);
+            this.outputStringFlattenedLabel.TabIndex = 16;
+            this.outputStringFlattenedLabel.Text = "0 W";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(239, 108);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(60, 13);
+            this.label17.TabIndex = 15;
+            this.label17.Text = "...flattened:";
+            // 
             // outputStringPerfectMPPTLabel
             // 
             this.outputStringPerfectMPPTLabel.AutoSize = true;
@@ -594,13 +612,13 @@
             // outputStringIVLinkLabel
             // 
             this.outputStringIVLinkLabel.AutoSize = true;
-            this.outputStringIVLinkLabel.Enabled = false;
             this.outputStringIVLinkLabel.Location = new System.Drawing.Point(305, 178);
             this.outputStringIVLinkLabel.Name = "outputStringIVLinkLabel";
             this.outputStringIVLinkLabel.Size = new System.Drawing.Size(78, 13);
             this.outputStringIVLinkLabel.TabIndex = 11;
             this.outputStringIVLinkLabel.TabStop = true;
             this.outputStringIVLinkLabel.Text = "Show IV Trace";
+            this.outputStringIVLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.outputStringIVLinkLabel_LinkClicked);
             // 
             // outputStringShadedLabel
             // 
@@ -716,24 +734,6 @@
             this.glControl.Sprite = null;
             this.glControl.TabIndex = 0;
             this.glControl.VSync = true;
-            // 
-            // outputStringFlattenedLabel
-            // 
-            this.outputStringFlattenedLabel.AutoSize = true;
-            this.outputStringFlattenedLabel.Location = new System.Drawing.Point(305, 108);
-            this.outputStringFlattenedLabel.Name = "outputStringFlattenedLabel";
-            this.outputStringFlattenedLabel.Size = new System.Drawing.Size(27, 13);
-            this.outputStringFlattenedLabel.TabIndex = 16;
-            this.outputStringFlattenedLabel.Text = "0 W";
-            // 
-            // label17
-            // 
-            this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(239, 108);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(60, 13);
-            this.label17.TabIndex = 15;
-            this.label17.Text = "...flattened:";
             // 
             // MainForm
             // 

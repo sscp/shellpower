@@ -59,7 +59,7 @@ namespace SSCP.ShellPower {
             while ((max - min) / tick > 10) tick *= 10;
             if ((max - min) / tick < 2) tick /= 5;
             if ((max - min) / tick < 5) tick /= 2;
-            long i1 = (int)(min / tick);
+            long i1 = (int)(min / tick) + 1;
             long i2 = (int)(max / tick);
             double[] ticks = new double[(i2 - i1) + 1]; 
             for (long i = i1; i <= i2; i++) {

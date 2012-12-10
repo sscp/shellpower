@@ -64,7 +64,6 @@ namespace SSCP.ShellPower {
                     imp = veci[i];
                 }
             }
-            double ff = pmp / (isc * voc);
 
             IVTrace trace = new IVTrace();
             trace.I = veci;
@@ -73,7 +72,6 @@ namespace SSCP.ShellPower {
             trace.Voc = voc;
             trace.Imp = imp;
             trace.Vmp = vmp;
-            trace.FillFactor = ff;
             return trace;
         }
     }

@@ -25,6 +25,7 @@ namespace SSCP.ShellPower {
         public MainForm() {
             // init view
             InitializeComponent();
+            tabControl1.SelectedIndex = 0;
 
             // init model
             simInput.Array = new ArraySpec();
@@ -339,6 +340,19 @@ namespace SSCP.ShellPower {
             DialogResult result = saveFileDialogLayout.ShowDialog();
             if (result != DialogResult.OK) return;
             simInput.Array.LayoutTexture.Save(saveFileDialogLayout.FileName);
+        }
+
+        private void outputStringIVLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+            ArraySimStringOutput output = (ArraySimStringOutput)outputStringsListBox.SelectedItem;
+            if(output == null) {
+                MessageBox.Show("No string selected.");
+                return;
+            }
+
+            var form = new IVTraceForm();
+            form.Name = output.String.ToString();
+            form.IVTrace = output.IVTrace;
+            form.Show();
         }
     }
 }

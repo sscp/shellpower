@@ -71,8 +71,8 @@ namespace SSCP.ShellPower {
                 array.Strings[i].Name = "String " + (i + 1);
             }
             if (arrayLayoutControl.Editable) {
-                Debug.Assert(array.Strings[array.Strings.Count - 1] == arrayLayoutControl.CellString);
-                Debug.Assert(listViewStrings.SelectedIndex == array.Strings.Count - 1);
+                //Debug.Assert(array.Strings[array.Strings.Count - 1] == arrayLayoutControl.CellString);
+                //Debug.Assert(listViewStrings.SelectedIndex == array.Strings.Count - 1);
                 listViewStrings.Enabled = false;
             } else {
                 listViewStrings.Enabled = true;
