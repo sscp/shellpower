@@ -156,6 +156,7 @@
     <Compile Include="Spec\ArraySpec.cs" />
     <Compile Include="Spec\CellSpec.cs" />
     <Compile Include="Math\Constants.cs" />
+    <Compile Include="Spec\DiodeSpec.cs" />
     <Compile Include="Sprites\MeshTriangle.cs" />
     <Compile Include="Utilities\Cache.cs" />
     <Compile Include="Utilities\ColorUtils.cs" />
@@ -189,6 +190,12 @@
     </Compile>
     <Compile Include="View\ArrayDimensionsForm.Designer.cs">
       <DependentUpon>ArrayDimensionsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\BypassDiodesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\BypassDiodesForm.Designer.cs">
+      <DependentUpon>BypassDiodesForm.cs</DependentUpon>
     </Compile>
     <Compile Include="View\CellParamsForm.cs">
       <SubType>Form</SubType>
@@ -230,6 +237,7 @@
     <Compile Include="View\SimpleGraph.Designer.cs">
       <DependentUpon>SimpleGraph.cs</DependentUpon>
     </Compile>
+    <Compile Include="View\ViewUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="View\ArrayLayoutForm.resx">
@@ -237,6 +245,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="View\ArrayDimensionsForm.resx">
       <DependentUpon>ArrayDimensionsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\BypassDiodesForm.resx">
+      <DependentUpon>BypassDiodesForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="View\CellParamsForm.resx">
       <DependentUpon>CellParamsForm.cs</DependentUpon>

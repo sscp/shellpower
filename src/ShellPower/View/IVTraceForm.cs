@@ -11,7 +11,7 @@ namespace SSCP.ShellPower {
     public partial class IVTraceForm : Form {
         private IVTrace _trace;
 
-        public string Name {
+        public string Label {
             get { return labelName.Text; }
             set { labelName.Text = value; }
         }

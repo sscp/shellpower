@@ -37,28 +37,18 @@ namespace SSCP.ShellPower {
             textBoxInsolation.Text = "" + input.Insolation;
         }
 
-        private bool ValidateEntry(TextBox textBox, out double val, double min, double max) {
-            if (!double.TryParse(textBox.Text, out val) || val < min || val > max) {
-                textBox.BackColor = Color.FromArgb(0xff, 0xff, 0xbb, 0xaa);
-                return false;
-            } else {
-                textBox.BackColor = Color.White;
-                return true;
-            }
-        }
-
         private bool ValidateEntries() {
             bool valid = true;
-            valid &= ValidateEntry(textBoxVoc, out voc, double.Epsilon, 100);
-            valid &= ValidateEntry(textBoxIsc, out isc, double.Epsilon, 100);
-            valid &= ValidateEntry(textBoxVocTemp, out dvocdt, -10, 10);
-            valid &= ValidateEntry(textBoxIscTemp, out discdt, -10, 10);
-            valid &= ValidateEntry(textBoxArea, out area, 0.0, 1.0);
-            valid &= ValidateEntry(textBoxNIdeal, out nideal, 1.0, 10.0);
-            valid &= ValidateEntry(textBoxSeriesR, out seriesr, 0.0, 0.1);
+            valid &= ViewUtil.ValidateEntry(textBoxVoc, out voc, double.Epsilon, 100);
+            valid &= ViewUtil.ValidateEntry(textBoxIsc, out isc, double.Epsilon, 100);
+            valid &= ViewUtil.ValidateEntry(textBoxVocTemp, out dvocdt, -10, 10);
+            valid &= ViewUtil.ValidateEntry(textBoxIscTemp, out discdt, -10, 10);
+            valid &= ViewUtil.ValidateEntry(textBoxArea, out area, 0.0, 1.0);
+            valid &= ViewUtil.ValidateEntry(textBoxNIdeal, out nideal, 1.0, 10.0);
+            valid &= ViewUtil.ValidateEntry(textBoxSeriesR, out seriesr, 0.0, 0.1);
 
-            valid &= ValidateEntry(textBoxTemp, out tempC, -Constants.C_IN_KELVIN, 1000.0);
-            valid &= ValidateEntry(textBoxInsolation, out wattsIn, 0, 1600);
+            valid &= ViewUtil.ValidateEntry(textBoxTemp, out tempC, -Constants.C_IN_KELVIN, 1000.0);
+            valid &= ViewUtil.ValidateEntry(textBoxInsolation, out wattsIn, 0, 1600);
             return valid;
         }
 
@@ -114,6 +104,10 @@ namespace SSCP.ShellPower {
 
         private void CellParamsForm_Load(object sender, EventArgs e) {
             ResetTextBoxes();
+        }
+
+        private void buttonCancel_Click(object sender, EventArgs e) {
+            Close();
         }
     }
 }

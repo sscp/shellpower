@@ -47,6 +47,8 @@ namespace SSCP.ShellPower {
 
             // show the layout
             arrayLayoutControl.Array = this.array;
+
+            arrayLayoutControl.EditBypassDiodes = checkBoxEditDiodes.Checked;
         }
         private void UpdateStrings() {
             // show the strings
@@ -89,6 +91,7 @@ namespace SSCP.ShellPower {
                 buttonDeleteString.Enabled = false;
                 labelMakeString.Visible = false;
                 labelExplain.Visible = true;
+                checkBoxEditDiodes.Visible = true;
                 arrayLayoutControl.Editable = true;
             } else {
                 buttonEdit.Text = "Edit";
@@ -97,6 +100,8 @@ namespace SSCP.ShellPower {
                 buttonDeleteString.Enabled = listViewStrings.SelectedItem != null;
                 labelMakeString.Visible = true;
                 labelExplain.Visible = false;
+                checkBoxEditDiodes.Visible = false;
+                checkBoxEditDiodes.Checked = false;
                 arrayLayoutControl.Editable = false;
             }
         }
@@ -165,6 +170,10 @@ namespace SSCP.ShellPower {
         }
 
         private void ArrayLayoutForm_Load(object sender, EventArgs e) {
+            UpdateView();
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e) {
             UpdateView();
         }
     }

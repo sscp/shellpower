@@ -27,6 +27,7 @@ namespace SSCP.ShellPower {
             set { _cellStr = value; Refresh(); }
         }
         public bool Editable { get; set; }
+        public bool EditBypassDiodes { get; set; }
         public bool AnimatedSelection { get; set; }
         public event EventHandler CellStringChanged;
 
@@ -36,6 +37,8 @@ namespace SSCP.ShellPower {
         private Bitmap texSelected; // overlay
         private Color[,] pixels;
         private int w, h;
+        // bypassCells count = [0,1,2] dep on ui state
+        private List<ArraySpec.Cell> bypassCells = new List<ArraySpec.Cell>(); 
 
         public ArrayLayoutControl() {
             // init view
@@ -117,6 +120,14 @@ namespace SSCP.ShellPower {
                             ptr[j * w + i] = color;
                         }
                     }
+                    foreach (ArraySpec.Cell cell in bypassCells) {
+                        foreach (Pair<int> pixel in cell.Pixels) {
+                            int i = pixel.First, j = pixel.Second;
+                            uint alpha = ptr[j * w + i] >> 24;
+                            if (alpha > 0) continue;
+                            ptr[j * w + i] = 0x80ff0000;
+                        }
+                    }
                 }
             }
             texSelected.UnlockBits(texSelData);
@@ -161,6 +172,17 @@ namespace SSCP.ShellPower {
             if (points.Length > 1) {
                 g.DrawLines(new Pen(Color.FromArgb(80, Color.Black), 3.0f), points);
                 g.DrawLines(new Pen(Color.LightYellow, 1.0f), points);
+            }
+
+            // draw the bypass diodes
+            int ndiodes = CellString.BypassDiodes.Count;
+            for (int i = 0; i < ndiodes; i++) {
+                ArraySpec.BypassDiode diode = CellString.BypassDiodes[i];
+                PointF pA = points[diode.CellIxs.First];
+                PointF pB = points[diode.CellIxs.Second];
+                
+                g.DrawLine(new Pen(Color.FromArgb(80, Color.Black), 4.0f), pA, pB);
+                g.DrawLine(new Pen(Color.Red, 2.5f), pA, pB);
             }
         }
         protected override void OnMouseDown(MouseEventArgs e) {
@@ -208,9 +230,33 @@ namespace SSCP.ShellPower {
                 return 0;
             }));
 
-            // either add it to the current string, or remove it if it's already there
-            if (!CellString.Cells.Remove(newCell)) {
-                CellString.Cells.Add(newCell);
+            if (EditBypassDiodes) {
+                if (CellString.Cells.Contains(newCell)) {
+                    if(!bypassCells.Remove(newCell)){
+                        bypassCells.Add(newCell);
+                    }
+                }
+                if (bypassCells.Count == 2) {
+                    int ix0 = CellString.Cells.IndexOf(bypassCells[0]);
+                    int ix1 = CellString.Cells.IndexOf(bypassCells[1]);
+                    ArraySpec.BypassDiode newDiode = new ArraySpec.BypassDiode();
+                    newDiode.CellIxs = new Pair<int>(Math.Min(ix0, ix1), Math.Max(ix0, ix1));
+                    if (!CellString.BypassDiodes.Remove(newDiode)) {
+                        CellString.BypassDiodes.Add(newDiode);
+                    }
+                    bypassCells.Clear();
+                }
+            } else {
+                // either add it to the current string, or remove it if it's already there
+                if (!CellString.Cells.Remove(newCell)) {
+                    CellString.Cells.Add(newCell);
+                } else {
+                    // prune bypass diodes
+                    CellString.BypassDiodes.RemoveAll((diode) => {
+                        return diode.CellIxs.First >= CellString.Cells.Count ||
+                            diode.CellIxs.Second >= CellString.Cells.Count;
+                    });
+                }
             }
 
             if (CellStringChanged!=null) CellStringChanged(this, null);

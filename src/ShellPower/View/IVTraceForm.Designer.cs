@@ -82,7 +82,7 @@
             this.Controls.Add(this.labelMaxPower);
             this.Controls.Add(this.labelName);
             this.Controls.Add(this.simpleGraphIV);
-            this.Name = "IVTraceForm";
+            this.Label = "IVTraceForm";
             this.Text = "IV Trace";
             this.ResumeLayout(false);
             this.PerformLayout();

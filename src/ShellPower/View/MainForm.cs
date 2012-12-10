@@ -64,6 +64,10 @@ namespace SSCP.ShellPower {
             cellSpec.Area = 0.015555; // m^2
             cellSpec.NIdeal = 1.26; // fudge
             cellSpec.SeriesR = 0.003; // ohms
+
+            // Average bypass diode
+            DiodeSpec diodeSpec = simInput.Array.BypassDiodeSpec;
+            diodeSpec.VoltageDrop = 0.2;
         }
 
         private void InitializeConditions() {
@@ -350,9 +354,15 @@ namespace SSCP.ShellPower {
             }
 
             var form = new IVTraceForm();
-            form.Name = output.String.ToString();
+            form.Label = output.String.ToString();
             form.IVTrace = output.IVTrace;
             form.Show();
+        }
+
+        private void bypassDiodeParametersToolStripMenuItem_Click(object sender, EventArgs e) {
+            var form = new BypassDiodesForm();
+            form.Spec = simInput.Array.BypassDiodeSpec;
+            form.ShowDialog();
         }
     }
 }

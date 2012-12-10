@@ -86,6 +86,7 @@
             this.outputStringsListBox = new System.Windows.Forms.ListBox();
             this.outputArrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.glControl = new SSCP.ShellPower.ArrayModelControl();
+            this.bypassDiodeParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -165,8 +166,9 @@
             // 
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.layoutToolStripMenuItem,
+            this.layoutTextureDimensionsToolStripMenuItem,
             this.cellParametersToolStripMenuItem,
-            this.layoutTextureDimensionsToolStripMenuItem});
+            this.bypassDiodeParametersToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editToolStripMenuItem.Text = "Edit";
@@ -183,7 +185,7 @@
             // 
             this.cellParametersToolStripMenuItem.Name = "cellParametersToolStripMenuItem";
             this.cellParametersToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
-            this.cellParametersToolStripMenuItem.Text = "Cell Parameters";
+            this.cellParametersToolStripMenuItem.Text = "Cell parameters";
             this.cellParametersToolStripMenuItem.ToolTipText = "Define the characteristics of the indiviudual cell. Efficiency, fill factor, etc." +
     "";
             this.cellParametersToolStripMenuItem.Click += new System.EventHandler(this.cellParametersToolStripMenuItem_Click);
@@ -735,6 +737,13 @@
             this.glControl.TabIndex = 0;
             this.glControl.VSync = true;
             // 
+            // bypassDiodeParametersToolStripMenuItem
+            // 
+            this.bypassDiodeParametersToolStripMenuItem.Name = "bypassDiodeParametersToolStripMenuItem";
+            this.bypassDiodeParametersToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
+            this.bypassDiodeParametersToolStripMenuItem.Text = "Bypass diode parameters";
+            this.bypassDiodeParametersToolStripMenuItem.Click += new System.EventHandler(this.bypassDiodeParametersToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -834,5 +843,6 @@
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.Label outputStringFlattenedLabel;
         private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.ToolStripMenuItem bypassDiodeParametersToolStripMenuItem;
     }
 }

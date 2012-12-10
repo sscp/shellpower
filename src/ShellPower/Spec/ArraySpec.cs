@@ -24,6 +24,7 @@ namespace SSCP.ShellPower {
         public ArraySpec() {
             Strings = new List<CellString>();
             CellSpec = new CellSpec();
+            BypassDiodeSpec = new DiodeSpec();
         }
         /// <summary>
         /// The shape of the array.
@@ -48,6 +49,12 @@ namespace SSCP.ShellPower {
         /// </summary>
         public CellSpec CellSpec { get; private set; }
         /// <summary>
+        /// Specifies the properties of the bypass diodes
+        /// (if there are any). 
+        /// Mixing diode types not supported.
+        /// </summary>
+        public DiodeSpec BypassDiodeSpec { get; private set; }
+        /// <summary>
         /// Assigns cells to strings (a group of cells in series).
         /// </summary>
         public List<CellString> Strings { get; private set; }
@@ -55,13 +62,33 @@ namespace SSCP.ShellPower {
         public class CellString {
             public CellString() {
                 Cells = new List<Cell>();
+                BypassDiodes = new List<BypassDiode>();
                 Name = "NewString";
             }
             public List<Cell> Cells { get; private set; }
+            public List<BypassDiode> BypassDiodes { get; private set; }
             public String Name { get; set; }
-            //TODO: bypass diodes
             public override string ToString() {
-                return Name + " ("+Cells.Count+" cells)";
+                string str = Name + " (" + Cells.Count + " cells";
+                if (BypassDiodes.Count > 0) {
+                    str += ", " + BypassDiodes.Count + " diodes";
+                }
+                str += ")";
+                return str;
+            }
+        }
+
+        public class BypassDiode {
+            /// <summary>
+            /// Bypass diodes connects these two cells in the string.
+            /// Must be in order.
+            /// </summary>
+            public Pair<int> CellIxs { get; set; }
+            public override bool Equals(object obj) {
+                BypassDiode other = obj as BypassDiode;
+                if (other == null) return false;
+                return other.CellIxs.First == CellIxs.First &&
+                    other.CellIxs.Second == CellIxs.Second;
             }
         }
 
