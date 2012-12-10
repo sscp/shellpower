@@ -178,11 +178,17 @@ namespace SSCP.ShellPower {
             int ndiodes = CellString.BypassDiodes.Count;
             for (int i = 0; i < ndiodes; i++) {
                 ArraySpec.BypassDiode diode = CellString.BypassDiodes[i];
-                PointF pA = points[diode.CellIxs.First];
-                PointF pB = points[diode.CellIxs.Second];
-                
-                g.DrawLine(new Pen(Color.FromArgb(80, Color.Black), 4.0f), pA, pB);
-                g.DrawLine(new Pen(Color.Red, 2.5f), pA, pB);
+                if (diode.CellIxs.First == diode.CellIxs.Second) {
+                    PointF p= points[diode.CellIxs.First];
+                    float r = 4;
+                    g.FillEllipse(Brushes.Red, p.X - r / 2, p.Y - r / 2, r, r);
+                    g.DrawEllipse(Pens.Black, p.X - r / 2, p.Y - r / 2, r, r);
+                } else {
+                    PointF pA = points[diode.CellIxs.First];
+                    PointF pB = points[diode.CellIxs.Second];
+                    g.DrawLine(new Pen(Color.FromArgb(200, Color.Black), 5f), pA, pB);
+                    g.DrawLine(new Pen(Color.Red, 3f), pA, pB);
+                }
             }
         }
         protected override void OnMouseDown(MouseEventArgs e) {
@@ -232,11 +238,10 @@ namespace SSCP.ShellPower {
 
             if (EditBypassDiodes) {
                 if (CellString.Cells.Contains(newCell)) {
-                    if(!bypassCells.Remove(newCell)){
-                        bypassCells.Add(newCell);
-                    }
+                    bypassCells.Add(newCell);
                 }
                 if (bypassCells.Count == 2) {
+                    // ix0 and ix1 can be the same, for single-cell bypass diodes
                     int ix0 = CellString.Cells.IndexOf(bypassCells[0]);
                     int ix1 = CellString.Cells.IndexOf(bypassCells[1]);
                     ArraySpec.BypassDiode newDiode = new ArraySpec.BypassDiode();

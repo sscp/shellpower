@@ -423,7 +423,7 @@ void main()
                 strings[i] = new ArraySimStringOutput();
                 strings[i].WattsIn = stringWattsIn;
                 strings[i].WattsOutputByCell = stringWattsOutByCell;
-                IVTrace stringSweep = StringSimulator.CalcStringIV(cellStr, cellSweeps);
+                IVTrace stringSweep = StringSimulator.CalcStringIV(cellStr, cellSweeps, input.Array.BypassDiodeSpec);
                 strings[i].WattsOutput = stringSweep.Pmp;
                 strings[i].IVTrace = stringSweep;
 
