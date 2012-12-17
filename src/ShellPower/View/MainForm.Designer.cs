@@ -32,8 +32,9 @@
             this.saveLayoutTextureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.layoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.cellParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.layoutTextureDimensionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cellParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.bypassDiodeParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialogModel = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialogLayout = new System.Windows.Forms.SaveFileDialog();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
@@ -86,7 +87,6 @@
             this.outputStringsListBox = new System.Windows.Forms.ListBox();
             this.outputArrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.glControl = new SSCP.ShellPower.ArrayModelControl();
-            this.bypassDiodeParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -181,6 +181,15 @@
             this.layoutToolStripMenuItem.ToolTipText = "Define how the individual cells are wired.";
             this.layoutToolStripMenuItem.Click += new System.EventHandler(this.layoutToolStripMenuItem_Click);
             // 
+            // layoutTextureDimensionsToolStripMenuItem
+            // 
+            this.layoutTextureDimensionsToolStripMenuItem.Name = "layoutTextureDimensionsToolStripMenuItem";
+            this.layoutTextureDimensionsToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
+            this.layoutTextureDimensionsToolStripMenuItem.Text = "Layout texture dimensions";
+            this.layoutTextureDimensionsToolStripMenuItem.ToolTipText = "Define which part of the model is covered by the layout texture image--in other w" +
+    "ords, where the cells are.";
+            this.layoutTextureDimensionsToolStripMenuItem.Click += new System.EventHandler(this.layoutTextureDimensionsToolStripMenuItem_Click);
+            // 
             // cellParametersToolStripMenuItem
             // 
             this.cellParametersToolStripMenuItem.Name = "cellParametersToolStripMenuItem";
@@ -190,14 +199,12 @@
     "";
             this.cellParametersToolStripMenuItem.Click += new System.EventHandler(this.cellParametersToolStripMenuItem_Click);
             // 
-            // layoutTextureDimensionsToolStripMenuItem
+            // bypassDiodeParametersToolStripMenuItem
             // 
-            this.layoutTextureDimensionsToolStripMenuItem.Name = "layoutTextureDimensionsToolStripMenuItem";
-            this.layoutTextureDimensionsToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
-            this.layoutTextureDimensionsToolStripMenuItem.Text = "Layout texture dimensions";
-            this.layoutTextureDimensionsToolStripMenuItem.ToolTipText = "Define which part of the model is covered by the layout texture image--in other w" +
-    "ords, where the cells are.";
-            this.layoutTextureDimensionsToolStripMenuItem.Click += new System.EventHandler(this.layoutTextureDimensionsToolStripMenuItem_Click);
+            this.bypassDiodeParametersToolStripMenuItem.Name = "bypassDiodeParametersToolStripMenuItem";
+            this.bypassDiodeParametersToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
+            this.bypassDiodeParametersToolStripMenuItem.Text = "Bypass diode parameters";
+            this.bypassDiodeParametersToolStripMenuItem.Click += new System.EventHandler(this.bypassDiodeParametersToolStripMenuItem_Click);
             // 
             // openFileDialogModel
             // 
@@ -364,8 +371,9 @@
             // trackBarTimeOfDay
             // 
             this.trackBarTimeOfDay.AutoSize = false;
+            this.trackBarTimeOfDay.LargeChange = 12;
             this.trackBarTimeOfDay.Location = new System.Drawing.Point(143, 45);
-            this.trackBarTimeOfDay.Maximum = 47;
+            this.trackBarTimeOfDay.Maximum = 287;
             this.trackBarTimeOfDay.Name = "trackBarTimeOfDay";
             this.trackBarTimeOfDay.Size = new System.Drawing.Size(104, 20);
             this.trackBarTimeOfDay.TabIndex = 8;
@@ -720,6 +728,7 @@
             this.outputArrayLayoutControl.Array = null;
             this.outputArrayLayoutControl.CellString = null;
             this.outputArrayLayoutControl.Editable = false;
+            this.outputArrayLayoutControl.EditBypassDiodes = false;
             this.outputArrayLayoutControl.Location = new System.Drawing.Point(-11, 206);
             this.outputArrayLayoutControl.Name = "outputArrayLayoutControl";
             this.outputArrayLayoutControl.Size = new System.Drawing.Size(406, 180);
@@ -736,13 +745,6 @@
             this.glControl.Sprite = null;
             this.glControl.TabIndex = 0;
             this.glControl.VSync = true;
-            // 
-            // bypassDiodeParametersToolStripMenuItem
-            // 
-            this.bypassDiodeParametersToolStripMenuItem.Name = "bypassDiodeParametersToolStripMenuItem";
-            this.bypassDiodeParametersToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
-            this.bypassDiodeParametersToolStripMenuItem.Text = "Bypass diode parameters";
-            this.bypassDiodeParametersToolStripMenuItem.Click += new System.EventHandler(this.bypassDiodeParametersToolStripMenuItem_Click);
             // 
             // MainForm
             // 

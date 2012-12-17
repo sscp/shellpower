@@ -71,7 +71,7 @@ namespace SSCP.ShellPower {
         }
         private void CreateTextureIfNeeded() {
             Debug.Assert(Array != null && Array.LayoutTexture != null);
-            Debug.Assert(tex == null || tex == Array.LayoutTexture);
+            //Debug.Assert(tex == null || tex == Array.LayoutTexture);
             if (tex == Array.LayoutTexture) return; // already init'd
 
             // init texture:

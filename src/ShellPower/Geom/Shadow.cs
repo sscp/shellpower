@@ -59,7 +59,7 @@ namespace SSCP.ShellPower {
                 if (edge.triangles.Count == 2) {
                     numRegular++;
                 } else if (edge.triangles.Count > 2) {
-                    throw new Exception("wtf");
+                    throw new Exception("Irregular mesh. Please clean up your mesh so that each edge is adjacent to at most two triangles.");
                 }
             }
             Logger.info("calculated {0} edges ({1} regular) in {2:0.0}ms", 
@@ -131,11 +131,10 @@ namespace SSCP.ShellPower {
             SilhouetteEdges.Clear();
             foreach (var edge in edges
                 .Where((edge) => {
+                    Debug.Assert(edge.triangles.Count <= 2);
                     if (edge.triangles.Count < 2) {
-                        return false;
-                    } else if (edge.triangles.Count > 2) {
-                        throw new Exception("wtf");
-                    }
+                        return true;
+                    } 
                     var norm1 = Mesh.triangles[edge.triangles[0]].normal;
                     var norm2 = Mesh.triangles[edge.triangles[1]].normal;
 

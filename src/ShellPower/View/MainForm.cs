@@ -53,6 +53,8 @@ namespace SSCP.ShellPower {
             array.LayoutBoundsXZ = new RectangleF(-2.1f, -0.8f, 4.45f, 1.6f);
             array.LayoutTexture = new Bitmap("C:/shellpower/arrays/sunbad_fat_cells_aliased.png");
             LoadModel("C:/shellpower/meshes/sunbadThinCarWholeRotSmall.stl");
+            //array.LayoutTexture = new Bitmap("C:/shellpower/arrays/house_layout.png");
+            //LoadModel("C:/shellpower/meshes/house.stl");
 
             // Sunpower C60 Bin I
             // http://www.kyletsai.com/uploads/9/7/5/3/9753015/sunpower_c60_bin_ghi.pdf
@@ -67,7 +69,7 @@ namespace SSCP.ShellPower {
 
             // Average bypass diode
             DiodeSpec diodeSpec = simInput.Array.BypassDiodeSpec;
-            diodeSpec.VoltageDrop = 0.2;
+            diodeSpec.VoltageDrop = 0.35;
         }
 
         private void InitializeConditions() {

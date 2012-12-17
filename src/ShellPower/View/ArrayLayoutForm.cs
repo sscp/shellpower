@@ -26,7 +26,9 @@ namespace SSCP.ShellPower {
             DialogResult result = openFileDialogArray.ShowDialog();
             if (result != DialogResult.OK) return null;
             var texFile = openFileDialogArray.FileName;
-            return new Bitmap(texFile);
+            Bitmap bmp = new Bitmap(texFile);
+            ColorUtils.RemoveAlpha(bmp);
+            return bmp;
         }
         #endregion
 
@@ -34,7 +36,7 @@ namespace SSCP.ShellPower {
         private void UpdateView() {
             UpdateArrayLayout();
             UpdateStrings();
-            UpdateButtons();
+            UpdateControls();
         }
         private void UpdateArrayLayout() {
             // do we even have an array layout yet?
@@ -72,19 +74,11 @@ namespace SSCP.ShellPower {
                 Debug.Assert(array.Strings[i] == listViewStrings.Items[i]);
                 array.Strings[i].Name = "String " + (i + 1);
             }
-            if (arrayLayoutControl.Editable) {
-                //Debug.Assert(array.Strings[array.Strings.Count - 1] == arrayLayoutControl.CellString);
-                //Debug.Assert(listViewStrings.SelectedIndex == array.Strings.Count - 1);
-                listViewStrings.Enabled = false;
-            } else {
-                listViewStrings.Enabled = true;
-            }
             listViewStrings.RefreshItems();
         }
-        private void UpdateButtons() {
+        private void UpdateControls() {
             // update buttons
-            if (arrayLayoutControl.Editable) {
-                Debug.Assert(listViewStrings.SelectedItem != null);
+            if (arrayLayoutControl.Editable && listViewStrings.SelectedItem != null) {
                 buttonEdit.Text = "Done";
                 buttonEdit.Enabled = true;
                 buttonCreateString.Enabled = false;
@@ -93,6 +87,8 @@ namespace SSCP.ShellPower {
                 labelExplain.Visible = true;
                 checkBoxEditDiodes.Visible = true;
                 arrayLayoutControl.Editable = true;
+
+                listViewStrings.Enabled = false;
             } else {
                 buttonEdit.Text = "Edit";
                 buttonEdit.Enabled = listViewStrings.SelectedItem != null;
@@ -103,6 +99,7 @@ namespace SSCP.ShellPower {
                 checkBoxEditDiodes.Visible = false;
                 checkBoxEditDiodes.Checked = false;
                 arrayLayoutControl.Editable = false;
+                listViewStrings.Enabled = true;
             }
         }
         #endregion
