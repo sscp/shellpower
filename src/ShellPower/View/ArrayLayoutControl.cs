@@ -31,14 +31,20 @@ namespace SSCP.ShellPower {
         public bool AnimatedSelection { get; set; }
         public event EventHandler CellStringChanged;
 
+        private const int JUNCTION_RADIUS = 4; //px
+        private const int JUNCTION_RADIUS_CLICK = 15; //px
+
         private int frame = 0;
         private int nextId = 1;
         private Bitmap tex; // array layout
         private Bitmap texSelected; // overlay
         private Color[,] pixels;
         private int w, h;
+
+        private int mouseoverJunction;
+        private ArraySpec.Cell mouseoverCell;
         // bypassCells count = [0,1,2] dep on ui state
-        private List<ArraySpec.Cell> bypassCells = new List<ArraySpec.Cell>(); 
+        private List<int> bypassJunctions = new List<int>(); 
 
         public ArrayLayoutControl() {
             // init view
@@ -120,17 +126,114 @@ namespace SSCP.ShellPower {
                             ptr[j * w + i] = color;
                         }
                     }
-                    foreach (ArraySpec.Cell cell in bypassCells) {
-                        foreach (Pair<int> pixel in cell.Pixels) {
-                            int i = pixel.First, j = pixel.Second;
-                            uint alpha = ptr[j * w + i] >> 24;
-                            if (alpha > 0) continue;
-                            ptr[j * w + i] = 0x80ff0000;
-                        }
-                    }
                 }
             }
             texSelected.UnlockBits(texSelData);
+        }
+        private ArraySpec.Cell GetCellAtPixel(int pixelX, int pixelY) {
+            // find click texture coords
+            int x, y;
+            if (!GetTexCoord(pixelX,pixelY, out x, out y)) return null;
+            Color color = pixels[x, y];
+            if (ColorUtils.IsGrayscale(color)) return null;
+
+            // flood fill
+            int selId = nextId++;
+            HashSet<Pair<int>> ffS = new HashSet<Pair<int>>();
+            Queue<Pair<int>> ffQ = new Queue<Pair<int>>();
+            ffQ.Enqueue(new Pair<int>(x, y));
+            while (ffQ.Count > 0) {
+                Pair<int> xy = ffQ.Dequeue();
+
+                // redundant?
+                if (ffS.Contains(xy)) continue;
+                ffS.Add(xy);
+
+                // enqueue the neighbors
+                for (int x2 = xy.First - 1; x2 <= xy.First + 1; x2++) {
+                    for (int y2 = xy.Second - 1; y2 <= xy.Second + 1; y2++) {
+                        if (x2 <= 0 || x2 >= w || y2 <= 0 || y2 >= h) continue;
+                        if (pixels[x2, y2] != color) continue;
+                        ffQ.Enqueue(new Pair<int>(x2, y2));
+                    }
+                }
+            }
+
+            // create the new cell
+            ArraySpec.Cell newCell = new ArraySpec.Cell();
+            newCell.Color = color;
+            newCell.Pixels.AddRange(ffS);
+            newCell.Pixels.Sort(new Comparison<Pair<int>>((a, b) => {
+                if (a.Second < b.Second) return -1; // scan line order
+                if (a.Second > b.Second) return 1;
+                if (a.First < b.First) return -1;
+                if (a.First > b.First) return 1;
+                return 0;
+            }));
+            return newCell;
+        }
+        private int GetJunctionIxAtPixel(int pixelX, int pixelY) {
+            PointF[] junctions = GetJunctions(GetCellCenterpoints());
+            int minIx = -1, minDD = JUNCTION_RADIUS_CLICK*JUNCTION_RADIUS_CLICK;
+            for (var i = 0; i < junctions.Length; i++) {
+                int dx = pixelX - (int)junctions[i].X;
+                int dy = pixelY - (int)junctions[i].Y;
+                int dd = dx * dx + dy * dy;
+                if (dd < minDD) {
+                    minDD = dd;
+                    minIx = i;
+                }
+            }
+            return minIx;
+        }
+        private PointF[] GetJunctions(PointF[] cells) {
+            if (cells.Length == 0) {
+                return new PointF[0];
+            } else if (cells.Length == 1) {
+                return new PointF[] {
+                    new PointF(cells[0].X - 10, cells[0].Y),
+                    new PointF(cells[0].X + 10, cells[0].Y)
+                };
+            } else {
+                int n = cells.Length + 1;
+                PointF[] junctions = new PointF[n];
+                junctions[0] = new PointF(
+                    cells[0].X * 1.5f - cells[1].X * 0.5f,
+                    cells[0].Y * 1.5f - cells[1].Y * 0.5f);
+                junctions[n - 1] = new PointF(
+                    cells[n - 2].X * 1.5f - cells[n - 3].X * 0.5f,
+                    cells[n - 2].Y * 1.5f - cells[n - 3].Y * 0.5f);
+                for (int i = 1; i < n - 1; i++) {
+                    junctions[i] = new PointF(
+                        cells[i - 1].X * 0.5f + cells[i].X * 0.5f,
+                        cells[i - 1].Y * 0.5f + cells[i].Y * 0.5f);
+                }
+                return junctions;
+            }
+        }
+        /// <summary>
+        /// Gets the centerpoint of each cell in the texture 
+        /// that has been wired in the current string, in order, 
+        /// in screen (layout control pixel, not texel) coordinates.
+        /// </summary>
+        private PointF[] GetCellCenterpoints() {
+            RectangleF arrayLayoutRect = GetArrayLayoutRect();
+            int n = CellString.Cells.Count;
+            PointF[] points = new PointF[n];
+            float scale = arrayLayoutRect.Width / Array.LayoutTexture.Width;
+            for (int i = 0; i < n; i++) {
+                ArraySpec.Cell cell = CellString.Cells[i];
+                int sx = 0, sy = 0;
+                foreach (Pair<int> xy in cell.Pixels) {
+                    sx += xy.First;
+                    sy += xy.Second;
+                }
+                int m = cell.Pixels.Count;
+                points[i] = new PointF(
+                    (float)sx / m * scale + arrayLayoutRect.X,
+                    (float)sy / m * scale + arrayLayoutRect.Y);
+            }
+            return points;
         }
 
         protected override void OnPaint(PaintEventArgs e) {
@@ -154,41 +257,46 @@ namespace SSCP.ShellPower {
 
             // draw the wiring
             if (CellString == null) return;
-            int n = CellString.Cells.Count;
-            PointF[] points = new PointF[n];
-            float scale = arrayLayoutRect.Width / Array.LayoutTexture.Width;
-            for(int i = 0; i < n; i++){
-                ArraySpec.Cell cell = CellString.Cells[i];
-                int sx=0,sy=0;
-                foreach (Pair<int> xy in cell.Pixels) {
-                    sx += xy.First;
-                    sy += xy.Second;
-                }
-                int m = cell.Pixels.Count;
-                points[i] = new PointF(
-                    (float)sx / m * scale + arrayLayoutRect.X, 
-                    (float)sy / m * scale + arrayLayoutRect.Y);
-            }
-            if (points.Length > 1) {
-                g.DrawLines(new Pen(Color.FromArgb(80, Color.Black), 3.0f), points);
-                g.DrawLines(new Pen(Color.LightYellow, 1.0f), points);
+            PointF[] cellPoints = GetCellCenterpoints();
+            if (cellPoints.Length > 1) {
+                g.DrawLines(new Pen(Color.FromArgb(80, Color.Black), 3.0f), cellPoints);
+                g.DrawLines(new Pen(Color.LightYellow, 1.0f), cellPoints);
             }
 
             // draw the bypass diodes
             int ndiodes = CellString.BypassDiodes.Count;
+            PointF[] junctionPoints = GetJunctions(cellPoints);
             for (int i = 0; i < ndiodes; i++) {
                 ArraySpec.BypassDiode diode = CellString.BypassDiodes[i];
-                if (diode.CellIxs.First == diode.CellIxs.Second) {
-                    PointF p= points[diode.CellIxs.First];
-                    float r = 4;
-                    g.FillEllipse(Brushes.Red, p.X - r / 2, p.Y - r / 2, r, r);
-                    g.DrawEllipse(Pens.Black, p.X - r / 2, p.Y - r / 2, r, r);
+                PointF pA = junctionPoints[diode.CellIxs.First];
+                PointF pB = junctionPoints[diode.CellIxs.Second+1];
+                float perpX = (pB.Y - pA.Y)*0.2f;
+                float perpY = (pA.X - pB.X)*0.2f;
+                PointF pMidA = new PointF(
+                    pA.X*0.7f+pB.X*0.3f+perpX,
+                    pA.Y*0.7f+pB.Y*0.3f+perpY);
+                PointF pMidB = new PointF(
+                    pA.X*0.3f+pB.X*0.7f+perpX,
+                    pA.Y*0.3f+pB.Y*0.7f+perpY);
+                g.DrawBezier(new Pen(Color.FromArgb(200, Color.Black), 5f), pA, pMidA, pMidB, pB);
+                g.DrawBezier(new Pen(Color.Red, 3f), pA, pMidA, pMidB, pB);
+            }
+
+            // draw junction selection
+            int nj = bypassJunctions.Count + (mouseoverJunction < 0 ? 0 : 1);
+            for(int i = 0; i < nj; i++){
+                PointF pJ;
+                Brush bJ;
+                if (i < bypassJunctions.Count) {
+                    pJ = junctionPoints[bypassJunctions[i]];
+                    bJ = Brushes.Red;
                 } else {
-                    PointF pA = points[diode.CellIxs.First];
-                    PointF pB = points[diode.CellIxs.Second];
-                    g.DrawLine(new Pen(Color.FromArgb(200, Color.Black), 5f), pA, pB);
-                    g.DrawLine(new Pen(Color.Red, 3f), pA, pB);
+                    pJ = junctionPoints[mouseoverJunction];
+                    bJ = Brushes.White;
                 }
+                g.FillEllipse(bJ,
+                    pJ.X - JUNCTION_RADIUS, pJ.Y - JUNCTION_RADIUS,
+                    JUNCTION_RADIUS * 2, JUNCTION_RADIUS * 2);
             }
         }
         protected override void OnMouseDown(MouseEventArgs e) {
@@ -196,62 +304,27 @@ namespace SSCP.ShellPower {
         protected override void OnMouseUp(MouseEventArgs e) {
             if (!Editable || CellString==null) return;
 
-            // find click texture coords
-            int x, y;
-            if (!GetTexCoord(e, out x, out y)) return;
-            Color color = pixels[x, y];
-            if (ColorUtils.IsGrayscale(color)) return;
-
-            // flood fill
-            int selId = nextId++;
-            HashSet<Pair<int>> ffS = new HashSet<Pair<int>>();
-            Queue<Pair<int>> ffQ = new Queue<Pair<int>>();
-            ffQ.Enqueue(new Pair<int>(x, y));
-            while (ffQ.Count > 0) {
-                Pair<int> xy = ffQ.Dequeue();
-
-                // redundant?
-                if (ffS.Contains(xy)) continue;
-                ffS.Add(xy);
-
-                // enqueue the neighbors
-                for(int x2 = xy.First-1; x2 <= xy.First+1; x2++){
-                    for(int y2 = xy.Second-1; y2 <= xy.Second+1; y2++){
-                        if(x2 <= 0 || x2 >= w || y2 <= 0 || y2 >= h) continue;
-                        if(pixels[x2,y2] != color) continue;
-                        ffQ.Enqueue(new Pair<int>(x2,y2));
-                    }
-                }
-            }
-
-            // create the new cell
-            ArraySpec.Cell newCell = new ArraySpec.Cell();
-            newCell.Color = color;
-            newCell.Pixels.AddRange(ffS);
-            newCell.Pixels.Sort(new Comparison<Pair<int>>((a, b) => {
-                if (a.Second < b.Second) return -1; // scan line order
-                if (a.Second > b.Second) return 1;
-                if (a.First < b.First) return -1;
-                if (a.First > b.First) return 1;
-                return 0;
-            }));
-
             if (EditBypassDiodes) {
-                if (CellString.Cells.Contains(newCell)) {
-                    bypassCells.Add(newCell);
+                int junction = GetJunctionIxAtPixel(e.X, e.Y);
+                if (junction < 0) return;
+                if (!bypassJunctions.Remove(junction)) {
+                    bypassJunctions.Add(junction);
                 }
-                if (bypassCells.Count == 2) {
+                if (bypassJunctions.Count == 2) {
                     // ix0 and ix1 can be the same, for single-cell bypass diodes
-                    int ix0 = CellString.Cells.IndexOf(bypassCells[0]);
-                    int ix1 = CellString.Cells.IndexOf(bypassCells[1]);
+                    int ix0 = Math.Min(bypassJunctions[0], bypassJunctions[1]);
+                    int ix1 = Math.Max(bypassJunctions[0], bypassJunctions[1]) - 1;
                     ArraySpec.BypassDiode newDiode = new ArraySpec.BypassDiode();
-                    newDiode.CellIxs = new Pair<int>(Math.Min(ix0, ix1), Math.Max(ix0, ix1));
+                    newDiode.CellIxs = new Pair<int>(ix0,ix1);
                     if (!CellString.BypassDiodes.Remove(newDiode)) {
                         CellString.BypassDiodes.Add(newDiode);
                     }
-                    bypassCells.Clear();
+                    bypassJunctions.Clear();
                 }
             } else {
+                ArraySpec.Cell newCell = GetCellAtPixel(e.X, e.Y);
+                if (newCell == null) return;
+
                 // either add it to the current string, or remove it if it's already there
                 if (!CellString.Cells.Remove(newCell)) {
                     CellString.Cells.Add(newCell);
@@ -268,20 +341,24 @@ namespace SSCP.ShellPower {
             Refresh();
         }
         protected override void OnMouseMove(MouseEventArgs e) {
-            int x, y;
-            if (GetTexCoord(e, out x, out y)) {
-                if (ColorUtils.IsGrayscale(pixels[x, y])) {
-                    this.Cursor = Cursors.Arrow; // not clickable
-                } else {
-                    this.Cursor = Cursors.Hand;
-                }
+            if (EditBypassDiodes) {
+                mouseoverJunction = GetJunctionIxAtPixel(e.X, e.Y);
+                mouseoverCell = null;
+            } else {
+                mouseoverCell = GetCellAtPixel(e.X, e.Y);
+                mouseoverJunction = -1;
             }
+            if(mouseoverJunction==-1 && mouseoverCell==null) {
+                this.Cursor = Cursors.Arrow; // not clickable
+            } else {
+                this.Cursor = Cursors.Hand;
+            } 
         }
-        private bool GetTexCoord(MouseEventArgs e, out int x, out int y) {
+        private bool GetTexCoord(int pixX, int pixY, out int x, out int y) {
             CreateTextureIfNeeded();
             RectangleF drawRect = GetArrayLayoutRect();
-            x = (int)((e.X - drawRect.X) * w / drawRect.Width);
-            y = (int)((e.Y - drawRect.Y) * h / drawRect.Height);
+            x = (int)((pixX - drawRect.X) * w / drawRect.Width);
+            y = (int)((pixY - drawRect.Y) * h / drawRect.Height);
             return !(x < 0 || x >= w || y < 0 || y >= h) ;
         }
         private void timer_Tick(object sender, EventArgs e) {
