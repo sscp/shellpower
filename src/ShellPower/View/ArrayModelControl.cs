@@ -170,43 +170,51 @@ void main()
         }
 
         private void Render() {
-            DateTime startRender = DateTime.Now;
+            // simply stop rendering while the compute render is happening
+            if (!Monitor.TryEnter(typeof(GL), 1)) return;
+            try {
+                DateTime startRender = DateTime.Now;
 
-            /* gl state */
-            SetViewport();
-            GL.ClearColor(0f, 0f, 0.1f, 0.0f);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            SetModelViewCamera();
-            GLUtils.SetCameraProjectionPerspective(Width, Height);
+                /* gl state */
+                SetViewport();
+                GL.DrawBuffers(1, new DrawBuffersEnum[] { DrawBuffersEnum.FrontLeft });
+                GL.BindFramebuffer(FramebufferTarget.FramebufferExt, 0);
+                GL.ClearColor(0, 0, 0.1f, 1.0f);
+                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            /* render array, then shadow */
-            if (Sprite != null) {
-                Sprite.PushTransform();
+                /* render array, then shadow */
+                if (Sprite != null) {
+                    SetModelViewCamera();
+                    GLUtils.SetCameraProjectionPerspective(Width, Height);
 
-                GL.UseProgram(shaderProg);
-                SetUniforms();
-                SetTexture();
-                Sprite.RenderMesh();
+                    Sprite.PushTransform();
 
-                GL.UseProgram(0);
-                GL.BindTexture(TextureTarget.Texture2D, 0);
-                Sprite.RenderShadowOutline();
-                Sprite.RenderShadowVolume();
+                    GL.UseProgram(shaderProg);
+                    SetUniforms();
+                    SetTexture();
+                    Sprite.RenderMesh();
 
-                Sprite.PopTransform();
-            }
-            SwapBuffers();
+                    GL.UseProgram(0);
+                    GL.BindTexture(TextureTarget.Texture2D, 0);
+                    Sprite.RenderShadowOutline();
+                    Sprite.RenderShadowVolume();
 
-            /* render stats */
-            framesRendered++;
-            int period = Math.Min(1000, framesRendered);
-            emaDelay = (DateTime.Now - startRender).TotalSeconds / period + emaDelay * (period - 1) / period;
-            startRender = DateTime.Now;
-            if (framesRendered % 100 == 0) {
-                Debug.WriteLine(string.Format("{0:0.00} fps", 1.0 / emaDelay));
+                    Sprite.PopTransform();
+                }
+                SwapBuffers();
+
+                /* render stats */
+                framesRendered++;
+                int period = Math.Min(1000, framesRendered);
+                emaDelay = (DateTime.Now - startRender).TotalSeconds / period + emaDelay * (period - 1) / period;
+                startRender = DateTime.Now;
+                if (framesRendered % 100 == 0) {
+                    Debug.WriteLine(string.Format("{0:0.00} fps", 1.0 / emaDelay));
+                }
+            } finally {
+                Monitor.Exit(typeof(GL));
             }
         }
-
         
         private void Mouse_WheelChanged(object sender, MouseEventArgs e) {
             double sensitivity = 1.0 / 300.0;

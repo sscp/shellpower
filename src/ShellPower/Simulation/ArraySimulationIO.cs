@@ -19,6 +19,9 @@ namespace SSCP.ShellPower {
     }
 
     public class ArraySimulationStepOutput {
+        public ArraySimulationStepOutput() {
+            Strings = new ArraySimStringOutput[0];
+        }
         public double ArrayArea { get; set; }
         public double ArrayLitArea { get; set; }
         public double WattsInsolation { get; set; }

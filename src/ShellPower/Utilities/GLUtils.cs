@@ -5,11 +5,13 @@ using System.Text;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Diagnostics;
+using System.Threading;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace SSCP.ShellPower {
     public class GLUtils {
+
         public static void SetCameraProjectionPerspective(int w, int h) {
             // perspective projection
             Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView((float)Math.PI / 6, w / (float)h, 0.1f, 1000.0f);

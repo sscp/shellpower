@@ -176,15 +176,17 @@ void main()
             if (simInput.Array.Mesh == null) throw new InvalidOperationException("No array shape (mesh) loaded.");
             if (simInput.Array.LayoutTexture == null) throw new InvalidOperationException("No array layout (texture) loaded.");
 
-            SetUniforms(simInput.Array, simInput.Insolation);
-            ComputeRender(simInput);
-            return AnalyzeComputeTex(simInput);
+            lock (typeof(GL)) {
+                SetUniforms(simInput.Array, simInput.Insolation);
+                ComputeRender(simInput);
+                return AnalyzeComputeTex(simInput);
+            }
         }
 
         public void ComputeRender(ArraySimulationStepInput simInput) {
             Debug.WriteLine("rendering insolation+cells into a "
                 + computeWidth + "x" + computeWidth + " fbo");
-
+            
             /* gl state */
             GL.UseProgram(shaderProg);
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, fboWatts);
