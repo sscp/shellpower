@@ -176,11 +176,20 @@ void main()
             if (simInput.Array.Mesh == null) throw new InvalidOperationException("No array shape (mesh) loaded.");
             if (simInput.Array.LayoutTexture == null) throw new InvalidOperationException("No array layout (texture) loaded.");
 
+            ArraySimulationStepOutput output;
             lock (typeof(GL)) {
+                DateTime dt1 = DateTime.Now;
                 SetUniforms(simInput.Array, simInput.Insolation);
                 ComputeRender(simInput);
-                return AnalyzeComputeTex(simInput);
+                output =  AnalyzeComputeTex(simInput);
+                DateTime dt2 = DateTime.Now;
+
+                Debug.WriteLine(string.Format("finished sim step! {0:0.000}s {1:0.0}/{2:0.0}W",
+                    (double)(dt2.Ticks - dt1.Ticks) * 0.0000001,
+                    output.WattsInsolation, output.WattsOutput));
             }
+
+            return output;
         }
 
         public void ComputeRender(ArraySimulationStepInput simInput) {
@@ -208,7 +217,7 @@ void main()
             sprite.PushTransform();
             sprite.Render();
             sprite.PopTransform();
-            DebugSaveBuffers();
+            //DebugSaveBuffers();
         }
 
         private Vector3 GetSunDir(ArraySimulationStepInput simInput) {

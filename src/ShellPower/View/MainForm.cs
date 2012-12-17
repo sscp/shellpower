@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml;
+using System.Threading;
 using OpenTK;
 
 namespace SSCP.ShellPower {
@@ -366,5 +367,58 @@ namespace SSCP.ShellPower {
             form.Spec = simInput.Array.BypassDiodeSpec;
             form.ShowDialog();
         }
+
+        private void dateTimePicker1_ValueChanged(object sender, EventArgs e) {
+            if (dateTimePicker2.Value <= dateTimePicker1.Value) {
+                dateTimePicker2.Value = dateTimePicker1.Value.AddHours(1);
+            }
+        }
+
+        private void dateTimePicker2_ValueChanged(object sender, EventArgs e) {
+            if (dateTimePicker2.Value <= dateTimePicker1.Value) {
+                dateTimePicker1.Value = dateTimePicker2.Value.AddHours(-1);
+            }
+        }
+
+        private void buttonRun_Click_1(object sender, EventArgs e) {
+            TimeAveragedSim();
+        }
+
+        private void TimeAveragedSim() {
+            DateTime utcStart = dateTimePicker1.Value.AddHours(-simInput.Timezone);
+            DateTime utcEnd = dateTimePicker2.Value.AddHours(-simInput.Timezone);
+
+            var simulator = new ArraySimulator();
+            var simAvg = new ArraySimulationStepOutput();
+            int nsim = 0;
+            for (DateTime time = utcStart; time <= utcEnd; time = time.AddMinutes(10), nsim++) {
+                simInput.Utc = time;
+                UpdateSimStateView();
+                simOutput = simulator.Simulate(simInput);
+
+                // averate the outputs
+                if (nsim > 0) {
+                    Debug.Assert(simAvg.ArrayArea == simOutput.ArrayArea);
+                }
+                simAvg.ArrayArea = simOutput.ArrayArea;
+                simAvg.ArrayLitArea += simOutput.ArrayLitArea;
+                simAvg.WattsInsolation += simOutput.WattsInsolation;
+                simAvg.WattsOutputByCell += simOutput.WattsOutputByCell;
+                simAvg.WattsOutput += simOutput.WattsOutput;
+            }
+
+            simAvg.ArrayLitArea /= nsim;
+            simAvg.WattsInsolation /= nsim;
+            simAvg.WattsOutputByCell /= nsim;
+            simAvg.WattsOutput /= nsim;
+            Debug.WriteLine("Array time-avreaged simulation output");
+            Debug.WriteLine("   ... " + simAvg.ArrayArea + " m^2 total cell area");
+            Debug.WriteLine("   ... " + simAvg.ArrayLitArea + " m^2 exposed to sunlight");
+            Debug.WriteLine("   ... " + simAvg.WattsInsolation + " W insolation");
+            Debug.WriteLine("   ... " + simAvg.WattsOutputByCell + " W output (assuming mppt per cell)");
+            Debug.WriteLine("   ... " + simAvg.WattsOutput + " W output");
+
+        }
+
     }
 }
