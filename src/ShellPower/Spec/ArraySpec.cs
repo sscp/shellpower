@@ -84,11 +84,13 @@ namespace SSCP.ShellPower {
             /// Must be in order.
             /// </summary>
             public Pair<int> CellIxs { get; set; }
+            public override int GetHashCode() {
+                return CellIxs.GetHashCode();
+            }
             public override bool Equals(object obj) {
                 BypassDiode other = obj as BypassDiode;
                 if (other == null) return false;
-                return other.CellIxs.First == CellIxs.First &&
-                    other.CellIxs.Second == CellIxs.Second;
+                return CellIxs.Equals(other.CellIxs);
             }
         }
 
