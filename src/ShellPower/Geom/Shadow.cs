@@ -59,7 +59,9 @@ namespace SSCP.ShellPower {
                 if (edge.triangles.Count == 2) {
                     numRegular++;
                 } else if (edge.triangles.Count > 2) {
-                    throw new Exception("Irregular mesh. Please clean up your mesh so that each edge is adjacent to at most two triangles.");
+                    throw new Exception("Irregular mesh. "+
+                        "Please clean up your mesh so that each edge is adjacent to at most two triangles.\n" +
+                        "(In MeshLab, Filters > Cleaning and Repairing > Remove Faces from Non-Manifold Edges.)");
                 }
             }
             Logger.info("calculated {0} edges ({1} regular) in {2:0.0}ms", 

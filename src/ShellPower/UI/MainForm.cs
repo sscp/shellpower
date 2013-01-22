@@ -106,18 +106,19 @@ namespace SSCP.ShellPower {
         /// Computes shadow volumes for rendering.
         /// </summary>
         private void SetModel(Mesh mesh) {
-            simInput.Array.Mesh = mesh;
-            
             // create shadow volumes
             Logger.info("computing shadows...");
-            shadow = new Shadow(mesh);
-            shadow.Initialize();
+            Shadow newShadow = new Shadow(mesh);
+            newShadow.Initialize(); // make sure init works before setting shadow
+            shadow = newShadow;
 
             // render them
             ShadowMeshSprite shadowSprite = new ShadowMeshSprite(shadow);
             var center = (mesh.BoundingBox.Max + mesh.BoundingBox.Min) / 2;
             shadowSprite.Position = new Vector4(-center, 1);
             glControl.Sprite = shadowSprite;
+
+            simInput.Array.Mesh = mesh;
         }
 
 
@@ -237,11 +238,16 @@ namespace SSCP.ShellPower {
             trackBarTimeOfDay.Value = (int)(simInput.LocalTime.TimeOfDay.TotalHours * (trackBarTimeOfDay.Maximum + 1) / 24);
         }
 
-        private void openModelToolStripMenuItem_Click(object sender, EventArgs e) {
-            if (openFileDialogModel.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
-                LoadModel(openFileDialogModel.FileName);
-                CalculateSimStepGui();
+        private void openModelToolStripMenuItem_Click(object sender, EventArgs args) {
+            if (openFileDialogModel.ShowDialog() != System.Windows.Forms.DialogResult.OK) {
+                return;
             }
+            try {
+                LoadModel(openFileDialogModel.FileName);
+            } catch (Exception e) {
+                MessageBox.Show(e.Message, "Error loading model", MessageBoxButtons.OK);
+            }
+            CalculateSimStepGui();
         }
 
         private void openLayoutToolStripMenuItem_Click(object sender, EventArgs e) {
