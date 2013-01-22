@@ -29,7 +29,6 @@ namespace SSCP.ShellPower {
             InitGLArrayTextures();
         }
 
-        private const double ARRAY_DIM_M = 5; // largest dim in meters. TODO: make this not hardcoded
         private const int COMPUTE_TEX_SIZE = 2048; // width and height of the compute textures
 
         /// <summary>
@@ -210,7 +209,8 @@ void main()
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             SetModelViewSun(GetSunDir(simInput));
-            GLUtils.SetCameraProjectionOrtho(ARRAY_DIM_M);
+            double arrayMaxDimension = ComputeArrayMaxDimension(simInput.Array);
+            GLUtils.SetCameraProjectionOrtho(arrayMaxDimension);
 
             //render
             MeshSprite sprite = new MeshSprite(simInput.Array.Mesh);
@@ -281,11 +281,22 @@ void main()
             
             // solar insolation per pixel rendered 
             // (since we are rendering orth projection from the sun's pov, this is a constant)
-            double m2PerPixel = ARRAY_DIM_M*ARRAY_DIM_M/COMPUTE_TEX_SIZE/COMPUTE_TEX_SIZE;
+            double arrayDimM = ComputeArrayMaxDimension(array);
+            double m2PerPixel = arrayDimM*arrayDimM/COMPUTE_TEX_SIZE/COMPUTE_TEX_SIZE;
             double wattsPerPixel = m2PerPixel * insolation;
             GL.Uniform1(uniformPixelWattsIn, (float)wattsPerPixel);
             
             Debug.WriteLine("uniforms set.");
+        }
+
+        /// <summary>
+        /// Computes the diameter of the array (ie, the maximum dimension) in meters.
+        /// 
+        /// Approximates by finding the diagonal length of the bounding box, for simplicity.
+        /// </summary>
+        private double ComputeArrayMaxDimension(ArraySpec array) {
+            Quad3 arrayBB = array.Mesh.BoundingBox;
+            return (arrayBB.Max - arrayBB.Min).Length;
         }
 
         private float[] ReadFloatTexture(FramebufferAttachment fb, double scale) {
@@ -346,8 +357,9 @@ void main()
         private ArraySimulationStepOutput AnalyzeComputeTex(ArraySimulationStepInput input) {
             Color[] texColors = ReadColorTexture(FramebufferAttachment.ColorAttachment0);
             float[] texWattsIn = ReadFloatTexture(FramebufferAttachment.ColorAttachment1, 0.0001);
-            double areaPerPixel = ARRAY_DIM_M*ARRAY_DIM_M/COMPUTE_TEX_SIZE/COMPUTE_TEX_SIZE;
-            float[] texArea = ReadFloatTexture(FramebufferAttachment.ColorAttachment2, areaPerPixel/4);
+            double arrayDimM = ComputeArrayMaxDimension(input.Array);
+            double m2PerPixel = arrayDimM * arrayDimM / COMPUTE_TEX_SIZE / COMPUTE_TEX_SIZE;
+            float[] texArea = ReadFloatTexture(FramebufferAttachment.ColorAttachment2, m2PerPixel / 4);
             /*double dbgmin = texWattsIn[0], dbgmax = texWattsIn[0], dbgavg = 0;
             for (int i = 0; i < texWattsIn.Length; i++) {
                 dbgmin = Math.Min(dbgmin, texWattsIn[i]);

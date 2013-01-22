@@ -32,7 +32,19 @@ namespace SSCP.ShellPower {
         int shaderProg, texArray;
 
         /* public properties */
-        public ShadowMeshSprite Sprite { get; set; }
+        ShadowMeshSprite sprite;
+        public ShadowMeshSprite Sprite {
+            get {
+                return sprite;
+            }
+            set {
+                if (value != null) {
+                    double arrayMaxDim = (value.BoundingBox.Max - value.BoundingBox.Min).Length;
+                    zoom = arrayMaxDim * 4;
+                }
+                sprite = value;
+            }
+        }
         public ArraySpec Array { get; set; }
 
         public ArrayModelControl() : base(new OpenTK.Graphics.GraphicsMode(32, 24, 0, 4)) {

@@ -5,6 +5,11 @@ using System.Text;
 using OpenTK;
 
 namespace SSCP.ShellPower {
+    /// <summary>
+    /// Represents an arbitrary 3D shape.
+    /// 
+    /// Triangles only, no quads or higher-order shapes. Per-vertex normals. All coordinates are in meters.
+    /// </summary>
     public class Mesh : IBoundingBox {
         public struct Triangle {
             public Triangle(int vA, int vB, int vC) {
