@@ -20,7 +20,13 @@ namespace SSCP.ShellPower {
         public ArraySpec.CellString _cellStr;
         public ArraySpec Array {
             get { return _array; }
-            set { _array = value; Refresh(); }
+            set {
+                _array = value;
+                if (_array != null && !_array.Strings.Contains(_cellStr)) {
+                    _cellStr = null;
+                }
+                Refresh(); 
+            }
         }
         public ArraySpec.CellString CellString {
             get { return _cellStr; }
