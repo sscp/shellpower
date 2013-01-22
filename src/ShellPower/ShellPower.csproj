@@ -165,19 +165,19 @@
     <Compile Include="Geom\KDTree.cs" />
     <Compile Include="Utilities\Pair.cs" />
     <Compile Include="Utilities\Web.cs" />
-    <Compile Include="View\ArrayLayoutControl.cs">
+    <Compile Include="UI\ArrayLayoutControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="View\ArrayLayoutControl.Designer.cs">
+    <Compile Include="UI\ArrayLayoutControl.Designer.cs">
       <DependentUpon>ArrayLayoutControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="View\ArrayLayoutForm.cs">
+    <Compile Include="UI\ArrayLayoutForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="View\ArrayLayoutForm.Designer.cs">
+    <Compile Include="UI\ArrayLayoutForm.Designer.cs">
       <DependentUpon>ArrayLayoutForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="View\ArrayModelControl.cs">
+    <Compile Include="UI\ArrayModelControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Math\Astro.cs" />
@@ -185,40 +185,40 @@
     <Compile Include="Utilities\GeoNames.cs" />
     <Compile Include="FileFormats\IgesParser.cs" />
     <Compile Include="FileFormats\IgesEntity.cs" />
-    <Compile Include="View\ArrayDimensionsForm.cs">
+    <Compile Include="UI\ArrayDimensionsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="View\ArrayDimensionsForm.Designer.cs">
+    <Compile Include="UI\ArrayDimensionsForm.Designer.cs">
       <DependentUpon>ArrayDimensionsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="View\BypassDiodesForm.cs">
+    <Compile Include="UI\BypassDiodesForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="View\BypassDiodesForm.Designer.cs">
+    <Compile Include="UI\BypassDiodesForm.Designer.cs">
       <DependentUpon>BypassDiodesForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="View\CellParamsForm.cs">
+    <Compile Include="UI\CellParamsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="View\CellParamsForm.Designer.cs">
+    <Compile Include="UI\CellParamsForm.Designer.cs">
       <DependentUpon>CellParamsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="View\IVTraceForm.cs">
+    <Compile Include="UI\IVTraceForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="View\IVTraceForm.Designer.cs">
+    <Compile Include="UI\IVTraceForm.Designer.cs">
       <DependentUpon>IVTraceForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="View\SimConditionsForm.cs">
+    <Compile Include="UI\SimConditionsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="View\SimConditionsForm.Designer.cs">
+    <Compile Include="UI\SimConditionsForm.Designer.cs">
       <DependentUpon>SimConditionsForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="View\MainForm.cs">
+    <Compile Include="UI\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="View\MainForm.Designer.cs">
+    <Compile Include="UI\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
@@ -228,38 +228,38 @@
     <Compile Include="Sprites\Sprite.cs" />
     <Compile Include="ThirdParty\TexLib.cs" />
     <Compile Include="Geom\Matrix3.cs" />
-    <Compile Include="View\RefreshListBox.cs">
+    <Compile Include="UI\RefreshListBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="View\SimpleGraph.cs">
+    <Compile Include="UI\SimpleGraph.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="View\SimpleGraph.Designer.cs">
+    <Compile Include="UI\SimpleGraph.Designer.cs">
       <DependentUpon>SimpleGraph.cs</DependentUpon>
     </Compile>
-    <Compile Include="View\ViewUtil.cs" />
+    <Compile Include="UI\ViewUtil.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="View\ArrayLayoutForm.resx">
+    <EmbeddedResource Include="UI\ArrayLayoutForm.resx">
       <DependentUpon>ArrayLayoutForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="View\ArrayDimensionsForm.resx">
+    <EmbeddedResource Include="UI\ArrayDimensionsForm.resx">
       <DependentUpon>ArrayDimensionsForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="View\BypassDiodesForm.resx">
+    <EmbeddedResource Include="UI\BypassDiodesForm.resx">
       <DependentUpon>BypassDiodesForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="View\CellParamsForm.resx">
+    <EmbeddedResource Include="UI\CellParamsForm.resx">
       <DependentUpon>CellParamsForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="View\IVTraceForm.resx">
+    <EmbeddedResource Include="UI\IVTraceForm.resx">
       <DependentUpon>IVTraceForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="View\SimConditionsForm.resx">
+    <EmbeddedResource Include="UI\SimConditionsForm.resx">
       <DependentUpon>SimConditionsForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="View\MainForm.resx">
+    <EmbeddedResource Include="UI\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
