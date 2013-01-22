@@ -85,11 +85,7 @@ namespace SSCP.ShellPower {
             }
 
             // finally, return a mesh
-            mesh = new Mesh() {
-                points = verts.ToArray(),
-                normals = norms.ToArray(),
-                triangles = tris.ToArray()
-            };
+            mesh = new Mesh(verts.ToArray(), norms.ToArray(), tris.ToArray());
         }
         private void Assert(bool cond, String filename, int lineNum) {
             if (!cond) {

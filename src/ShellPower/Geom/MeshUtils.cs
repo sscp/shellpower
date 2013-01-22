@@ -53,18 +53,14 @@ namespace SSCP.ShellPower {
             }
             for (int i = 0; i < mesh.triangles.Length; i++) {
                 var triangle = mesh.triangles[i];
-                triangles[mesh.triangles.Length + i] = new Mesh.Triangle() {
-                    vertexA = pointIndexMap[triangle.vertexA],
-                    vertexB = pointIndexMap[triangle.vertexB],
-                    vertexC = pointIndexMap[triangle.vertexC]
-                };
+                triangles[mesh.triangles.Length + i] = new Mesh.Triangle(
+                    pointIndexMap[triangle.vertexA],
+                    pointIndexMap[triangle.vertexB],
+                    pointIndexMap[triangle.vertexC]
+                );
             }
 
-            return new Mesh() {
-                points = points.ToArray(),
-                normals = normals,
-                triangles = triangles
-            };
+            return new Mesh(points.ToArray(), normals, triangles);
         }
 
         public static void Split(Mesh input, IVolume volume, 
@@ -169,11 +165,7 @@ namespace SSCP.ShellPower {
             // done
             Logger.info("split mesh, started with " + nt + " tris, added " + (tris.Count-nt));
             Debug.Assert(points.Count==norms.Count);
-            output = new Mesh() {
-                points = points.ToArray(),
-                normals = norms.ToArray(),
-                triangles = tris.ToArray()
-            };
+            output = new Mesh(points.ToArray(), norms.ToArray(), tris.ToArray());
             trisInside = trisIn.ToArray();
         }
 
@@ -202,7 +194,7 @@ namespace SSCP.ShellPower {
         /// <summary>
         /// If two mesh points have the same (X, Y, Z) coords, then they get combined into one.
         /// </summary>
-        public static void JoinVertices(Mesh mesh) {
+        public static Mesh JoinVertices(Mesh mesh) {
             Dictionary<Vector3, int> pointIxMap = new Dictionary<Vector3, int>();
             List<Vector3> points = new List<Vector3>();
             List<Vector3> norms = new List<Vector3>();
@@ -215,14 +207,18 @@ namespace SSCP.ShellPower {
             }
             Logger.info("mesh has " + mesh.points.Length + " verts, "+
                 "joined " + (mesh.points.Length - pointIxMap.Count) + " dupes");
+            List<Mesh.Triangle> tris = new List<Mesh.Triangle>();
             for (int i = 0; i < mesh.triangles.Length; i++) {
-                Mesh.Triangle tri = mesh.triangles[i];
-                mesh.triangles[i].vertexA = pointIxMap[mesh.points[tri.vertexA]];
-                mesh.triangles[i].vertexB = pointIxMap[mesh.points[tri.vertexB]];
-                mesh.triangles[i].vertexC = pointIxMap[mesh.points[tri.vertexC]];
+                var oldTri = mesh.triangles[i];
+                var tri = new Mesh.Triangle(
+                    pointIxMap[mesh.points[oldTri.vertexA]],
+                    pointIxMap[mesh.points[oldTri.vertexB]],
+                    pointIxMap[mesh.points[oldTri.vertexC]]);
+                if (tri.vertexA != tri.vertexB && tri.vertexA != tri.vertexC && tri.vertexB != tri.vertexC) {
+                    tris.Add(tri);
+                }
             }
-            mesh.points = points.ToArray();
-            mesh.normals = norms.ToArray();
+            return new Mesh(points.ToArray(), norms.ToArray(), tris.ToArray());
         }
     }
 }

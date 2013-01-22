@@ -28,16 +28,16 @@ namespace SSCP.ShellPower {
                         norms[ix].Normalize();
 
                         if (j < surf.UControlPoints - 1 && k < surf.VControlPoints - 1) {
-                            tris[triOffsets[i] + (j + (surf.UControlPoints - 1) * k) * 2] = new Mesh.Triangle() {
-                                vertexA = offsets[i] + surf.VControlPoints * j + k,
-                                vertexB = offsets[i] + surf.VControlPoints * (j + 1) + k,
-                                vertexC = offsets[i] + surf.VControlPoints * j + (k + 1)
-                            };
-                            tris[triOffsets[i] + (j + (surf.UControlPoints - 1) * k) * 2 + 1] = new Mesh.Triangle() {
-                                vertexA = offsets[i] + surf.VControlPoints * (j + 1) + (k + 1),
-                                vertexC = offsets[i] + surf.VControlPoints * j + (k + 1),
-                                vertexB = offsets[i] + surf.VControlPoints * (j + 1) + k
-                            };
+                            tris[triOffsets[i] + (j + (surf.UControlPoints - 1) * k) * 2] = new Mesh.Triangle(
+                                offsets[i] + surf.VControlPoints * j + k,
+                                offsets[i] + surf.VControlPoints * (j + 1) + k,
+                                offsets[i] + surf.VControlPoints * j + (k + 1)
+                            );
+                            tris[triOffsets[i] + (j + (surf.UControlPoints - 1) * k) * 2 + 1] = new Mesh.Triangle(
+                                offsets[i] + surf.VControlPoints * (j + 1) + (k + 1),
+                                offsets[i] + surf.VControlPoints * (j + 1) + k,
+                                offsets[i] + surf.VControlPoints * j + (k + 1)
+                            );
                         }
                     }
                 }
@@ -46,11 +46,7 @@ namespace SSCP.ShellPower {
                 i++;
             }
 
-            return new Mesh() {
-                points = points,
-                normals = norms,
-                triangles = tris
-            };
+            return new Mesh(points, norms, tris);
         }
     }
 }

@@ -77,11 +77,11 @@ namespace SSCP.ShellPower {
                         }
                     }*/
                     for (int i = 0; i < vertIxs.Length; i += 3) {
-                        var tri = new Mesh.Triangle() {
-                            vertexA = offset + vertIxs[i],
-                            vertexB = offset + vertIxs[i + 1],
-                            vertexC = offset + vertIxs[i + 2]
-                        };
+                        var tri = new Mesh.Triangle(
+                            offset + vertIxs[i],
+                            offset + vertIxs[i + 1],
+                            offset + vertIxs[i + 2]
+                        );
                         tri.normal = newNormals[vertIxs[i]];
                         triangles.Add(tri);
                     }
@@ -90,11 +90,11 @@ namespace SSCP.ShellPower {
                     foreach (String strip in strips) {
                         int[] vertIxs = Parse3DXMLInts(strip);
                         for (int i = 2; i < vertIxs.Length; i++) {
-                            var tri = new Mesh.Triangle() {
-                                vertexA = offset + vertIxs[i - ((i % 2) == 0 ? 1 : 2)],
-                                vertexB = offset + vertIxs[i - ((i % 2) == 0 ? 2 : 1)],
-                                vertexC = offset + vertIxs[i]
-                            };
+                            var tri = new Mesh.Triangle(
+                                offset + vertIxs[i - ((i % 2) == 0 ? 1 : 2)],
+                                offset + vertIxs[i - ((i % 2) == 0 ? 2 : 1)],
+                                offset + vertIxs[i]
+                            );
                             tri.normal = newNormals[vertIxs[i]];
                             triangles.Add(tri);
                         }
@@ -105,11 +105,7 @@ namespace SSCP.ShellPower {
             }
 
             /* create mesh sprite */
-            mesh = new Mesh() {
-                points = points.ToArray(),
-                normals = normals.ToArray(),
-                triangles = triangles.ToArray()
-            };
+            mesh = new Mesh(points.ToArray(), normals.ToArray(), triangles.ToArray());
         }
 
         public Mesh GetMesh() {

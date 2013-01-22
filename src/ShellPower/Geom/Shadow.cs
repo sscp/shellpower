@@ -66,47 +66,6 @@ namespace SSCP.ShellPower {
                 edges.Count, numRegular, (DateTime.Now - start).TotalSeconds * 1000);
         }
 
-        /// <summary>
-        /// Does a stupid mesh transformation. Probably obsolete.
-        /// </summary>
-        private void DeleteLoneEdges(ICollection<Edge> edgeColl) {
-            Logger.info("deleting triangles that aren't part of the mesh");
-            int[] adjacencies = new int[Mesh.triangles.Length];
-            foreach (var edge in edgeColl) {
-                if (edge.triangles.Count >= 2) {
-                    foreach (var triIx in edge.triangles) {
-                        adjacencies[triIx]++;
-                    }
-                }
-            }
-            List<Mesh.Triangle> validTris = new List<Mesh.Triangle>();
-            int[] newIndices = new int[Mesh.triangles.Length];
-            for (int i = 0; i < Mesh.triangles.Length; i++) {
-                if (adjacencies[i] >= 3) {
-                    validTris.Add(Mesh.triangles[i]);
-                    newIndices[i] = validTris.Count - 1;
-                } else {
-                    newIndices[i] = -1;
-                }
-            }
-            Mesh.triangles = validTris.ToArray();
-
-            Logger.info("deleting corresponding edges...");
-            edges.Clear();
-            foreach (var edge in edgeColl) {
-                bool good = true;
-                for (int i = 0; i < edge.triangles.Count; i++) {
-                    int ix = newIndices[edge.triangles[i]];
-                    // negative ix means bad triangle -> bad edge.
-                    good &= (ix >= 0);
-                    edge.triangles[i] = ix;
-                }
-                if (good) {
-                    edges.Add(edge);
-                }
-            }
-        }
-
         public void ComputeShadows() {
             LightXYZ = Light.Xyz / (Light.W + 0.01f);
             ComputeSilhouette();
