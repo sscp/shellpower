@@ -40,27 +40,11 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageRun = new System.Windows.Forms.TabPage();
+            this.simInputControls = new SSCP.ShellPower.ArraySimInputControl();
+            this.btnRecalc = new System.Windows.Forms.Button();
             this.labelArrPower = new System.Windows.Forms.Label();
             this.labelArrayPower = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.groupBoxInstantaneous = new System.Windows.Forms.GroupBox();
-            this.labelTimezone = new System.Windows.Forms.Label();
-            this.comboBoxTimezone = new System.Windows.Forms.ComboBox();
-            this.label20 = new System.Windows.Forms.Label();
-            this.btnRecalc = new System.Windows.Forms.Button();
-            this.labelCarDirection = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.trackBarCarDirection = new System.Windows.Forms.TrackBar();
-            this.labelAzimuthElevation = new System.Windows.Forms.Label();
-            this.trackBarTimeOfDay = new System.Windows.Forms.TrackBar();
-            this.label4 = new System.Windows.Forms.Label();
-            this.textBoxLon = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.textBoxLat = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.labelLocalTime = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.dateTimePicker = new System.Windows.Forms.DateTimePicker();
             this.tabPageOutputs = new System.Windows.Forms.TabPage();
             this.outputStringFlattenedLabel = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
@@ -78,6 +62,7 @@
             this.label9 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.outputStringsListBox = new System.Windows.Forms.ListBox();
+            this.outputArrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBoxSimulation = new System.Windows.Forms.GroupBox();
             this.label19 = new System.Windows.Forms.Label();
@@ -92,7 +77,6 @@
             this.buttonRun = new System.Windows.Forms.Button();
             this.labelSimAvgPower = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
-            this.outputArrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.glControl = new SSCP.ShellPower.ArrayModelControl();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -102,9 +86,6 @@
             this.splitContainer1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPageRun.SuspendLayout();
-            this.groupBoxInstantaneous.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarCarDirection)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarTimeOfDay)).BeginInit();
             this.tabPageOutputs.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBoxSimulation.SuspendLayout();
@@ -254,10 +235,11 @@
             // 
             // tabPageRun
             // 
+            this.tabPageRun.Controls.Add(this.simInputControls);
+            this.tabPageRun.Controls.Add(this.btnRecalc);
             this.tabPageRun.Controls.Add(this.labelArrPower);
             this.tabPageRun.Controls.Add(this.labelArrayPower);
             this.tabPageRun.Controls.Add(this.label5);
-            this.tabPageRun.Controls.Add(this.groupBoxInstantaneous);
             this.tabPageRun.Location = new System.Drawing.Point(4, 22);
             this.tabPageRun.Name = "tabPageRun";
             this.tabPageRun.Padding = new System.Windows.Forms.Padding(3);
@@ -265,6 +247,29 @@
             this.tabPageRun.TabIndex = 0;
             this.tabPageRun.Text = "Params";
             this.tabPageRun.UseVisualStyleBackColor = true;
+            // 
+            // simInputControls
+            // 
+            this.simInputControls.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.simInputControls.Location = new System.Drawing.Point(0, 0);
+            this.simInputControls.Name = "simInputControls";
+            this.simInputControls.SimInput = null;
+            this.simInputControls.Size = new System.Drawing.Size(406, 288);
+            this.simInputControls.TabIndex = 16;
+            this.simInputControls.Change += new System.EventHandler(this.simInputs_Change);
+            // 
+            // btnRecalc
+            // 
+            this.btnRecalc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnRecalc.Location = new System.Drawing.Point(299, 312);
+            this.btnRecalc.Name = "btnRecalc";
+            this.btnRecalc.Size = new System.Drawing.Size(82, 28);
+            this.btnRecalc.TabIndex = 15;
+            this.btnRecalc.Text = "Simulate";
+            this.btnRecalc.UseVisualStyleBackColor = true;
+            this.btnRecalc.Click += new System.EventHandler(this.btnRecalc_Click);
             // 
             // labelArrPower
             // 
@@ -293,196 +298,6 @@
             this.label5.Size = new System.Drawing.Size(66, 13);
             this.label5.TabIndex = 9;
             this.label5.Text = "Array power:";
-            // 
-            // groupBoxInstantaneous
-            // 
-            this.groupBoxInstantaneous.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBoxInstantaneous.Controls.Add(this.labelTimezone);
-            this.groupBoxInstantaneous.Controls.Add(this.comboBoxTimezone);
-            this.groupBoxInstantaneous.Controls.Add(this.label20);
-            this.groupBoxInstantaneous.Controls.Add(this.btnRecalc);
-            this.groupBoxInstantaneous.Controls.Add(this.labelCarDirection);
-            this.groupBoxInstantaneous.Controls.Add(this.label7);
-            this.groupBoxInstantaneous.Controls.Add(this.trackBarCarDirection);
-            this.groupBoxInstantaneous.Controls.Add(this.labelAzimuthElevation);
-            this.groupBoxInstantaneous.Controls.Add(this.trackBarTimeOfDay);
-            this.groupBoxInstantaneous.Controls.Add(this.label4);
-            this.groupBoxInstantaneous.Controls.Add(this.textBoxLon);
-            this.groupBoxInstantaneous.Controls.Add(this.label3);
-            this.groupBoxInstantaneous.Controls.Add(this.textBoxLat);
-            this.groupBoxInstantaneous.Controls.Add(this.label2);
-            this.groupBoxInstantaneous.Controls.Add(this.labelLocalTime);
-            this.groupBoxInstantaneous.Controls.Add(this.label1);
-            this.groupBoxInstantaneous.Controls.Add(this.dateTimePicker);
-            this.groupBoxInstantaneous.Location = new System.Drawing.Point(3, 6);
-            this.groupBoxInstantaneous.Name = "groupBoxInstantaneous";
-            this.groupBoxInstantaneous.Size = new System.Drawing.Size(400, 199);
-            this.groupBoxInstantaneous.TabIndex = 1;
-            this.groupBoxInstantaneous.TabStop = false;
-            this.groupBoxInstantaneous.Text = "Instantaneous";
-            // 
-            // labelTimezone
-            // 
-            this.labelTimezone.AutoSize = true;
-            this.labelTimezone.Location = new System.Drawing.Point(218, 74);
-            this.labelTimezone.Name = "labelTimezone";
-            this.labelTimezone.Size = new System.Drawing.Size(41, 13);
-            this.labelTimezone.TabIndex = 18;
-            this.labelTimezone.Text = "tzoffset";
-            // 
-            // comboBoxTimezone
-            // 
-            this.comboBoxTimezone.FormattingEnabled = true;
-            this.comboBoxTimezone.Location = new System.Drawing.Point(65, 71);
-            this.comboBoxTimezone.Name = "comboBoxTimezone";
-            this.comboBoxTimezone.Size = new System.Drawing.Size(147, 21);
-            this.comboBoxTimezone.TabIndex = 17;
-            this.comboBoxTimezone.SelectedIndexChanged += new System.EventHandler(this.simInputs_AnyChange);
-            // 
-            // label20
-            // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(6, 74);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(53, 13);
-            this.label20.TabIndex = 15;
-            this.label20.Text = "Timezone";
-            // 
-            // btnRecalc
-            // 
-            this.btnRecalc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnRecalc.Location = new System.Drawing.Point(312, 165);
-            this.btnRecalc.Name = "btnRecalc";
-            this.btnRecalc.Size = new System.Drawing.Size(82, 28);
-            this.btnRecalc.TabIndex = 14;
-            this.btnRecalc.Text = "Simulate";
-            this.btnRecalc.UseVisualStyleBackColor = true;
-            this.btnRecalc.Click += new System.EventHandler(this.btnRecalc_Click);
-            // 
-            // labelCarDirection
-            // 
-            this.labelCarDirection.AutoSize = true;
-            this.labelCarDirection.Location = new System.Drawing.Point(218, 117);
-            this.labelCarDirection.Name = "labelCarDirection";
-            this.labelCarDirection.Size = new System.Drawing.Size(45, 13);
-            this.labelCarDirection.TabIndex = 13;
-            this.labelCarDirection.Text = "heading";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(6, 117);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(37, 13);
-            this.label7.TabIndex = 12;
-            this.label7.Text = "Car dir";
-            // 
-            // trackBarCarDirection
-            // 
-            this.trackBarCarDirection.AutoSize = false;
-            this.trackBarCarDirection.LargeChange = 6;
-            this.trackBarCarDirection.Location = new System.Drawing.Point(65, 110);
-            this.trackBarCarDirection.Maximum = 35;
-            this.trackBarCarDirection.Name = "trackBarCarDirection";
-            this.trackBarCarDirection.Size = new System.Drawing.Size(147, 20);
-            this.trackBarCarDirection.TabIndex = 11;
-            this.trackBarCarDirection.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.trackBarCarDirection.Scroll += new System.EventHandler(this.simInputs_AnyChange);
-            // 
-            // labelAzimuthElevation
-            // 
-            this.labelAzimuthElevation.AutoSize = true;
-            this.labelAzimuthElevation.Location = new System.Drawing.Point(6, 154);
-            this.labelAzimuthElevation.Name = "labelAzimuthElevation";
-            this.labelAzimuthElevation.Size = new System.Drawing.Size(0, 13);
-            this.labelAzimuthElevation.TabIndex = 9;
-            // 
-            // trackBarTimeOfDay
-            // 
-            this.trackBarTimeOfDay.AutoSize = false;
-            this.trackBarTimeOfDay.LargeChange = 12;
-            this.trackBarTimeOfDay.Location = new System.Drawing.Point(143, 45);
-            this.trackBarTimeOfDay.Maximum = 287;
-            this.trackBarTimeOfDay.Name = "trackBarTimeOfDay";
-            this.trackBarTimeOfDay.Size = new System.Drawing.Size(120, 20);
-            this.trackBarTimeOfDay.TabIndex = 8;
-            this.trackBarTimeOfDay.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.trackBarTimeOfDay.Scroll += new System.EventHandler(this.trackBarTimeOfDay_Scroll);
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 46);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(33, 13);
-            this.label4.TabIndex = 7;
-            this.label4.Text = "Local";
-            // 
-            // textBoxLon
-            // 
-            this.textBoxLon.Location = new System.Drawing.Point(65, 162);
-            this.textBoxLon.Name = "textBoxLon";
-            this.textBoxLon.Size = new System.Drawing.Size(147, 20);
-            this.textBoxLon.TabIndex = 6;
-            this.textBoxLon.Text = "130.84";
-            this.textBoxLon.Leave += new System.EventHandler(this.simInputs_AnyChange);
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 165);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(25, 13);
-            this.label3.TabIndex = 5;
-            this.label3.Text = "Lon";
-            // 
-            // textBoxLat
-            // 
-            this.textBoxLat.Location = new System.Drawing.Point(65, 136);
-            this.textBoxLat.Name = "textBoxLat";
-            this.textBoxLat.Size = new System.Drawing.Size(147, 20);
-            this.textBoxLat.TabIndex = 4;
-            this.textBoxLat.Text = "-12.46";
-            this.textBoxLat.Leave += new System.EventHandler(this.simInputs_AnyChange);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 139);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(22, 13);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "Lat";
-            // 
-            // labelLocalTime
-            // 
-            this.labelLocalTime.AutoSize = true;
-            this.labelLocalTime.Location = new System.Drawing.Point(62, 46);
-            this.labelLocalTime.Name = "labelLocalTime";
-            this.labelLocalTime.Size = new System.Drawing.Size(48, 13);
-            this.labelLocalTime.TabIndex = 2;
-            this.labelLocalTime.Text = "localtime";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 23);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(29, 13);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "UTC";
-            // 
-            // dateTimePicker
-            // 
-            this.dateTimePicker.CustomFormat = "yyyy-MM-dd HH:mm:ss";
-            this.dateTimePicker.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dateTimePicker.Location = new System.Drawing.Point(65, 19);
-            this.dateTimePicker.Name = "dateTimePicker";
-            this.dateTimePicker.Size = new System.Drawing.Size(170, 20);
-            this.dateTimePicker.TabIndex = 0;
-            this.dateTimePicker.Value = new System.DateTime(2011, 10, 24, 23, 0, 0, 0);
-            this.dateTimePicker.ValueChanged += new System.EventHandler(this.simInputs_AnyChange);
             // 
             // tabPageOutputs
             // 
@@ -657,6 +472,20 @@
             this.outputStringsListBox.TabIndex = 1;
             this.outputStringsListBox.SelectedIndexChanged += new System.EventHandler(this.outputStringsListBox_SelectedIndexChanged);
             // 
+            // outputArrayLayoutControl
+            // 
+            this.outputArrayLayoutControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.outputArrayLayoutControl.AnimatedSelection = false;
+            this.outputArrayLayoutControl.Array = null;
+            this.outputArrayLayoutControl.CellString = null;
+            this.outputArrayLayoutControl.Editable = false;
+            this.outputArrayLayoutControl.EditBypassDiodes = false;
+            this.outputArrayLayoutControl.Location = new System.Drawing.Point(-11, 206);
+            this.outputArrayLayoutControl.Name = "outputArrayLayoutControl";
+            this.outputArrayLayoutControl.Size = new System.Drawing.Size(406, 180);
+            this.outputArrayLayoutControl.TabIndex = 0;
+            // 
             // tabPage1
             // 
             this.tabPage1.BackColor = System.Drawing.Color.Transparent;
@@ -801,20 +630,6 @@
             this.label10.TabIndex = 13;
             this.label10.Text = "Avg power:";
             // 
-            // outputArrayLayoutControl
-            // 
-            this.outputArrayLayoutControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.outputArrayLayoutControl.AnimatedSelection = false;
-            this.outputArrayLayoutControl.Array = null;
-            this.outputArrayLayoutControl.CellString = null;
-            this.outputArrayLayoutControl.Editable = false;
-            this.outputArrayLayoutControl.EditBypassDiodes = false;
-            this.outputArrayLayoutControl.Location = new System.Drawing.Point(-11, 206);
-            this.outputArrayLayoutControl.Name = "outputArrayLayoutControl";
-            this.outputArrayLayoutControl.Size = new System.Drawing.Size(406, 180);
-            this.outputArrayLayoutControl.TabIndex = 0;
-            // 
             // glControl
             // 
             this.glControl.Array = null;
@@ -848,10 +663,6 @@
             this.tabControl1.ResumeLayout(false);
             this.tabPageRun.ResumeLayout(false);
             this.tabPageRun.PerformLayout();
-            this.groupBoxInstantaneous.ResumeLayout(false);
-            this.groupBoxInstantaneous.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarCarDirection)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarTimeOfDay)).EndInit();
             this.tabPageOutputs.ResumeLayout(false);
             this.tabPageOutputs.PerformLayout();
             this.tabPage1.ResumeLayout(false);
@@ -870,28 +681,14 @@
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openModelToolStripMenuItem;
         private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.GroupBox groupBoxInstantaneous;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPageRun;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.DateTimePicker dateTimePicker;
-        private System.Windows.Forms.Label labelLocalTime;
-        private System.Windows.Forms.TextBox textBoxLon;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBoxLat;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ToolStripMenuItem openLayoutToolStripMenuItem;
-        private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label labelArrayPower;
         private System.Windows.Forms.Label label5;
         private ArrayModelControl glControl;
-        private System.Windows.Forms.TrackBar trackBarTimeOfDay;
-        private System.Windows.Forms.Label labelAzimuthElevation;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label labelCarDirection;
         private System.Windows.Forms.OpenFileDialog openFileDialogModel;
         private System.Windows.Forms.Label labelArrPower;
-        private System.Windows.Forms.Button btnRecalc;
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem layoutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cellParametersToolStripMenuItem;
@@ -931,9 +728,7 @@
         private System.Windows.Forms.DateTimePicker dateTimePicker2;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Label label19;
-        private System.Windows.Forms.TrackBar trackBarCarDirection;
-        private System.Windows.Forms.Label label20;
-        private System.Windows.Forms.ComboBox comboBoxTimezone;
-        private System.Windows.Forms.Label labelTimezone;
+        private System.Windows.Forms.Button btnRecalc;
+        private SSCP.ShellPower.ArraySimInputControl simInputControls;
     }
 }

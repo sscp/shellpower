@@ -158,6 +158,12 @@
     <Compile Include="Math\Constants.cs" />
     <Compile Include="Spec\DiodeSpec.cs" />
     <Compile Include="Sprites\MeshTriangle.cs" />
+    <Compile Include="UI\ArraySimInputControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\ArraySimInputControl.Designer.cs">
+      <DependentUpon>ArraySimInputControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Utilities\Cache.cs" />
     <Compile Include="Utilities\ColorUtils.cs" />
     <Compile Include="Utilities\GLUtils.cs" />
@@ -245,6 +251,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\ArrayDimensionsForm.resx">
       <DependentUpon>ArrayDimensionsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\ArraySimInputControl.resx">
+      <DependentUpon>ArraySimInputControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\BypassDiodesForm.resx">
       <DependentUpon>BypassDiodesForm.cs</DependentUpon>

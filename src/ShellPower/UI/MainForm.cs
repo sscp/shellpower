@@ -27,6 +27,7 @@ namespace SSCP.ShellPower {
 
             // init model
             simInput.Array = new ArraySpec();
+            InitTimeAndPlace();
             InitializeArraySpec();
             InitializeConditions();
             CalculateSimStepGui();
@@ -35,13 +36,24 @@ namespace SSCP.ShellPower {
             arrayLayoutForm = new ArrayLayoutForm(simInput.Array);
             cellParamsForm = new CellParamsForm(simInput);
             glControl.Array = simInput.Array;
+            simInputControls.SimInput = simInput;
             InitOutputView();
-            InitSimInputControls();
         }
 
         private void InitOutputView() {
             outputArrayLayoutControl.Editable = false;
             outputArrayLayoutControl.Array = simInput.Array;
+        }
+
+        private void InitTimeAndPlace() {
+            // Darwin, NT
+            simInput.Longitude = 130.84;
+            simInput.Latitude = -12.46;
+            simInput.Heading = Math.PI; // south
+
+            // Start of WSC 2013
+            simInput.Utc = new DateTime(2013, 10, 6, 8, 30, 0).AddHours(-9.5);
+            simInput.Timezone = TimeZoneInfo.FindSystemTimeZoneById("AUS Central Standard Time");
         }
 
         /// <summary>
@@ -131,66 +143,15 @@ namespace SSCP.ShellPower {
         }
 
         /// <summary>
-        /// Gets sim inputs from the GUI controls.
-        /// Runs CalculateSimStep(), calculating array power, etc.
-        /// Displays the results.
+        /// Responds to simulation input change.
+        /// Calculates as much as it can. Interactive, must be fast.
+        /// Shadow visualization, not full calc.
         /// </summary>
         private void CalculateSimStepGui() {
-            /* update the model */
-            UpdateInputsFromControls();
             /* compute array power automatically? 
              * currently, only on Compute button press */
-            
             /* update the view */
-            UpdateSimStateView();
             UpdateShadowView();
-        }
-
-        private readonly TimeZoneInfo DEFAULT_TZ = TimeZoneInfo.FindSystemTimeZoneById("AUS Central Standard Time");
-        private void InitSimInputControls() {
-            TimeZoneInfo[] tzs = TimeZoneInfo.GetSystemTimeZones().ToArray();
-            comboBoxTimezone.Items.Clear();
-            comboBoxTimezone.Items.AddRange(tzs);
-            for (int i = 0; i < tzs.Length; i++) {
-                if (tzs[i].Id == DEFAULT_TZ.Id) {
-                    comboBoxTimezone.SelectedIndex = i;
-                    return;
-                }
-            }
-            throw new Exception("can't find default time zone: "+DEFAULT_TZ);
-        }
-
-        /// <summary>
-        /// Updates instantaneous sim inputs (model) from the controls (view).
-        /// Eg latitude, longitude, heading etc.
-        /// </summary>
-        private void UpdateInputsFromControls() {
-            /* get location */
-            var lat = double.Parse(textBoxLat.Text);
-            var lon = double.Parse(textBoxLon.Text);
-
-            /* get time */
-            TimeZoneInfo tz = (TimeZoneInfo)comboBoxTimezone.SelectedItem;
-            if (tz == null) tz = DEFAULT_TZ;
-            DateTime utcTime = dateTimePicker.Value;
-
-            /* get car orientation */
-            double heading = 2 * Math.PI * trackBarCarDirection.Value / (trackBarCarDirection.Maximum + 1);
-
-            /* get all sim inputs */
-            simInput.Heading = heading;
-            simInput.Latitude = lat;
-            simInput.Longitude = lon;
-            simInput.Timezone = (float)tz.GetUtcOffset(utcTime).TotalHours;
-            simInput.Utc = utcTime;
-
-            Logger.info("sim inputs\n\t" +
-                "lat {0:0.0} lon {1:0.0} heading {2:0.0} utc {3} sidereal {4}",
-                simInput.Latitude,
-                simInput.Longitude,
-                Astro.rad2deg(simInput.Heading),
-                utcTime,
-                Astro.sidereal_time(utcTime, simInput.Longitude));
         }
 
         /// <summary>
@@ -233,24 +194,6 @@ namespace SSCP.ShellPower {
             glControl.Refresh();
         }
 
-        /// <summary>
-        /// Updates sim controls (view) from sim state (model).
-        /// </summary>
-        private void UpdateSimStateView() {
-            /* set heading */
-            string[] headings = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW" };
-            int dirIx = (int)Math.Round(simInput.Heading / (2 * Math.PI) * 16);
-            if (dirIx >= headings.Length) dirIx -= headings.Length;
-            labelCarDirection.Text = string.Format("{0:0.00} {1}",
-                simInput.Heading * 180 / Math.PI, headings[dirIx]);
-
-            /* set date/time */
-            dateTimePicker.Value = simInput.Utc; // fix roundoff problems
-            labelTimezone.Text = string.Format("GMT{0}{1:0.0}", simInput.Timezone >= 0 ? "+" : "", simInput.Timezone);
-            labelLocalTime.Text = simInput.LocalTime.ToString("HH:mm:ss");
-            trackBarTimeOfDay.Value = (int)(simInput.LocalTime.TimeOfDay.TotalHours * (trackBarTimeOfDay.Maximum + 1) / 24);
-        }
-
         private void openModelToolStripMenuItem_Click(object sender, EventArgs args) {
             if (openFileDialogModel.ShowDialog() != System.Windows.Forms.DialogResult.OK) {
                 return;
@@ -274,7 +217,7 @@ namespace SSCP.ShellPower {
         /// <summary>
         /// Called when one of the sim input GUIs changes.
         /// </summary>
-        private void simInputs_AnyChange(object sender, EventArgs e) {
+        private void simInputs_Change(object sender, EventArgs e) {
             CalculateSimStepGui();
         }
 
@@ -284,14 +227,6 @@ namespace SSCP.ShellPower {
 
         private void buttonAnimate_Click(object sender, EventArgs e) {
 
-        }
-
-        private void trackBarTimeOfDay_Scroll(object sender, EventArgs e) {
-            double hours = (double)trackBarTimeOfDay.Value / (trackBarTimeOfDay.Maximum + 1) * 24;
-            var timeOfDay = new TimeSpan((long)(hours * 60 * 60 * 10000000) + 1);
-            var localTime = simInput.LocalTime.Date + timeOfDay;
-            simInput.Utc = localTime - new TimeSpan((long)(simInput.Timezone * 60 * 60 * 10000000));
-            UpdateSimStateView();
         }
 
         private void btnRecalc_Click(object sender, EventArgs e) {
@@ -404,15 +339,15 @@ namespace SSCP.ShellPower {
         }
 
         private void TimeAveragedSim() {
-            DateTime utcStart = dateTimePicker1.Value.AddHours(-simInput.Timezone);
-            DateTime utcEnd = dateTimePicker2.Value.AddHours(-simInput.Timezone);
+            DateTime utcStart = dateTimePicker1.Value.Subtract(simInput.Timezone.GetUtcOffset(dateTimePicker1.Value));
+            DateTime utcEnd = dateTimePicker2.Value.Subtract(simInput.Timezone.GetUtcOffset(dateTimePicker2.Value));
 
             var simulator = new ArraySimulator();
             var simAvg = new ArraySimulationStepOutput();
             int nsim = 0;
             for (DateTime time = utcStart; time <= utcEnd; time = time.AddMinutes(10), nsim++) {
                 simInput.Utc = time;
-                UpdateSimStateView();
+                simInputControls.UpdateView();
                 simOutput = simulator.Simulate(simInput);
 
                 // averate the outputs

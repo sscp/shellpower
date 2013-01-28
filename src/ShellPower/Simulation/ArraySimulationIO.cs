@@ -6,10 +6,10 @@ namespace SSCP.ShellPower {
         public DateTime Utc { get; set; }
         public DateTime LocalTime {
             get {
-                return Utc.AddHours(Timezone);
+                return Utc.Add(Timezone.GetUtcOffset(Utc));
             }
         }
-        public double Timezone { get; set; }
+        public TimeZoneInfo Timezone { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public double Heading { get; set; }
