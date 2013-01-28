@@ -6,7 +6,7 @@ namespace SSCP.ShellPower {
     /// <summary>
     /// API for getting place names and timezones given lat,lon.
     /// </summary>
-    class GeoNames {
+    public class GeoNames {
 
         /// <summary>
         /// Example JSON: 

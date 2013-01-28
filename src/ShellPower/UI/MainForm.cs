@@ -15,9 +15,6 @@ namespace SSCP.ShellPower {
         ArraySimulationStepOutput simOutput = new ArraySimulationStepOutput();
         Shadow shadow;
 
-        /* apis */
-        GeoNames geoNamesApi = new GeoNames();
-
         /* sub views */
         ArrayLayoutForm arrayLayoutForm;
         CellParamsForm cellParamsForm;
@@ -39,6 +36,7 @@ namespace SSCP.ShellPower {
             cellParamsForm = new CellParamsForm(simInput);
             glControl.Array = simInput.Array;
             InitOutputView();
+            InitSimInputControls();
         }
 
         private void InitOutputView() {
@@ -148,15 +146,33 @@ namespace SSCP.ShellPower {
             UpdateShadowView();
         }
 
+        private readonly TimeZoneInfo DEFAULT_TZ = TimeZoneInfo.FindSystemTimeZoneById("AUS Central Standard Time");
+        private void InitSimInputControls() {
+            TimeZoneInfo[] tzs = TimeZoneInfo.GetSystemTimeZones().ToArray();
+            comboBoxTimezone.Items.Clear();
+            comboBoxTimezone.Items.AddRange(tzs);
+            for (int i = 0; i < tzs.Length; i++) {
+                if (tzs[i].Id == DEFAULT_TZ.Id) {
+                    comboBoxTimezone.SelectedIndex = i;
+                    return;
+                }
+            }
+            throw new Exception("can't find default time zone: "+DEFAULT_TZ);
+        }
+
+        /// <summary>
+        /// Updates instantaneous sim inputs (model) from the controls (view).
+        /// Eg latitude, longitude, heading etc.
+        /// </summary>
         private void UpdateInputsFromControls() {
             /* get location */
             var lat = double.Parse(textBoxLat.Text);
             var lon = double.Parse(textBoxLon.Text);
 
             /* get time */
-            var tz = geoNamesApi.GetTimezone(lat, lon);
+            TimeZoneInfo tz = (TimeZoneInfo)comboBoxTimezone.SelectedItem;
+            if (tz == null) tz = DEFAULT_TZ;
             DateTime utcTime = dateTimePicker.Value;
-            DateTime localTime = utcTime + new TimeSpan((long)(tz * 60 * 60 * 10000000));
 
             /* get car orientation */
             double heading = 2 * Math.PI * trackBarCarDirection.Value / (trackBarCarDirection.Maximum + 1);
@@ -165,8 +181,7 @@ namespace SSCP.ShellPower {
             simInput.Heading = heading;
             simInput.Latitude = lat;
             simInput.Longitude = lon;
-            simInput.Timezone = tz;
-            simInput.LocalTime = localTime;
+            simInput.Timezone = (float)tz.GetUtcOffset(utcTime).TotalHours;
             simInput.Utc = utcTime;
 
             Logger.info("sim inputs\n\t" +
@@ -183,18 +198,18 @@ namespace SSCP.ShellPower {
         /// </summary>
         private Vector3 CalculateSunDir() {
             // update the astronomy model
-            var utc_time = simInput.LocalTime - new TimeSpan((long)(simInput.Timezone * 3600.0) * 10000000);
+            var utc_time = simInput.Utc;
             var sidereal = Astro.sidereal_time(
                 utc_time,
                 simInput.Longitude);
             var azimuth = Astro.solar_azimuth(
                 (int)sidereal.TimeOfDay.TotalSeconds,
-                simInput.LocalTime.DayOfYear,
+                sidereal.DayOfYear,
                 simInput.Latitude)
                 - (float)simInput.Heading;
             var elevation = Astro.solar_elevation(
                 (int)sidereal.TimeOfDay.TotalSeconds,
-                simInput.LocalTime.DayOfYear,
+                sidereal.DayOfYear,
                 simInput.Latitude);
 
             //recalculate the shadows
@@ -226,14 +241,12 @@ namespace SSCP.ShellPower {
             string[] headings = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW" };
             int dirIx = (int)Math.Round(simInput.Heading / (2 * Math.PI) * 16);
             if (dirIx >= headings.Length) dirIx -= headings.Length;
-            labelCarDirection.Text = headings[dirIx];
+            labelCarDirection.Text = string.Format("{0:0.00} {1}",
+                simInput.Heading * 180 / Math.PI, headings[dirIx]);
 
             /* set date/time */
             dateTimePicker.Value = simInput.Utc; // fix roundoff problems
             labelTimezone.Text = string.Format("GMT{0}{1:0.0}", simInput.Timezone >= 0 ? "+" : "", simInput.Timezone);
-            var name = geoNamesApi.GetTimezoneName(simInput.Latitude, simInput.Longitude);
-            if (name != null)
-                labelTimezone.Text += " " + name;
             labelLocalTime.Text = simInput.LocalTime.ToString("HH:mm:ss");
             trackBarTimeOfDay.Value = (int)(simInput.LocalTime.TimeOfDay.TotalHours * (trackBarTimeOfDay.Maximum + 1) / 24);
         }
@@ -276,8 +289,8 @@ namespace SSCP.ShellPower {
         private void trackBarTimeOfDay_Scroll(object sender, EventArgs e) {
             double hours = (double)trackBarTimeOfDay.Value / (trackBarTimeOfDay.Maximum + 1) * 24;
             var timeOfDay = new TimeSpan((long)(hours * 60 * 60 * 10000000) + 1);
-            simInput.LocalTime = simInput.LocalTime.Date + timeOfDay;
-            simInput.Utc = simInput.LocalTime - new TimeSpan((long)(simInput.Timezone * 60 * 60 * 10000000));
+            var localTime = simInput.LocalTime.Date + timeOfDay;
+            simInput.Utc = localTime - new TimeSpan((long)(simInput.Timezone * 60 * 60 * 10000000));
             UpdateSimStateView();
         }
 

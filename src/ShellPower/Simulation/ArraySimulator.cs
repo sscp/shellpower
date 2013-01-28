@@ -222,18 +222,18 @@ void main()
 
         private Vector3 GetSunDir(ArraySimulationStepInput simInput) {
             // update the astronomy model
-            var utc_time = simInput.LocalTime - new TimeSpan((long)(simInput.Timezone * 3600.0) * 10000000);
+            var utc_time = simInput.Utc;
             var sidereal = Astro.sidereal_time(
                 utc_time,
                 simInput.Longitude);
             var azimuth = Astro.solar_azimuth(
                 (int)sidereal.TimeOfDay.TotalSeconds,
-                simInput.LocalTime.DayOfYear,
+                sidereal.DayOfYear,
                 simInput.Latitude)
                 - (float)simInput.Heading;
             var elevation = Astro.solar_elevation(
                 (int)sidereal.TimeOfDay.TotalSeconds,
-                simInput.LocalTime.DayOfYear,
+                sidereal.DayOfYear,
                 simInput.Latitude);
             Logger.info("sim step\n\t" +
                 "lat {0:0.0} lon {1:0.0} heading {2:0.0}\n\t" +

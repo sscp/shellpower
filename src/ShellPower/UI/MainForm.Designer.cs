@@ -44,11 +44,13 @@
             this.labelArrayPower = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.groupBoxInstantaneous = new System.Windows.Forms.GroupBox();
+            this.labelTimezone = new System.Windows.Forms.Label();
+            this.comboBoxTimezone = new System.Windows.Forms.ComboBox();
+            this.label20 = new System.Windows.Forms.Label();
             this.btnRecalc = new System.Windows.Forms.Button();
             this.labelCarDirection = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.trackBarCarDirection = new System.Windows.Forms.TrackBar();
-            this.labelTimezone = new System.Windows.Forms.Label();
             this.labelAzimuthElevation = new System.Windows.Forms.Label();
             this.trackBarTimeOfDay = new System.Windows.Forms.TrackBar();
             this.label4 = new System.Windows.Forms.Label();
@@ -78,6 +80,7 @@
             this.outputStringsListBox = new System.Windows.Forms.ListBox();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBoxSimulation = new System.Windows.Forms.GroupBox();
+            this.label19 = new System.Windows.Forms.Label();
             this.dateTimePicker2 = new System.Windows.Forms.DateTimePicker();
             this.label18 = new System.Windows.Forms.Label();
             this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
@@ -91,7 +94,6 @@
             this.label10 = new System.Windows.Forms.Label();
             this.outputArrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.glControl = new SSCP.ShellPower.ArrayModelControl();
-            this.label19 = new System.Windows.Forms.Label();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -296,11 +298,13 @@
             // 
             this.groupBoxInstantaneous.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBoxInstantaneous.Controls.Add(this.labelTimezone);
+            this.groupBoxInstantaneous.Controls.Add(this.comboBoxTimezone);
+            this.groupBoxInstantaneous.Controls.Add(this.label20);
             this.groupBoxInstantaneous.Controls.Add(this.btnRecalc);
             this.groupBoxInstantaneous.Controls.Add(this.labelCarDirection);
             this.groupBoxInstantaneous.Controls.Add(this.label7);
             this.groupBoxInstantaneous.Controls.Add(this.trackBarCarDirection);
-            this.groupBoxInstantaneous.Controls.Add(this.labelTimezone);
             this.groupBoxInstantaneous.Controls.Add(this.labelAzimuthElevation);
             this.groupBoxInstantaneous.Controls.Add(this.trackBarTimeOfDay);
             this.groupBoxInstantaneous.Controls.Add(this.label4);
@@ -318,6 +322,33 @@
             this.groupBoxInstantaneous.TabStop = false;
             this.groupBoxInstantaneous.Text = "Instantaneous";
             // 
+            // labelTimezone
+            // 
+            this.labelTimezone.AutoSize = true;
+            this.labelTimezone.Location = new System.Drawing.Point(218, 74);
+            this.labelTimezone.Name = "labelTimezone";
+            this.labelTimezone.Size = new System.Drawing.Size(41, 13);
+            this.labelTimezone.TabIndex = 18;
+            this.labelTimezone.Text = "tzoffset";
+            // 
+            // comboBoxTimezone
+            // 
+            this.comboBoxTimezone.FormattingEnabled = true;
+            this.comboBoxTimezone.Location = new System.Drawing.Point(65, 71);
+            this.comboBoxTimezone.Name = "comboBoxTimezone";
+            this.comboBoxTimezone.Size = new System.Drawing.Size(147, 21);
+            this.comboBoxTimezone.TabIndex = 17;
+            this.comboBoxTimezone.SelectedIndexChanged += new System.EventHandler(this.simInputs_AnyChange);
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(6, 74);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(53, 13);
+            this.label20.TabIndex = 15;
+            this.label20.Text = "Timezone";
+            // 
             // btnRecalc
             // 
             this.btnRecalc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -332,15 +363,16 @@
             // labelCarDirection
             // 
             this.labelCarDirection.AutoSize = true;
-            this.labelCarDirection.Location = new System.Drawing.Point(175, 78);
+            this.labelCarDirection.Location = new System.Drawing.Point(218, 117);
             this.labelCarDirection.Name = "labelCarDirection";
-            this.labelCarDirection.Size = new System.Drawing.Size(0, 13);
+            this.labelCarDirection.Size = new System.Drawing.Size(45, 13);
             this.labelCarDirection.TabIndex = 13;
+            this.labelCarDirection.Text = "heading";
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(6, 78);
+            this.label7.Location = new System.Drawing.Point(6, 117);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(37, 13);
             this.label7.TabIndex = 12;
@@ -349,22 +381,14 @@
             // trackBarCarDirection
             // 
             this.trackBarCarDirection.AutoSize = false;
-            this.trackBarCarDirection.Location = new System.Drawing.Point(65, 71);
-            this.trackBarCarDirection.Maximum = 15;
+            this.trackBarCarDirection.LargeChange = 6;
+            this.trackBarCarDirection.Location = new System.Drawing.Point(65, 110);
+            this.trackBarCarDirection.Maximum = 35;
             this.trackBarCarDirection.Name = "trackBarCarDirection";
-            this.trackBarCarDirection.Size = new System.Drawing.Size(104, 20);
+            this.trackBarCarDirection.Size = new System.Drawing.Size(147, 20);
             this.trackBarCarDirection.TabIndex = 11;
             this.trackBarCarDirection.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarCarDirection.Scroll += new System.EventHandler(this.simInputs_AnyChange);
-            // 
-            // labelTimezone
-            // 
-            this.labelTimezone.AutoSize = true;
-            this.labelTimezone.Location = new System.Drawing.Point(6, 174);
-            this.labelTimezone.Name = "labelTimezone";
-            this.labelTimezone.Size = new System.Drawing.Size(121, 13);
-            this.labelTimezone.TabIndex = 10;
-            this.labelTimezone.Text = "No circuit simulation yet.";
             // 
             // labelAzimuthElevation
             // 
@@ -381,7 +405,7 @@
             this.trackBarTimeOfDay.Location = new System.Drawing.Point(143, 45);
             this.trackBarTimeOfDay.Maximum = 287;
             this.trackBarTimeOfDay.Name = "trackBarTimeOfDay";
-            this.trackBarTimeOfDay.Size = new System.Drawing.Size(104, 20);
+            this.trackBarTimeOfDay.Size = new System.Drawing.Size(120, 20);
             this.trackBarTimeOfDay.TabIndex = 8;
             this.trackBarTimeOfDay.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarTimeOfDay.Scroll += new System.EventHandler(this.trackBarTimeOfDay_Scroll);
@@ -397,7 +421,7 @@
             // 
             // textBoxLon
             // 
-            this.textBoxLon.Location = new System.Drawing.Point(65, 123);
+            this.textBoxLon.Location = new System.Drawing.Point(65, 162);
             this.textBoxLon.Name = "textBoxLon";
             this.textBoxLon.Size = new System.Drawing.Size(147, 20);
             this.textBoxLon.TabIndex = 6;
@@ -407,7 +431,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 126);
+            this.label3.Location = new System.Drawing.Point(6, 165);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(25, 13);
             this.label3.TabIndex = 5;
@@ -415,7 +439,7 @@
             // 
             // textBoxLat
             // 
-            this.textBoxLat.Location = new System.Drawing.Point(65, 97);
+            this.textBoxLat.Location = new System.Drawing.Point(65, 136);
             this.textBoxLat.Name = "textBoxLat";
             this.textBoxLat.Size = new System.Drawing.Size(147, 20);
             this.textBoxLat.TabIndex = 4;
@@ -425,7 +449,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 100);
+            this.label2.Location = new System.Drawing.Point(6, 139);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(22, 13);
             this.label2.TabIndex = 3;
@@ -455,7 +479,7 @@
             this.dateTimePicker.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.dateTimePicker.Location = new System.Drawing.Point(65, 19);
             this.dateTimePicker.Name = "dateTimePicker";
-            this.dateTimePicker.Size = new System.Drawing.Size(182, 20);
+            this.dateTimePicker.Size = new System.Drawing.Size(170, 20);
             this.dateTimePicker.TabIndex = 0;
             this.dateTimePicker.Value = new System.DateTime(2011, 10, 24, 23, 0, 0, 0);
             this.dateTimePicker.ValueChanged += new System.EventHandler(this.simInputs_AnyChange);
@@ -668,6 +692,15 @@
             this.groupBoxSimulation.TabStop = false;
             this.groupBoxSimulation.Text = "Simulation";
             // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(45, 67);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(128, 13);
+            this.label19.TabIndex = 23;
+            this.label19.Text = "Local time. See timezone.";
+            // 
             // dateTimePicker2
             // 
             this.dateTimePicker2.Location = new System.Drawing.Point(102, 41);
@@ -794,15 +827,6 @@
             this.glControl.TabIndex = 0;
             this.glControl.VSync = true;
             // 
-            // label19
-            // 
-            this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(45, 67);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(128, 13);
-            this.label19.TabIndex = 23;
-            this.label19.Text = "Local time. See timezone.";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -862,10 +886,8 @@
         private System.Windows.Forms.Label label5;
         private ArrayModelControl glControl;
         private System.Windows.Forms.TrackBar trackBarTimeOfDay;
-        private System.Windows.Forms.Label labelTimezone;
         private System.Windows.Forms.Label labelAzimuthElevation;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.TrackBar trackBarCarDirection;
         private System.Windows.Forms.Label labelCarDirection;
         private System.Windows.Forms.OpenFileDialog openFileDialogModel;
         private System.Windows.Forms.Label labelArrPower;
@@ -909,5 +931,9 @@
         private System.Windows.Forms.DateTimePicker dateTimePicker2;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.TrackBar trackBarCarDirection;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.ComboBox comboBoxTimezone;
+        private System.Windows.Forms.Label labelTimezone;
     }
 }
