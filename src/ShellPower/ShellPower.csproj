@@ -153,6 +153,8 @@
     <Compile Include="Simulation\CellSimulator.cs" />
     <Compile Include="Simulation\IVTrace.cs" />
     <Compile Include="Simulation\StringSimulator.cs" />
+    <Compile Include="SolPos\PosData.cs" />
+    <Compile Include="SolPos\SolPos.cs" />
     <Compile Include="Spec\ArraySpec.cs" />
     <Compile Include="Spec\CellSpec.cs" />
     <Compile Include="Math\Constants.cs" />
