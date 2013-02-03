@@ -105,7 +105,7 @@ namespace SSCP.ShellPower {
             } else if (extension.Equals("stl")) {
                 parser = new MeshParserStl();
             } else {
-                throw new ArgumentException("unsupported filetype: " + extension);
+                throw new ArgumentException("Unsupported file type: " + extension);
             }
             parser.Parse(filename);
             return parser.GetMesh();
@@ -207,12 +207,24 @@ namespace SSCP.ShellPower {
             CalculateSimStepGui();
         }
 
-        private void openLayoutToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void openLayoutToolStripMenuItem_Click(object sender, EventArgs args) {
+            // prompt the user for a texture image
+            Debug.Assert(simInput != null && simInput.Array != null);
             Bitmap bitmap = arrayLayoutForm.PromptUserForLayoutTexture();
-            if (bitmap != null) {
+            if (bitmap == null) {
+                return;
+            }
+
+            // apply the new texture, rollback if it fails
+            Bitmap origTexture = simInput.Array.LayoutTexture;
+            try {
                 simInput.Array.LayoutTexture = bitmap;
                 simInput.Array.ReadStringsFromColors();
+            } catch (Exception e) {
+                MessageBox.Show(e.Message, "Error loading layout texture", MessageBoxButtons.OK);
+                simInput.Array.LayoutTexture = origTexture;
             }
+            CalculateSimStepGui();
         }
 
         /// <summary>

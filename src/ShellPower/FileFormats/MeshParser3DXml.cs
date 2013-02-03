@@ -100,7 +100,8 @@ namespace SSCP.ShellPower {
                         }
                     }
                 } else {
-                    throw new ArgumentException("found an unsupported 3dxml mesh surface...");
+                    throw new ArgumentException("Found an unsupported 3dxml mesh surface.\n" +
+                        "Clean up your mesh in MeshLab. Triangles only.");
                 }
             }
 

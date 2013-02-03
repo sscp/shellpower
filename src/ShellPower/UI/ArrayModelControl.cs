@@ -223,6 +223,8 @@ void main()
                 if (framesRendered % 100 == 0) {
                     Debug.WriteLine(string.Format("{0:0.00} fps", 1.0 / emaDelay));
                 }
+            } catch(Exception e){
+                Debug.WriteLine("ArrayModelControl render error: "+e);
             } finally {
                 Monitor.Exit(typeof(GL));
             }

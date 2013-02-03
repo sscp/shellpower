@@ -18,6 +18,7 @@ namespace SSCP.ShellPower {
         /// Sets each pixel alpha to 255 (ie, opaque).
         /// </summary>
         public static void RemoveAlpha(Bitmap bmp) {
+            //TODO: BROKEN
             int w = bmp.Width, h = bmp.Height;
             BitmapData dat = bmp.LockBits(
                 new Rectangle(0, 0, w, h),

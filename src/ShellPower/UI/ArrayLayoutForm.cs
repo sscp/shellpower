@@ -27,7 +27,6 @@ namespace SSCP.ShellPower {
             if (result != DialogResult.OK) return null;
             var texFile = openFileDialogArray.FileName;
             Bitmap bmp = new Bitmap(texFile);
-            ColorUtils.RemoveAlpha(bmp);
             return bmp;
         }
         #endregion

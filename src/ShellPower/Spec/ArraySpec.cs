@@ -128,7 +128,9 @@ namespace SSCP.ShellPower {
 
         public void Recolor() {
             Debug.Assert(LayoutTexture != null);
-            Debug.Assert(Strings.Count < 256);
+            if(Strings.Count >= 256){
+                throw new InvalidOperationException("Cannot create a layout texture with more than 255 strings.");
+            }
 
             // first, change the cell colors...
             int nstrings = Strings.Count;
@@ -196,34 +198,39 @@ namespace SSCP.ShellPower {
             BitmapData data = LayoutTexture.LockBits(
                 new Rectangle(0, 0, texW, texH),
                 ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-            unsafe {
-                int* ptr = (int*)data.Scan0.ToPointer();
-                for (int y = 0; y < texH; y++) {
-                    for (int x = 0; x < texW; x++) {
-                        Color color = Color.FromArgb(ptr[y * texW + x]);
-                        Debug.Assert(color.A == 255);
-                        if (ColorUtils.IsGrayscale(color)) continue;
-                        Color stringColor = Color.FromArgb(255, color.R, color.G, 0);
+            try {
+                unsafe {
+                    int* ptr = (int*)data.Scan0.ToPointer();
+                    for (int y = 0; y < texH; y++) {
+                        for (int x = 0; x < texW; x++) {
+                            Color color = Color.FromArgb(ptr[y * texW + x]);
+                            if (color.A != 255) {
+                                throw new ArgumentException("Layout texture cannot be transparent.");
+                            }
+                            if (ColorUtils.IsGrayscale(color)) continue;
+                            Color stringColor = Color.FromArgb(255, color.R, color.G, 0);
 
-                        if (!stringMap.ContainsKey(stringColor)) {
-                            CellString newString = new CellString();
-                            newString.Name = "String " + Strings.Count;
-                            Strings.Add(newString);
-                            stringMap.Add(stringColor, newString);
+                            if (!stringMap.ContainsKey(stringColor)) {
+                                CellString newString = new CellString();
+                                newString.Name = "String " + Strings.Count;
+                                Strings.Add(newString);
+                                stringMap.Add(stringColor, newString);
+                            }
+
+                            if (!cellMap.ContainsKey(color)) {
+                                Cell newCell = new Cell();
+                                newCell.Color = color;
+                                cellMap.Add(color, newCell);
+                                stringMap[stringColor].Cells.Add(newCell);
+                            }
+                            cellMap[color].Pixels.Add(new Pair<int>(x, y));
+
                         }
-
-                        if (!cellMap.ContainsKey(color)) {
-                            Cell newCell = new Cell();
-                            newCell.Color = color;
-                            cellMap.Add(color, newCell);
-                            stringMap[stringColor].Cells.Add(newCell);
-                        }
-                        cellMap[color].Pixels.Add(new Pair<int>(x, y));
-
                     }
                 }
+            } finally {
+                LayoutTexture.UnlockBits(data);
             }
-            LayoutTexture.UnlockBits(data);
 
             // second, go through and sort the cells in each string in the order they're wired
             foreach (CellString cellStr in Strings) {
