@@ -9,16 +9,36 @@ namespace SSCP.ShellPower {
                 return Utc.Add(Timezone.GetUtcOffset(Utc));
             }
         }
+        /// <summary>
+        /// Time zone. This has no effect on the simulation,
+        /// but is useful for working with local time.
+        /// </summary>
         public TimeZoneInfo Timezone { get; set; }
+        /// <summary>
+        /// Latitude, in degrees.
+        /// </summary>
         public double Latitude { get; set; }
+        /// <summary>
+        /// Longitude, in degrees.
+        /// </summary>
         public double Longitude { get; set; }
+        /// <summary>
+        /// Heading, in radians, 0 = due north.
+        /// </summary>
         public double Heading { get; set; }
 
-        // conditions
+        /// <summary>
+        /// Temperature in deg C.
+        /// </summary>
         public double Temperature { get; set; }
+        /// <summary>
+        /// Flat-plate insolation in watts per square meter. 
+        /// </summary>
         public Double Insolation { get; set; }
 
-        // shape and layout of the solar array
+        /// <summary>
+        /// Shape and layout of the solar array
+        /// </summary>
         public ArraySpec Array { get; set; }
     }
 
