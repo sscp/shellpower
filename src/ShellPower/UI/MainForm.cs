@@ -12,7 +12,6 @@ namespace SSCP.ShellPower {
     public partial class MainForm : Form {
         /* model */
         ArraySimulationStepInput simInput = new ArraySimulationStepInput();
-        ArraySimulationStepOutput simOutput = new ArraySimulationStepOutput();
         Shadow shadow;
 
         /* sub views */
@@ -38,6 +37,8 @@ namespace SSCP.ShellPower {
             glControl.Array = simInput.Array;
             simInputControls.SimInput = simInput;
             InitOutputView();
+
+            labelArrPower.Rtf = @"{\rtf1\ansi\deff0 Load model, load texture, then click simulate. }";
         }
 
         private void InitOutputView() {
@@ -232,18 +233,30 @@ namespace SSCP.ShellPower {
         private void btnRecalc_Click(object sender, EventArgs e) {
             var simulator = new ArraySimulator();
             try {
-                simOutput = simulator.Simulate(simInput);
-
+                ArraySimulationStepOutput simOutputNoon = simulator.Simulate(
+                    simInput.Array, new Vector3(0.1f, 0.995f, 0.0f), simInput.Insolation, simInput.Temperature);
+                ArraySimulationStepOutput simOutput = simulator.Simulate(simInput);
+                double arrayAreaDistortion = Math.Abs(simOutputNoon.ArrayLitArea-simOutput.ArrayArea)/simOutput.ArrayArea;
+                
                 Debug.WriteLine("Array simulation output");
+                Debug.WriteLine("   ... " + simOutput.ArrayArea + " m^2 nominal area, "
+                    + simOutputNoon.ArrayLitArea + " m^2 simulated area" + (arrayAreaDistortion > 0.01 ? " MISMATCH" : ""));
                 Debug.WriteLine("   ... " + simOutput.ArrayLitArea + " m^2 exposed to sunlight");
                 Debug.WriteLine("   ... " + simOutput.WattsInsolation + " W insolation");
                 Debug.WriteLine("   ... " + simOutput.WattsOutputByCell + " W output (assuming mppt per cell)");
                 Debug.WriteLine("   ... " + simOutput.WattsOutput + " W output");
 
                 //update ui
-                this.labelArrPower.Text = string.Format(
-                    "{0:0}W over {1:0.00}m\u00B2, {2:0.00}m\u00B2 shaded",
-                    simOutput.WattsOutput, simOutput.ArrayArea, simOutput.ArrayArea-simOutput.ArrayLitArea);
+                String boldLine = string.Format("{0:0}W over {1:0.00}m\u00B2 cell area", 
+                    simOutput.WattsOutput, simOutput.ArrayArea);
+                String firstLine = string.Format(", {0:0.00}m\u00B2 texture area{1}, {2:0.00}m\u00B2 shaded",
+                    simOutputNoon.ArrayLitArea, arrayAreaDistortion>0.01 ? " (MISMATCH)":"", simOutputNoon.ArrayLitArea-simOutput.ArrayLitArea);
+                String secondLine = string.Format("(Power breakdown: {0:0}W {1:0}% in, {2:0}W {3:0}% ideal mppt, {4:0}W {5:0}% output)",
+                    simOutput.WattsInsolation, simOutput.WattsInsolation / simOutputNoon.WattsInsolation * 100,
+                    simOutput.WattsOutputByCell, simOutput.WattsOutputByCell / simOutputNoon.WattsOutputByCell * 100,
+                    simOutput.WattsOutput, simOutput.WattsOutput / simOutputNoon.WattsOutput * 100);
+                this.labelArrPower.Rtf = @"{\rtf1\ansi\deff0 {\b "+boldLine+@"}"+firstLine
+                    +@"\line "+ secondLine+"}";
 
                 outputStringsListBox.Items.Clear();
                 outputStringsListBox.Items.AddRange(simOutput.Strings);
@@ -348,7 +361,7 @@ namespace SSCP.ShellPower {
             for (DateTime time = utcStart; time <= utcEnd; time = time.AddMinutes(10), nsim++) {
                 simInput.Utc = time;
                 simInputControls.UpdateView();
-                simOutput = simulator.Simulate(simInput);
+                ArraySimulationStepOutput simOutput = simulator.Simulate(simInput);
 
                 // averate the outputs
                 if (nsim > 0) {
@@ -365,7 +378,7 @@ namespace SSCP.ShellPower {
             simAvg.WattsInsolation /= nsim;
             simAvg.WattsOutputByCell /= nsim;
             simAvg.WattsOutput /= nsim;
-            Debug.WriteLine("Array time-avreaged simulation output");
+            Debug.WriteLine("Array time-averaged simulation output");
             Debug.WriteLine("   ... " + simAvg.ArrayArea + " m^2 total cell area");
             Debug.WriteLine("   ... " + simAvg.ArrayLitArea + " m^2 exposed to sunlight");
             Debug.WriteLine("   ... " + simAvg.WattsInsolation + " W insolation");

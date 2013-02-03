@@ -171,16 +171,25 @@ void main()
         /// </summary>
         public ArraySimulationStepOutput Simulate(ArraySimulationStepInput simInput) {
             // validate that we're gtg
-            if (simInput == null || simInput.Array == null) throw new InvalidOperationException("No array specified.");
-            if (simInput.Array.Mesh == null) throw new InvalidOperationException("No array shape (mesh) loaded.");
-            if (simInput.Array.LayoutTexture == null) throw new InvalidOperationException("No array layout (texture) loaded.");
+            if (simInput == null) throw new InvalidOperationException("No input specified.");
+            Vector3 sunDir = GetSunDir(simInput);
+            return Simulate(simInput.Array, sunDir, simInput.Insolation, simInput.Temperature);
+        }
+
+        public ArraySimulationStepOutput Simulate(ArraySpec array, Vector3 sunDir, double wPerM2Insolation, double cTemp) {
+            // validate that we're gtg
+            if (array == null) throw new ArgumentException("No array specified.");
+            if (array.Mesh == null) throw new ArgumentException("No array shape (mesh) loaded.");
+            if (array.LayoutTexture == null) throw new ArgumentException("No array layout (texture) loaded.");
+            if (wPerM2Insolation < 0) throw new ArgumentException("Invalid (negative) insolation.");
+            if (Math.Abs(sunDir.Length - 1.0) > 1e-3) throw new ArgumentException("Sun direction must be a unit vector.");
 
             ArraySimulationStepOutput output;
             lock (typeof(GL)) {
                 DateTime dt1 = DateTime.Now;
-                SetUniforms(simInput.Array, simInput.Insolation);
-                ComputeRender(simInput);
-                output =  AnalyzeComputeTex(simInput);
+                SetUniforms(array, wPerM2Insolation);
+                ComputeRender(array, sunDir);
+                output = AnalyzeComputeTex(array, wPerM2Insolation, cTemp);
                 DateTime dt2 = DateTime.Now;
 
                 Debug.WriteLine(string.Format("finished sim step! {0:0.000}s {1:0.0}/{2:0.0}W",
@@ -191,7 +200,13 @@ void main()
             return output;
         }
 
-        public void ComputeRender(ArraySimulationStepInput simInput) {
+        /// <summary>
+        /// Renders the array from the sun's point of view, into several buffers:
+        /// one for cell id (texture map), one for insolation, and one for area.
+        /// 
+        /// After this step, results be read using OpenGL ReadBuffer and analyzed.
+        /// </summary>
+        public void ComputeRender(ArraySpec array, Vector3 sunDir) {
             Debug.WriteLine("rendering insolation+cells into a "
                 + computeWidth + "x" + computeWidth + " fbo");
             
@@ -208,12 +223,12 @@ void main()
             GL.ClearColor(Color.White);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            SetModelViewSun(GetSunDir(simInput));
-            double arrayMaxDimension = ComputeArrayMaxDimension(simInput.Array);
+            SetModelViewSun(sunDir);
+            double arrayMaxDimension = ComputeArrayMaxDimension(array);
             GLUtils.SetCameraProjectionOrtho(arrayMaxDimension);
 
             //render
-            MeshSprite sprite = new MeshSprite(simInput.Array.Mesh);
+            MeshSprite sprite = new MeshSprite(array.Mesh);
             sprite.PushTransform();
             sprite.Render();
             sprite.PopTransform();
@@ -354,10 +369,10 @@ void main()
         /// 
         /// Uses this to calculate IV curves, etc, and ultimately array power.
         /// </summary>
-        private ArraySimulationStepOutput AnalyzeComputeTex(ArraySimulationStepInput input) {
+        private ArraySimulationStepOutput AnalyzeComputeTex(ArraySpec array, double wPerM2Insolation, double cTemp) {
             Color[] texColors = ReadColorTexture(FramebufferAttachment.ColorAttachment0);
             float[] texWattsIn = ReadFloatTexture(FramebufferAttachment.ColorAttachment1, 0.0001);
-            double arrayDimM = ComputeArrayMaxDimension(input.Array);
+            double arrayDimM = ComputeArrayMaxDimension(array);
             double m2PerPixel = arrayDimM * arrayDimM / COMPUTE_TEX_SIZE / COMPUTE_TEX_SIZE;
             float[] texArea = ReadFloatTexture(FramebufferAttachment.ColorAttachment2, m2PerPixel / 4);
             /*double dbgmin = texWattsIn[0], dbgmax = texWattsIn[0], dbgavg = 0;
@@ -372,7 +387,7 @@ void main()
             int ncells = 0;
             var cells = new List<ArraySpec.Cell>();
             var colorToId = new Dictionary<Color, int>();
-            foreach (ArraySpec.CellString cellStr in input.Array.Strings) {
+            foreach (ArraySpec.CellString cellStr in array.Strings) {
                 foreach (ArraySpec.Cell cell in cellStr.Cells) {
                     cells.Add(cell);
                     colorToId.Add(cell.Color, ncells);
@@ -414,24 +429,23 @@ void main()
 
             // MPPT sweeps, for each cell and each string. 
             // Inputs:
-            CellSpec spec = input.Array.CellSpec;
-            double tempC = input.Temperature;
-            int nstrings = input.Array.Strings.Count;
+            CellSpec cellSpec = array.CellSpec;
+            int nstrings = array.Strings.Count;
             // Outputs:
             double totalWattsOutByCell = 0;
             double totalWattsOutByString = 0;
             var strings = new ArraySimStringOutput[nstrings];
             int cellIx = 0;
             for(int i = 0; i < nstrings; i++){
-                var cellStr = input.Array.Strings[i];
+                var cellStr = array.Strings[i];
                 double stringWattsIn = 0, stringWattsOutByCell = 0, stringLitArea = 0;
 
                 // per-cell sweeps
                 var cellSweeps = new IVTrace[cellStr.Cells.Count];
                 for(int j = 0; j < cellStr.Cells.Count; j++){
                     double cellWattsIn = wattsIn[cellIx++];
-                    double cellInsolation = cellWattsIn / spec.Area;
-                    IVTrace cellSweep = CellSimulator.CalcSweep(spec, cellInsolation, tempC);
+                    double cellInsolation = cellWattsIn / cellSpec.Area;
+                    IVTrace cellSweep = CellSimulator.CalcSweep(cellSpec, cellInsolation, cTemp);
                     cellSweeps[j] = cellSweep;
 
                     stringWattsIn += cellWattsIn;
@@ -446,22 +460,21 @@ void main()
                 strings[i] = new ArraySimStringOutput();
                 strings[i].WattsIn = stringWattsIn;
                 strings[i].WattsOutputByCell = stringWattsOutByCell;
-                IVTrace stringSweep = StringSimulator.CalcStringIV(cellStr, cellSweeps, input.Array.BypassDiodeSpec);
+                IVTrace stringSweep = StringSimulator.CalcStringIV(cellStr, cellSweeps, array.BypassDiodeSpec);
                 strings[i].WattsOutput = stringSweep.Pmp;
                 strings[i].IVTrace = stringSweep;
 
                 // higher-level string info
                 strings[i].String = cellStr;
-                CellSpec cellSpec = input.Array.CellSpec;
                 strings[i].Area = cellStr.Cells.Count*cellSpec.Area;
                 strings[i].AreaShaded = strings[i].Area - stringLitArea;
-                IVTrace cellSweepIdeal = CellSimulator.CalcSweep(cellSpec,input.Insolation,input.Temperature);
+                IVTrace cellSweepIdeal = CellSimulator.CalcSweep(cellSpec,wPerM2Insolation,cTemp);
                 strings[i].WattsOutputIdeal = cellSweepIdeal.Pmp * cellStr.Cells.Count;
             }
             totalWattsOutByString = totalWattsOutByCell;
 
             ArraySimulationStepOutput output = new ArraySimulationStepOutput();
-            output.ArrayArea = ncells * spec.Area;
+            output.ArrayArea = ncells * cellSpec.Area;
             output.ArrayLitArea = totalArea;
             output.WattsInsolation = totalWattsIn;
             output.WattsOutputByCell = totalWattsOutByCell;

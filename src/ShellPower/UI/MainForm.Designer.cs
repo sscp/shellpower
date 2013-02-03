@@ -40,9 +40,8 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageRun = new System.Windows.Forms.TabPage();
-            this.simInputControls = new SSCP.ShellPower.ArraySimInputControl();
             this.btnRecalc = new System.Windows.Forms.Button();
-            this.labelArrPower = new System.Windows.Forms.Label();
+            this.labelArrPower = new System.Windows.Forms.RichTextBox();
             this.labelArrayPower = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.tabPageOutputs = new System.Windows.Forms.TabPage();
@@ -62,7 +61,6 @@
             this.label9 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.outputStringsListBox = new System.Windows.Forms.ListBox();
-            this.outputArrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBoxSimulation = new System.Windows.Forms.GroupBox();
             this.label19 = new System.Windows.Forms.Label();
@@ -77,6 +75,8 @@
             this.buttonRun = new System.Windows.Forms.Button();
             this.labelSimAvgPower = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
+            this.simInputControls = new SSCP.ShellPower.ArraySimInputControl();
+            this.outputArrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.glControl = new SSCP.ShellPower.ArrayModelControl();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -248,18 +248,6 @@
             this.tabPageRun.Text = "Params";
             this.tabPageRun.UseVisualStyleBackColor = true;
             // 
-            // simInputControls
-            // 
-            this.simInputControls.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.simInputControls.Location = new System.Drawing.Point(0, 0);
-            this.simInputControls.Name = "simInputControls";
-            this.simInputControls.SimInput = null;
-            this.simInputControls.Size = new System.Drawing.Size(406, 288);
-            this.simInputControls.TabIndex = 16;
-            this.simInputControls.Change += new System.EventHandler(this.simInputs_Change);
-            // 
             // btnRecalc
             // 
             this.btnRecalc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -273,13 +261,19 @@
             // 
             // labelArrPower
             // 
-            this.labelArrPower.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.labelArrPower.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.labelArrPower.AutoSize = true;
-            this.labelArrPower.Location = new System.Drawing.Point(81, 369);
+            this.labelArrPower.BackColor = System.Drawing.SystemColors.Control;
+            this.labelArrPower.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.labelArrPower.Location = new System.Drawing.Point(81, 350);
             this.labelArrPower.Name = "labelArrPower";
-            this.labelArrPower.Size = new System.Drawing.Size(10, 13);
+            this.labelArrPower.ReadOnly = true;
+            this.labelArrPower.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+            this.labelArrPower.Size = new System.Drawing.Size(319, 39);
             this.labelArrPower.TabIndex = 12;
             this.labelArrPower.Text = "-";
+            this.labelArrPower.WordWrap = false;
             // 
             // labelArrayPower
             // 
@@ -293,7 +287,7 @@
             // 
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(9, 369);
+            this.label5.Location = new System.Drawing.Point(9, 350);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(66, 13);
             this.label5.TabIndex = 9;
@@ -472,20 +466,6 @@
             this.outputStringsListBox.TabIndex = 1;
             this.outputStringsListBox.SelectedIndexChanged += new System.EventHandler(this.outputStringsListBox_SelectedIndexChanged);
             // 
-            // outputArrayLayoutControl
-            // 
-            this.outputArrayLayoutControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.outputArrayLayoutControl.AnimatedSelection = false;
-            this.outputArrayLayoutControl.Array = null;
-            this.outputArrayLayoutControl.CellString = null;
-            this.outputArrayLayoutControl.Editable = false;
-            this.outputArrayLayoutControl.EditBypassDiodes = false;
-            this.outputArrayLayoutControl.Location = new System.Drawing.Point(-11, 206);
-            this.outputArrayLayoutControl.Name = "outputArrayLayoutControl";
-            this.outputArrayLayoutControl.Size = new System.Drawing.Size(406, 180);
-            this.outputArrayLayoutControl.TabIndex = 0;
-            // 
             // tabPage1
             // 
             this.tabPage1.BackColor = System.Drawing.Color.Transparent;
@@ -630,6 +610,32 @@
             this.label10.TabIndex = 13;
             this.label10.Text = "Avg power:";
             // 
+            // simInputControls
+            // 
+            this.simInputControls.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.simInputControls.Location = new System.Drawing.Point(0, 0);
+            this.simInputControls.Name = "simInputControls";
+            this.simInputControls.SimInput = null;
+            this.simInputControls.Size = new System.Drawing.Size(406, 288);
+            this.simInputControls.TabIndex = 16;
+            this.simInputControls.Change += new System.EventHandler(this.simInputs_Change);
+            // 
+            // outputArrayLayoutControl
+            // 
+            this.outputArrayLayoutControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.outputArrayLayoutControl.AnimatedSelection = false;
+            this.outputArrayLayoutControl.Array = null;
+            this.outputArrayLayoutControl.CellString = null;
+            this.outputArrayLayoutControl.Editable = false;
+            this.outputArrayLayoutControl.EditBypassDiodes = false;
+            this.outputArrayLayoutControl.Location = new System.Drawing.Point(-11, 206);
+            this.outputArrayLayoutControl.Name = "outputArrayLayoutControl";
+            this.outputArrayLayoutControl.Size = new System.Drawing.Size(406, 180);
+            this.outputArrayLayoutControl.TabIndex = 0;
+            // 
             // glControl
             // 
             this.glControl.Array = null;
@@ -688,7 +694,7 @@
         private System.Windows.Forms.Label label5;
         private ArrayModelControl glControl;
         private System.Windows.Forms.OpenFileDialog openFileDialogModel;
-        private System.Windows.Forms.Label labelArrPower;
+        private System.Windows.Forms.RichTextBox labelArrPower;
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem layoutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cellParametersToolStripMenuItem;
