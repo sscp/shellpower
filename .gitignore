@@ -3,16 +3,15 @@ bin
 obj
 Binaries
 
-# mstest test results
+# mstest test results, debug output
 TestResults
+test*.png
 
-# other junk
+# windows, visual studio
 *.swp
 *.suo
 *.user
-meshes/*
-arrays/
-test*.png
+desktop.ini
 
 # latex
 *.aux
