@@ -62,11 +62,9 @@ namespace SSCP.ShellPower {
         /// </summary>
         private void InitializeArraySpec() {
             ArraySpec array = simInput.Array;
-            array.LayoutBoundsXZ = new RectangleF(-2.1f, -0.8f, 4.45f, 1.6f);
-            array.LayoutTexture = new Bitmap("C:/shellpower/arrays/sunbad_fat_cells_aliased.png");
-            LoadModel("C:/shellpower/meshes/sunbadThinCarWholeRotSmall.stl");
-            //array.LayoutTexture = new Bitmap("C:/shellpower/arrays/house_layout.png");
-            //LoadModel("C:/shellpower/meshes/house.stl");
+            array.LayoutBoundsXZ = new RectangleF(-0.115f, -0.23f, 2.15f, 4.820f);
+            array.LayoutTexture = ArrayModelControl.DEFAULT_TEX;
+            LoadModel("../../../../arrays/luminos/luminos.stl");
 
             // Sunpower C60 Bin I
             // http://www.kyletsai.com/uploads/9/7/5/3/9753015/sunpower_c60_bin_ghi.pdf
@@ -91,9 +89,17 @@ namespace SSCP.ShellPower {
 
         private void LoadModel(string filename) {
             Mesh mesh = LoadMesh(filename);
-            toolStripStatusLabel.Text = string.Format("Loaded model {0}, {1} triangles",
+            Vector3 size = mesh.BoundingBox.Max - mesh.BoundingBox.Min;
+            if (size.Length > 1000)
+            {
+                mesh = MeshUtils.Scale(mesh, 0.001f);
+                size *= 0.001f;
+            }
+            toolStripStatusLabel.Text = string.Format("Loaded model {0}, {1} triangles, {2:0.0}x{3:0.0}x{4:0.0}m",
                 System.IO.Path.GetFileName(filename),
-                mesh.triangles.Length);
+                mesh.triangles.Length,
+                size.X, size.Y, size.Z);
+            
             SetModel(mesh);
         }
 

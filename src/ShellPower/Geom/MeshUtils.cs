@@ -220,5 +220,15 @@ namespace SSCP.ShellPower {
             }
             return new Mesh(points.ToArray(), norms.ToArray(), tris.ToArray());
         }
+
+        public static Mesh Scale(Mesh mesh, float p)
+        {
+            Vector3[] newPoints = new Vector3[mesh.points.Length];
+            for (int i = 0; i < mesh.points.Length; i++)
+            {
+                newPoints[i] = p * mesh.points[i];
+            }
+            return new Mesh(newPoints, mesh.normals, mesh.triangles);
+        }
     }
 }

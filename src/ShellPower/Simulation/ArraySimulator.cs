@@ -232,7 +232,7 @@ void main()
             sprite.PushTransform();
             sprite.Render();
             sprite.PopTransform();
-            //DebugSaveBuffers();
+            DebugSaveBuffers();
         }
 
         private Vector3 GetSunDir(ArraySimulationStepInput simInput) {

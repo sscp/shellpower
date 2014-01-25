@@ -169,7 +169,7 @@ void main()
             GL.Uniform3(uniformSunDirection, sunDir);
         }
 
-        private static readonly Bitmap defaultTex = new Bitmap("C:/shellpower/arrays/sunbad_fat_cells_aliased.png");
+        public static readonly Bitmap DEFAULT_TEX = new Bitmap("../../../../arrays/luminos/luminos-splines.png");
         private Bitmap tex;
         private void SetTexture() {
             GL.BindTexture(TextureTarget.Texture2D, texArray);
@@ -177,7 +177,7 @@ void main()
                 return; // already up-to-date
             }
             tex = Array.LayoutTexture;
-            Bitmap bmp = (tex == null) ? defaultTex : tex;
+            Bitmap bmp = (tex == null) ? DEFAULT_TEX : tex;
             GLUtils.LoadTexture(bmp, TextureUnit.Texture0);
         }
 
