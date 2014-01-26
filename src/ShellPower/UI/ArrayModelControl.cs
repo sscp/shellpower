@@ -169,7 +169,7 @@ void main()
             GL.Uniform3(uniformSunDirection, sunDir);
         }
 
-        public static readonly Bitmap DEFAULT_TEX = new Bitmap("../../../../arrays/luminos/luminos-splines.png");
+        public static readonly Bitmap DEFAULT_TEX = new Bitmap(800, 400);
         private Bitmap tex;
         private void SetTexture() {
             GL.BindTexture(TextureTarget.Texture2D, texArray);

@@ -40,6 +40,7 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageRun = new System.Windows.Forms.TabPage();
+            this.simInputControls = new SSCP.ShellPower.ArraySimInputControl();
             this.btnRecalc = new System.Windows.Forms.Button();
             this.labelArrPower = new System.Windows.Forms.RichTextBox();
             this.labelArrayPower = new System.Windows.Forms.Label();
@@ -61,6 +62,7 @@
             this.label9 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.outputStringsListBox = new System.Windows.Forms.ListBox();
+            this.outputArrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBoxSimulation = new System.Windows.Forms.GroupBox();
             this.label19 = new System.Windows.Forms.Label();
@@ -75,9 +77,8 @@
             this.buttonRun = new System.Windows.Forms.Button();
             this.labelSimAvgPower = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
-            this.simInputControls = new SSCP.ShellPower.ArraySimInputControl();
-            this.outputArrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.glControl = new SSCP.ShellPower.ArrayModelControl();
+            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -89,6 +90,10 @@
             this.tabPageOutputs.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBoxSimulation.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
+            this.splitContainer2.Panel1.SuspendLayout();
+            this.splitContainer2.Panel2.SuspendLayout();
+            this.splitContainer2.SuspendLayout();
             this.SuspendLayout();
             // 
             // statusStrip1
@@ -141,7 +146,7 @@
             this.openLayoutToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.openLayoutToolStripMenuItem.Text = "Open layout texture";
             this.openLayoutToolStripMenuItem.ToolTipText = "Open a texture (image file, lossless compression like GIF or PNG, no antialiasing" +
-    ") that defines where each cell is on your array.";
+                ") that defines where each cell is on your array.";
             this.openLayoutToolStripMenuItem.Click += new System.EventHandler(this.openLayoutToolStripMenuItem_Click);
             // 
             // saveLayoutTextureToolStripMenuItem
@@ -176,7 +181,7 @@
             this.layoutTextureDimensionsToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
             this.layoutTextureDimensionsToolStripMenuItem.Text = "Layout texture dimensions";
             this.layoutTextureDimensionsToolStripMenuItem.ToolTipText = "Define which part of the model is covered by the layout texture image--in other w" +
-    "ords, where the cells are.";
+                "ords, where the cells are.";
             this.layoutTextureDimensionsToolStripMenuItem.Click += new System.EventHandler(this.layoutTextureDimensionsToolStripMenuItem_Click);
             // 
             // cellParametersToolStripMenuItem
@@ -185,7 +190,7 @@
             this.cellParametersToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
             this.cellParametersToolStripMenuItem.Text = "Cell parameters";
             this.cellParametersToolStripMenuItem.ToolTipText = "Define the characteristics of the indiviudual cell. Efficiency, fill factor, etc." +
-    "";
+                "";
             this.cellParametersToolStripMenuItem.Click += new System.EventHandler(this.cellParametersToolStripMenuItem_Click);
             // 
             // bypassDiodeParametersToolStripMenuItem
@@ -248,6 +253,18 @@
             this.tabPageRun.Text = "Params";
             this.tabPageRun.UseVisualStyleBackColor = true;
             // 
+            // simInputControls
+            // 
+            this.simInputControls.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.simInputControls.Location = new System.Drawing.Point(0, 0);
+            this.simInputControls.Name = "simInputControls";
+            this.simInputControls.SimInput = null;
+            this.simInputControls.Size = new System.Drawing.Size(406, 288);
+            this.simInputControls.TabIndex = 16;
+            this.simInputControls.Change += new System.EventHandler(this.simInputs_Change);
+            // 
             // btnRecalc
             // 
             this.btnRecalc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -261,8 +278,8 @@
             // 
             // labelArrPower
             // 
-            this.labelArrPower.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.labelArrPower.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.labelArrPower.AutoSize = true;
             this.labelArrPower.BackColor = System.Drawing.SystemColors.Control;
             this.labelArrPower.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -295,23 +312,7 @@
             // 
             // tabPageOutputs
             // 
-            this.tabPageOutputs.Controls.Add(this.outputStringFlattenedLabel);
-            this.tabPageOutputs.Controls.Add(this.label17);
-            this.tabPageOutputs.Controls.Add(this.outputStringPerfectMPPTLabel);
-            this.tabPageOutputs.Controls.Add(this.label15);
-            this.tabPageOutputs.Controls.Add(this.outputStringLabel);
-            this.tabPageOutputs.Controls.Add(this.outputStringIVLinkLabel);
-            this.tabPageOutputs.Controls.Add(this.outputStringShadedLabel);
-            this.tabPageOutputs.Controls.Add(this.label13);
-            this.tabPageOutputs.Controls.Add(this.outputStringAreaLabel);
-            this.tabPageOutputs.Controls.Add(this.label16);
-            this.tabPageOutputs.Controls.Add(this.outputStringPowerLabel);
-            this.tabPageOutputs.Controls.Add(this.label14);
-            this.tabPageOutputs.Controls.Add(this.outputStringInsolationLabel);
-            this.tabPageOutputs.Controls.Add(this.label9);
-            this.tabPageOutputs.Controls.Add(this.label6);
-            this.tabPageOutputs.Controls.Add(this.outputStringsListBox);
-            this.tabPageOutputs.Controls.Add(this.outputArrayLayoutControl);
+            this.tabPageOutputs.Controls.Add(this.splitContainer2);
             this.tabPageOutputs.Location = new System.Drawing.Point(4, 22);
             this.tabPageOutputs.Name = "tabPageOutputs";
             this.tabPageOutputs.Padding = new System.Windows.Forms.Padding(3);
@@ -322,8 +323,9 @@
             // 
             // outputStringFlattenedLabel
             // 
+            this.outputStringFlattenedLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.outputStringFlattenedLabel.AutoSize = true;
-            this.outputStringFlattenedLabel.Location = new System.Drawing.Point(305, 108);
+            this.outputStringFlattenedLabel.Location = new System.Drawing.Point(307, 114);
             this.outputStringFlattenedLabel.Name = "outputStringFlattenedLabel";
             this.outputStringFlattenedLabel.Size = new System.Drawing.Size(27, 13);
             this.outputStringFlattenedLabel.TabIndex = 16;
@@ -331,8 +333,9 @@
             // 
             // label17
             // 
+            this.label17.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(239, 108);
+            this.label17.Location = new System.Drawing.Point(241, 114);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(60, 13);
             this.label17.TabIndex = 15;
@@ -340,8 +343,9 @@
             // 
             // outputStringPerfectMPPTLabel
             // 
+            this.outputStringPerfectMPPTLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.outputStringPerfectMPPTLabel.AutoSize = true;
-            this.outputStringPerfectMPPTLabel.Location = new System.Drawing.Point(305, 87);
+            this.outputStringPerfectMPPTLabel.Location = new System.Drawing.Point(307, 93);
             this.outputStringPerfectMPPTLabel.Name = "outputStringPerfectMPPTLabel";
             this.outputStringPerfectMPPTLabel.Size = new System.Drawing.Size(27, 13);
             this.outputStringPerfectMPPTLabel.TabIndex = 14;
@@ -349,8 +353,9 @@
             // 
             // label15
             // 
+            this.label15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(214, 87);
+            this.label15.Location = new System.Drawing.Point(216, 93);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(85, 13);
             this.label15.TabIndex = 13;
@@ -358,8 +363,9 @@
             // 
             // outputStringLabel
             // 
+            this.outputStringLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.outputStringLabel.AutoSize = true;
-            this.outputStringLabel.Location = new System.Drawing.Point(230, 22);
+            this.outputStringLabel.Location = new System.Drawing.Point(232, 28);
             this.outputStringLabel.Name = "outputStringLabel";
             this.outputStringLabel.Size = new System.Drawing.Size(101, 13);
             this.outputStringLabel.TabIndex = 12;
@@ -367,8 +373,9 @@
             // 
             // outputStringIVLinkLabel
             // 
+            this.outputStringIVLinkLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.outputStringIVLinkLabel.AutoSize = true;
-            this.outputStringIVLinkLabel.Location = new System.Drawing.Point(305, 178);
+            this.outputStringIVLinkLabel.Location = new System.Drawing.Point(307, 184);
             this.outputStringIVLinkLabel.Name = "outputStringIVLinkLabel";
             this.outputStringIVLinkLabel.Size = new System.Drawing.Size(78, 13);
             this.outputStringIVLinkLabel.TabIndex = 11;
@@ -378,8 +385,9 @@
             // 
             // outputStringShadedLabel
             // 
+            this.outputStringShadedLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.outputStringShadedLabel.AutoSize = true;
-            this.outputStringShadedLabel.Location = new System.Drawing.Point(305, 152);
+            this.outputStringShadedLabel.Location = new System.Drawing.Point(307, 158);
             this.outputStringShadedLabel.Name = "outputStringShadedLabel";
             this.outputStringShadedLabel.Size = new System.Drawing.Size(36, 13);
             this.outputStringShadedLabel.TabIndex = 10;
@@ -387,8 +395,9 @@
             // 
             // label13
             // 
+            this.label13.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(245, 152);
+            this.label13.Location = new System.Drawing.Point(247, 158);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(54, 13);
             this.label13.TabIndex = 9;
@@ -396,8 +405,9 @@
             // 
             // outputStringAreaLabel
             // 
+            this.outputStringAreaLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.outputStringAreaLabel.AutoSize = true;
-            this.outputStringAreaLabel.Location = new System.Drawing.Point(305, 132);
+            this.outputStringAreaLabel.Location = new System.Drawing.Point(307, 138);
             this.outputStringAreaLabel.Name = "outputStringAreaLabel";
             this.outputStringAreaLabel.Size = new System.Drawing.Size(36, 13);
             this.outputStringAreaLabel.TabIndex = 8;
@@ -405,8 +415,9 @@
             // 
             // label16
             // 
+            this.label16.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(267, 132);
+            this.label16.Location = new System.Drawing.Point(269, 138);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(32, 13);
             this.label16.TabIndex = 7;
@@ -414,8 +425,9 @@
             // 
             // outputStringPowerLabel
             // 
+            this.outputStringPowerLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.outputStringPowerLabel.AutoSize = true;
-            this.outputStringPowerLabel.Location = new System.Drawing.Point(305, 67);
+            this.outputStringPowerLabel.Location = new System.Drawing.Point(307, 73);
             this.outputStringPowerLabel.Name = "outputStringPowerLabel";
             this.outputStringPowerLabel.Size = new System.Drawing.Size(27, 13);
             this.outputStringPowerLabel.TabIndex = 6;
@@ -423,8 +435,9 @@
             // 
             // label14
             // 
+            this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(225, 67);
+            this.label14.Location = new System.Drawing.Point(227, 73);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(74, 13);
             this.label14.TabIndex = 5;
@@ -432,8 +445,9 @@
             // 
             // outputStringInsolationLabel
             // 
+            this.outputStringInsolationLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.outputStringInsolationLabel.AutoSize = true;
-            this.outputStringInsolationLabel.Location = new System.Drawing.Point(305, 46);
+            this.outputStringInsolationLabel.Location = new System.Drawing.Point(307, 52);
             this.outputStringInsolationLabel.Name = "outputStringInsolationLabel";
             this.outputStringInsolationLabel.Size = new System.Drawing.Size(27, 13);
             this.outputStringInsolationLabel.TabIndex = 4;
@@ -441,8 +455,9 @@
             // 
             // label9
             // 
+            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(244, 46);
+            this.label9.Location = new System.Drawing.Point(246, 52);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(55, 13);
             this.label9.TabIndex = 3;
@@ -451,7 +466,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(3, 3);
+            this.label6.Location = new System.Drawing.Point(5, 9);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(134, 13);
             this.label6.TabIndex = 2;
@@ -459,12 +474,28 @@
             // 
             // outputStringsListBox
             // 
+            this.outputStringsListBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.outputStringsListBox.FormattingEnabled = true;
-            this.outputStringsListBox.Location = new System.Drawing.Point(3, 22);
+            this.outputStringsListBox.Location = new System.Drawing.Point(5, 28);
             this.outputStringsListBox.Name = "outputStringsListBox";
             this.outputStringsListBox.Size = new System.Drawing.Size(209, 186);
             this.outputStringsListBox.TabIndex = 1;
             this.outputStringsListBox.SelectedIndexChanged += new System.EventHandler(this.outputStringsListBox_SelectedIndexChanged);
+            // 
+            // outputArrayLayoutControl
+            // 
+            this.outputArrayLayoutControl.AnimatedSelection = false;
+            this.outputArrayLayoutControl.Array = null;
+            this.outputArrayLayoutControl.CellString = null;
+            this.outputArrayLayoutControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.outputArrayLayoutControl.Editable = false;
+            this.outputArrayLayoutControl.EditBypassDiodes = false;
+            this.outputArrayLayoutControl.Location = new System.Drawing.Point(0, 0);
+            this.outputArrayLayoutControl.Name = "outputArrayLayoutControl";
+            this.outputArrayLayoutControl.Size = new System.Drawing.Size(400, 167);
+            this.outputArrayLayoutControl.TabIndex = 0;
             // 
             // tabPage1
             // 
@@ -479,8 +510,8 @@
             // 
             // groupBoxSimulation
             // 
-            this.groupBoxSimulation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBoxSimulation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxSimulation.BackColor = System.Drawing.Color.Transparent;
             this.groupBoxSimulation.Controls.Add(this.label19);
             this.groupBoxSimulation.Controls.Add(this.dateTimePicker2);
@@ -610,32 +641,6 @@
             this.label10.TabIndex = 13;
             this.label10.Text = "Avg power:";
             // 
-            // simInputControls
-            // 
-            this.simInputControls.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.simInputControls.Location = new System.Drawing.Point(0, 0);
-            this.simInputControls.Name = "simInputControls";
-            this.simInputControls.SimInput = null;
-            this.simInputControls.Size = new System.Drawing.Size(406, 288);
-            this.simInputControls.TabIndex = 16;
-            this.simInputControls.Change += new System.EventHandler(this.simInputs_Change);
-            // 
-            // outputArrayLayoutControl
-            // 
-            this.outputArrayLayoutControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.outputArrayLayoutControl.AnimatedSelection = false;
-            this.outputArrayLayoutControl.Array = null;
-            this.outputArrayLayoutControl.CellString = null;
-            this.outputArrayLayoutControl.Editable = false;
-            this.outputArrayLayoutControl.EditBypassDiodes = false;
-            this.outputArrayLayoutControl.Location = new System.Drawing.Point(-11, 206);
-            this.outputArrayLayoutControl.Name = "outputArrayLayoutControl";
-            this.outputArrayLayoutControl.Size = new System.Drawing.Size(406, 180);
-            this.outputArrayLayoutControl.TabIndex = 0;
-            // 
             // glControl
             // 
             this.glControl.Array = null;
@@ -647,6 +652,39 @@
             this.glControl.Sprite = null;
             this.glControl.TabIndex = 0;
             this.glControl.VSync = true;
+            // 
+            // splitContainer2
+            // 
+            this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer2.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer2.Name = "splitContainer2";
+            this.splitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer2.Panel1
+            // 
+            this.splitContainer2.Panel1.Controls.Add(this.outputStringFlattenedLabel);
+            this.splitContainer2.Panel1.Controls.Add(this.label6);
+            this.splitContainer2.Panel1.Controls.Add(this.label17);
+            this.splitContainer2.Panel1.Controls.Add(this.outputStringsListBox);
+            this.splitContainer2.Panel1.Controls.Add(this.outputStringPerfectMPPTLabel);
+            this.splitContainer2.Panel1.Controls.Add(this.label9);
+            this.splitContainer2.Panel1.Controls.Add(this.label15);
+            this.splitContainer2.Panel1.Controls.Add(this.outputStringInsolationLabel);
+            this.splitContainer2.Panel1.Controls.Add(this.outputStringLabel);
+            this.splitContainer2.Panel1.Controls.Add(this.label14);
+            this.splitContainer2.Panel1.Controls.Add(this.outputStringIVLinkLabel);
+            this.splitContainer2.Panel1.Controls.Add(this.outputStringPowerLabel);
+            this.splitContainer2.Panel1.Controls.Add(this.outputStringShadedLabel);
+            this.splitContainer2.Panel1.Controls.Add(this.label16);
+            this.splitContainer2.Panel1.Controls.Add(this.label13);
+            this.splitContainer2.Panel1.Controls.Add(this.outputStringAreaLabel);
+            // 
+            // splitContainer2.Panel2
+            // 
+            this.splitContainer2.Panel2.Controls.Add(this.outputArrayLayoutControl);
+            this.splitContainer2.Size = new System.Drawing.Size(400, 389);
+            this.splitContainer2.SplitterDistance = 218;
+            this.splitContainer2.TabIndex = 17;
             // 
             // MainForm
             // 
@@ -670,10 +708,14 @@
             this.tabPageRun.ResumeLayout(false);
             this.tabPageRun.PerformLayout();
             this.tabPageOutputs.ResumeLayout(false);
-            this.tabPageOutputs.PerformLayout();
             this.tabPage1.ResumeLayout(false);
             this.groupBoxSimulation.ResumeLayout(false);
             this.groupBoxSimulation.PerformLayout();
+            this.splitContainer2.Panel1.ResumeLayout(false);
+            this.splitContainer2.Panel1.PerformLayout();
+            this.splitContainer2.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
+            this.splitContainer2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -736,5 +778,6 @@
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.Button btnRecalc;
         private SSCP.ShellPower.ArraySimInputControl simInputControls;
+        private System.Windows.Forms.SplitContainer splitContainer2;
     }
 }

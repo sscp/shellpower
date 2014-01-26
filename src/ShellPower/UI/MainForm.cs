@@ -95,7 +95,7 @@ namespace SSCP.ShellPower {
                 mesh = MeshUtils.Scale(mesh, 0.001f);
                 size *= 0.001f;
             }
-            toolStripStatusLabel.Text = string.Format("Loaded model {0}, {1} triangles, {2:0.0}x{3:0.0}x{4:0.0}m",
+            toolStripStatusLabel.Text = string.Format("Loaded model {0}, {1} triangles, {2:0.00}x{3:0.00}x{4:0.00}m",
                 System.IO.Path.GetFileName(filename),
                 mesh.triangles.Length,
                 size.X, size.Y, size.Z);
@@ -267,7 +267,7 @@ namespace SSCP.ShellPower {
                 //update ui
                 String boldLine = string.Format("{0:0}W over {1:0.00}m\u00B2 cell area", 
                     simOutput.WattsOutput, simOutput.ArrayArea);
-                String firstLine = string.Format(", {0:0.00}m\u00B2 texture area{1}, {2:0.00}m\u00B2 shaded",
+                String firstLine = string.Format(", {0:0.00}m\u00B2 lit cells{1}, {2:0.00}m\u00B2 shaded",
                     simOutputNoon.ArrayLitArea, arrayAreaDistortion>0.01 ? " (MISMATCH)":"", simOutputNoon.ArrayLitArea-simOutput.ArrayLitArea);
                 String secondLine = string.Format("(Power breakdown: {0:0}W {1:0}% in, {2:0}W {3:0}% ideal mppt, {4:0}W {5:0}% output)",
                     simOutput.WattsInsolation, simOutput.WattsInsolation / simOutputNoon.WattsInsolation * 100,

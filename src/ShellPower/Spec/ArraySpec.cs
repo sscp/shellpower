@@ -187,8 +187,8 @@ namespace SSCP.ShellPower {
             }
             LayoutTexture.UnlockBits(data);
         }
-        public void ReadStringsFromColors() {
 
+        public void ReadStringsFromColors() {
             // first, read out all the strings
             Strings.Clear();
             var cellMap = new Dictionary<Color, Cell>();

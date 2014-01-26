@@ -25,7 +25,7 @@ namespace SSCP.ShellPower {
                 if (_array != null && !_array.Strings.Contains(_cellStr)) {
                     _cellStr = null;
                 }
-                Refresh(); 
+                Refresh();
             }
         }
         public ArraySpec.CellString CellString {
@@ -50,7 +50,7 @@ namespace SSCP.ShellPower {
         private int mouseoverJunction;
         private ArraySpec.Cell mouseoverCell;
         // bypassCells count = [0,1,2] dep on ui state
-        private List<int> bypassJunctions = new List<int>(); 
+        private List<int> bypassJunctions = new List<int>();
 
         public ArrayLayoutControl() {
             // init view
@@ -61,7 +61,7 @@ namespace SSCP.ShellPower {
                           ControlStyles.ResizeRedraw |
                           ControlStyles.ContainerControl |
                           ControlStyles.OptimizedDoubleBuffer |
-                          ControlStyles.SupportsTransparentBackColor, 
+                          ControlStyles.SupportsTransparentBackColor,
                           true);
 
             // init model
@@ -90,7 +90,7 @@ namespace SSCP.ShellPower {
             tex = Array.LayoutTexture;
             w = tex.Width;
             h = tex.Height;
-            pixels = new Color[w,h];
+            pixels = new Color[w, h];
             Debug.WriteLine("copying out array layout texture pixels");
 
             // jump thru some hoops to read Bitmap data efficiently
@@ -99,9 +99,9 @@ namespace SSCP.ShellPower {
                 ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
             unsafe {
                 int* ptr = (int*)texData.Scan0.ToPointer();
-                for (int i = 0; i < w; i++){
-                    for(int j = 0; j < h; j++){
-                        Color pixelColor = Color.FromArgb(ptr[j*w + i] | unchecked((int)0xff000000));
+                for (int i = 0; i < w; i++) {
+                    for (int j = 0; j < h; j++) {
+                        Color pixelColor = Color.FromArgb(ptr[j * w + i] | unchecked((int)0xff000000));
                         Debug.Assert(pixelColor.A == 255);
                         pixels[i, j] = pixelColor;
                     }
@@ -110,22 +110,23 @@ namespace SSCP.ShellPower {
             tex.UnlockBits(texData);
         }
         private void UpdateTexSelected() {
-            if (texSelected == null || texSelected.Width != w || texSelected.Height != h) {
-                texSelected = new Bitmap(w, h);
+            int selW = w / 2, selH = h / 2;
+            if (texSelected == null || texSelected.Width != selW || texSelected.Height != selH) {
+                texSelected = new Bitmap(selW, selH);
             }
             BitmapData texSelData = texSelected.LockBits(
-                new Rectangle(0, 0, w, h),
+                new Rectangle(0, 0, selW, selH),
                 ImageLockMode.WriteOnly,
                 PixelFormat.Format32bppArgb);
             unsafe {
                 uint* ptr = (uint*)texSelData.Scan0.ToPointer();
-                for (int i = 0; i < w * h; i++) {
+                for (int i = 0; i < selW * selH; i++) {
                     ptr[i] = 0;
                 }
                 if (CellString != null) {
                     foreach (ArraySpec.Cell cell in CellString.Cells) {
                         foreach (Pair<int> pixel in cell.Pixels) {
-                            int i = pixel.First, j = pixel.Second;
+                            int i = pixel.First / 2, j = pixel.Second / 2;
                             bool mask = (j + i + frame) % 16 < 8;
                             uint alpha = (uint)(mask ? 0x80 : 0x00);
                             uint color = 0xffffff | (alpha << 24); // white highlight
@@ -139,7 +140,7 @@ namespace SSCP.ShellPower {
         private ArraySpec.Cell GetCellAtPixel(int pixelX, int pixelY) {
             // find click texture coords
             int x, y;
-            if (!GetTexCoord(pixelX,pixelY, out x, out y)) return null;
+            if (!GetTexCoord(pixelX, pixelY, out x, out y)) return null;
             Color color = pixels[x, y];
             if (ColorUtils.IsGrayscale(color)) return null;
 
@@ -180,7 +181,7 @@ namespace SSCP.ShellPower {
         }
         private int GetJunctionIxAtPixel(int pixelX, int pixelY) {
             PointF[] junctions = GetJunctions(GetCellCenterpoints());
-            int minIx = -1, minDD = JUNCTION_RADIUS_CLICK*JUNCTION_RADIUS_CLICK;
+            int minIx = -1, minDD = JUNCTION_RADIUS_CLICK * JUNCTION_RADIUS_CLICK;
             for (var i = 0; i < junctions.Length; i++) {
                 int dx = pixelX - (int)junctions[i].X;
                 int dy = pixelY - (int)junctions[i].Y;
@@ -246,7 +247,7 @@ namespace SSCP.ShellPower {
             // draw the background
             Graphics g = e.Graphics;
             g.Clear(Color.Black);
-            if(Array == null || Array.LayoutTexture == null){
+            if (Array == null || Array.LayoutTexture == null) {
                 return;
             }
             g.CompositingQuality = CompositingQuality.HighQuality;
@@ -275,22 +276,22 @@ namespace SSCP.ShellPower {
             for (int i = 0; i < ndiodes; i++) {
                 ArraySpec.BypassDiode diode = CellString.BypassDiodes[i];
                 PointF pA = junctionPoints[diode.CellIxs.First];
-                PointF pB = junctionPoints[diode.CellIxs.Second+1];
-                float perpX = (pB.Y - pA.Y)*0.2f;
-                float perpY = (pA.X - pB.X)*0.2f;
+                PointF pB = junctionPoints[diode.CellIxs.Second + 1];
+                float perpX = (pB.Y - pA.Y) * 0.2f;
+                float perpY = (pA.X - pB.X) * 0.2f;
                 PointF pMidA = new PointF(
-                    pA.X*0.7f+pB.X*0.3f+perpX,
-                    pA.Y*0.7f+pB.Y*0.3f+perpY);
+                    pA.X * 0.7f + pB.X * 0.3f + perpX,
+                    pA.Y * 0.7f + pB.Y * 0.3f + perpY);
                 PointF pMidB = new PointF(
-                    pA.X*0.3f+pB.X*0.7f+perpX,
-                    pA.Y*0.3f+pB.Y*0.7f+perpY);
+                    pA.X * 0.3f + pB.X * 0.7f + perpX,
+                    pA.Y * 0.3f + pB.Y * 0.7f + perpY);
                 g.DrawBezier(new Pen(Color.FromArgb(200, Color.Black), 5f), pA, pMidA, pMidB, pB);
                 g.DrawBezier(new Pen(Color.Red, 3f), pA, pMidA, pMidB, pB);
             }
 
             // draw junction selection
             int nj = bypassJunctions.Count + (mouseoverJunction < 0 ? 0 : 1);
-            for(int i = 0; i < nj; i++){
+            for (int i = 0; i < nj; i++) {
                 PointF pJ;
                 Brush bJ;
                 if (i < bypassJunctions.Count) {
@@ -308,7 +309,7 @@ namespace SSCP.ShellPower {
         protected override void OnMouseDown(MouseEventArgs e) {
         }
         protected override void OnMouseUp(MouseEventArgs e) {
-            if (!Editable || CellString==null) return;
+            if (!Editable || CellString == null) return;
 
             if (EditBypassDiodes) {
                 int junction = GetJunctionIxAtPixel(e.X, e.Y);
@@ -321,7 +322,7 @@ namespace SSCP.ShellPower {
                     int ix0 = Math.Min(bypassJunctions[0], bypassJunctions[1]);
                     int ix1 = Math.Max(bypassJunctions[0], bypassJunctions[1]) - 1;
                     ArraySpec.BypassDiode newDiode = new ArraySpec.BypassDiode();
-                    newDiode.CellIxs = new Pair<int>(ix0,ix1);
+                    newDiode.CellIxs = new Pair<int>(ix0, ix1);
                     if (!CellString.BypassDiodes.Remove(newDiode)) {
                         CellString.BypassDiodes.Add(newDiode);
                     }
@@ -343,7 +344,7 @@ namespace SSCP.ShellPower {
                 }
             }
 
-            if (CellStringChanged!=null) CellStringChanged(this, null);
+            if (CellStringChanged != null) CellStringChanged(this, null);
             Refresh();
         }
         protected override void OnMouseMove(MouseEventArgs e) {
@@ -354,18 +355,18 @@ namespace SSCP.ShellPower {
                 mouseoverCell = GetCellAtPixel(e.X, e.Y);
                 mouseoverJunction = -1;
             }
-            if(mouseoverJunction==-1 && mouseoverCell==null) {
+            if (mouseoverJunction == -1 && mouseoverCell == null) {
                 this.Cursor = Cursors.Arrow; // not clickable
             } else {
                 this.Cursor = Cursors.Hand;
-            } 
+            }
         }
         private bool GetTexCoord(int pixX, int pixY, out int x, out int y) {
             CreateTextureIfNeeded();
             RectangleF drawRect = GetArrayLayoutRect();
             x = (int)((pixX - drawRect.X) * w / drawRect.Width);
             y = (int)((pixY - drawRect.Y) * h / drawRect.Height);
-            return !(x < 0 || x >= w || y < 0 || y >= h) ;
+            return !(x < 0 || x >= w || y < 0 || y >= h);
         }
         private void timer_Tick(object sender, EventArgs e) {
             if (AnimatedSelection) {

@@ -223,9 +223,10 @@ void main()
             GL.ClearColor(Color.White);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            SetModelViewSun(sunDir);
+
+            Vector3 arrayCenter = ComputeArrayCenter(array);
             double arrayMaxDimension = ComputeArrayMaxDimension(array);
-            GLUtils.SetCameraProjectionOrtho(arrayMaxDimension);
+            SetCameraSunPOV(sunDir, arrayCenter, arrayMaxDimension);
 
             //render
             MeshSprite sprite = new MeshSprite(array.Mesh);
@@ -268,14 +269,21 @@ void main()
         }
 
         /// <summary>
-        /// Sets up the modelview matrix from the sun's point of view (for computation)
+        /// Sets up the modelview and projection matrices.
+        /// 
+        /// Looks at a given model from a given point of view, orthographic projection,
+        /// include the entire model in the viewport, Y direction is up.
         /// </summary>
-        private void SetModelViewSun(Vector3 sunDir) {
-            Matrix4 modelview = Matrix4.LookAt(sunDir * 50f, Vector3.Zero, Vector3.UnitY);
+        private void SetCameraSunPOV(Vector3 sunDir, Vector3 modelLocation, double modelMaxDimension) {
+            // Look at the car from 50m away, from the POV of the sun
+            // It needs to be far away to avoid view plane clipping.
+            Matrix4 modelview = Matrix4.LookAt(modelLocation + sunDir*50f, modelLocation, -Vector3.UnitY);
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
             GL.LoadMatrix(ref modelview);
             GL.Light(LightName.Light0, LightParameter.Position, new Vector4(sunDir, 0));
+
+            GLUtils.SetCameraProjectionOrtho(modelMaxDimension);
         }
 
         private void SetUniforms(ArraySpec array, double insolation) {
@@ -312,6 +320,14 @@ void main()
         private double ComputeArrayMaxDimension(ArraySpec array) {
             Quad3 arrayBB = array.Mesh.BoundingBox;
             return (arrayBB.Max - arrayBB.Min).Length;
+        }
+
+        /// <summary>
+        /// Finds the center of the array mesh. Uses the middle of the bounding box, for simplicity.
+        /// </summary>
+        private Vector3 ComputeArrayCenter(ArraySpec array) {
+            Quad3 arrayBB = array.Mesh.BoundingBox;
+            return (arrayBB.Max + arrayBB.Min) * 0.5f;
         }
 
         private float[] ReadFloatTexture(FramebufferAttachment fb, double scale) {
@@ -375,13 +391,14 @@ void main()
             double arrayDimM = ComputeArrayMaxDimension(array);
             double m2PerPixel = arrayDimM * arrayDimM / COMPUTE_TEX_SIZE / COMPUTE_TEX_SIZE;
             float[] texArea = ReadFloatTexture(FramebufferAttachment.ColorAttachment2, m2PerPixel / 4);
-            /*double dbgmin = texWattsIn[0], dbgmax = texWattsIn[0], dbgavg = 0;
-            for (int i = 0; i < texWattsIn.Length; i++) {
-                dbgmin = Math.Min(dbgmin, texWattsIn[i]);
-                dbgmax = Math.Max(dbgmax, texWattsIn[i]);
-                dbgavg += texWattsIn[i];
+            double dbgmin = texArea[0], dbgmax = texArea[0], dbgavg = 0;
+            for (int i = 0; i < texArea.Length; i++)
+            {
+                dbgmin = Math.Min(dbgmin, texArea[i]);
+                dbgmax = Math.Max(dbgmax, texArea[i]);
+                dbgavg += texArea[i];
             }
-            dbgavg /= texWattsIn.Length;*/
+            dbgavg /= texArea.Length;
 
             // find the cell at each fragment...
             int ncells = 0;
