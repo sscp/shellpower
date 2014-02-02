@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Threading;
 using OpenTK;
+using System.IO;
 
 namespace SSCP.ShellPower {
     public partial class MainForm : Form {
@@ -376,6 +377,8 @@ namespace SSCP.ShellPower {
             var simulator = new ArraySimulator();
             var simAvg = new ArraySimulationStepOutput();
             int nsim = 0;
+            TextWriter csv = new StreamWriter("../../../../output.csv");
+            csv.WriteLine("time_utc,insolation_w,output_w");
             for (DateTime time = utcStart; time <= utcEnd; time = time.AddMinutes(10), nsim++) {
                 simInput.Utc = time;
                 simInputControls.UpdateView();
@@ -390,7 +393,11 @@ namespace SSCP.ShellPower {
                 simAvg.WattsInsolation += simOutput.WattsInsolation;
                 simAvg.WattsOutputByCell += simOutput.WattsOutputByCell;
                 simAvg.WattsOutput += simOutput.WattsOutput;
+
+                // debug output
+                csv.WriteLine(time + "," + simOutput.WattsInsolation + "," + simOutput.WattsOutput);
             }
+            csv.Close();
 
             simAvg.ArrayLitArea /= nsim;
             simAvg.WattsInsolation /= nsim;

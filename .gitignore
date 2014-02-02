@@ -6,6 +6,7 @@ Binaries
 # mstest test results, debug output
 TestResults
 test*.png
+output.csv
 
 # windows, visual studio
 *.swp

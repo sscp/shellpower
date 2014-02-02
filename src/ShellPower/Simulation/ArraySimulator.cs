@@ -145,7 +145,6 @@ void main()
             GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment1Ext, TextureTarget.Texture2D, texWatts, 0);
             GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment2Ext, TextureTarget.Texture2D, texArea, 0);
             GL.Ext.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.DepthAttachment, TextureTarget.Texture2D, texDepth, 0);
-            GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0); // return to visible framebuffer
         }
 
         /// <summary>
@@ -189,6 +188,7 @@ void main()
                 DateTime dt1 = DateTime.Now;
                 SetUniforms(array, wPerM2Insolation);
                 ComputeRender(array, sunDir);
+                DebugSaveBuffers();
                 output = AnalyzeComputeTex(array, wPerM2Insolation, cTemp);
                 DateTime dt2 = DateTime.Now;
 
@@ -210,7 +210,7 @@ void main()
             Debug.WriteLine("rendering insolation+cells into a "
                 + computeWidth + "x" + computeWidth + " fbo");
             
-            /* gl state */
+            // gl state
             GL.UseProgram(shaderProg);
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, fboWatts);
             GL.DrawBuffers(3, new DrawBuffersEnum[]{
@@ -233,7 +233,6 @@ void main()
             sprite.PushTransform();
             sprite.Render();
             sprite.PopTransform();
-            DebugSaveBuffers();
         }
 
         private Vector3 GetSunDir(ArraySimulationStepInput simInput) {
@@ -487,8 +486,10 @@ void main()
                 strings[i].AreaShaded = strings[i].Area - stringLitArea;
                 IVTrace cellSweepIdeal = CellSimulator.CalcSweep(cellSpec,wPerM2Insolation,cTemp);
                 strings[i].WattsOutputIdeal = cellSweepIdeal.Pmp * cellStr.Cells.Count;
+
+                // total array power
+                totalWattsOutByString += stringSweep.Pmp;
             }
-            totalWattsOutByString = totalWattsOutByCell;
 
             ArraySimulationStepOutput output = new ArraySimulationStepOutput();
             output.ArrayArea = ncells * cellSpec.Area;
