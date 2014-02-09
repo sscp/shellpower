@@ -117,7 +117,7 @@ namespace SSCP.ShellPower {
             RecomputeArrayViewModel();
             if (EditBypassDiodes) {
                 int junction = GetJunctionIxAtPixel(e.X, e.Y);
-                if (junction == 0) {
+                if (junction < 0) {
                     return;
                 }
                 ClickBypassJunction(junction);

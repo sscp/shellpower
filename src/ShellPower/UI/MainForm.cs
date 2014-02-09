@@ -20,10 +20,14 @@ namespace SSCP.ShellPower {
         CellParamsForm cellParamsForm;
         ArrayDimensionsForm arrayDimsForm;
 
+        /* simulator */
+        ArraySimulator simulator;
+
         public MainForm() {
             // init view
             InitializeComponent();
             tabControl1.SelectedIndex = 0;
+            labelArrPower.Rtf = @"{\rtf1\ansi\deff0 Load model, load texture, then click simulate. }";
 
             // init model
             simInput.Array = new ArraySpec();
@@ -38,8 +42,6 @@ namespace SSCP.ShellPower {
             glControl.Array = simInput.Array;
             simInputControls.SimInput = simInput;
             InitOutputView();
-
-            labelArrPower.Rtf = @"{\rtf1\ansi\deff0 Load model, load texture, then click simulate. }";
         }
 
         private void InitOutputView() {
@@ -48,13 +50,13 @@ namespace SSCP.ShellPower {
         }
 
         private void InitTimeAndPlace() {
-            // Darwin, NT
-            simInput.Longitude = 130.84;
-            simInput.Latitude = -12.46;
-            simInput.Heading = Math.PI; // south
+            // Coober Pedy, SA
+            simInput.Longitude = 134.75555;
+            simInput.Latitude = -29.01111;
+            simInput.Heading = (134 + 90) * Math.PI / 180.0;
 
             // Start of WSC 2013
-            simInput.Utc = new DateTime(2013, 10, 6, 8, 30, 0).AddHours(-9.5);
+            simInput.Utc = new DateTime(2013, 10, 6, 8, 0, 0).AddHours(-9.5);
             simInput.Timezone = TimeZoneInfo.FindSystemTimeZoneById("AUS Central Standard Time");
         }
 
@@ -86,6 +88,14 @@ namespace SSCP.ShellPower {
         private void InitializeConditions() {
             simInput.Temperature = 25; // STC, 25 Celcius
             simInput.Insolation = 1000; // STC, 1000 W/m^2
+        }
+
+        private void InitSimulator()
+        {
+            if (simulator == null)
+            {
+                simulator = new ArraySimulator();
+            }
         }
 
         private void LoadModel(string filename) {
@@ -137,17 +147,6 @@ namespace SSCP.ShellPower {
             glControl.Sprite = shadowSprite;
 
             simInput.Array.Mesh = mesh;
-        }
-
-
-        /// <summary>
-        /// Called whenever the array changes.
-        /// Uses our model of the array (mesh, texture, etc) to
-        /// * update the view
-        /// * update the simulator
-        /// * recalculate
-        /// </summary>
-        private void UpdateModel() {
         }
 
         /// <summary>
@@ -241,17 +240,9 @@ namespace SSCP.ShellPower {
             CalculateSimStepGui();
         }
 
-        private void buttonRun_Click(object sender, EventArgs e) {
-
-        }
-
-        private void buttonAnimate_Click(object sender, EventArgs e) {
-
-        }
-
         private void btnRecalc_Click(object sender, EventArgs e) {
-            var simulator = new ArraySimulator();
             try {
+                InitSimulator();
                 ArraySimulationStepOutput simOutputNoon = simulator.Simulate(
                     simInput.Array, new Vector3(0.1f, 0.995f, 0.0f), simInput.Insolation, simInput.Temperature);
                 ArraySimulationStepOutput simOutput = simulator.Simulate(simInput);
@@ -371,14 +362,20 @@ namespace SSCP.ShellPower {
         }
 
         private void TimeAveragedSim() {
+            // input time range; all other inputs come from simInput
             DateTime utcStart = dateTimePicker1.Value.Subtract(simInput.Timezone.GetUtcOffset(dateTimePicker1.Value));
             DateTime utcEnd = dateTimePicker2.Value.Subtract(simInput.Timezone.GetUtcOffset(dateTimePicker2.Value));
 
-            var simulator = new ArraySimulator();
-            var simAvg = new ArraySimulationStepOutput();
-            int nsim = 0;
+            // step-by-step output
             TextWriter csv = new StreamWriter("../../../../output.csv");
             csv.WriteLine("time_utc,insolation_w,output_w");
+
+            // average output
+            var simAvg = new ArraySimulationStepOutput();
+
+            // simulate in 10-minute intervals
+            InitSimulator();
+            int nsim = 0;
             for (DateTime time = utcStart; time <= utcEnd; time = time.AddMinutes(10), nsim++) {
                 simInput.Utc = time;
                 simInputControls.UpdateView();
@@ -399,6 +396,7 @@ namespace SSCP.ShellPower {
             }
             csv.Close();
 
+            // show the average output
             simAvg.ArrayLitArea /= nsim;
             simAvg.WattsInsolation /= nsim;
             simAvg.WattsOutputByCell /= nsim;
@@ -411,6 +409,5 @@ namespace SSCP.ShellPower {
             Debug.WriteLine("   ... " + simAvg.WattsOutput + " W output");
 
         }
-
     }
 }

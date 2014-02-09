@@ -8,7 +8,9 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 namespace SSCP.ShellPower {
-    public class ArraySimulator {
+    public class ArraySimulator
+    {
+        private const int COMPUTE_TEX_SIZE = 2048; // width and height of the compute textures
 
         /* opengl for computation program and args */
         private int shaderVert, shaderFrag, shaderProg;
@@ -24,17 +26,15 @@ namespace SSCP.ShellPower {
 
         /* model */
         public ArraySimulator() {
-            InitGLArrayComputeShaders();
-            InitGLComputeBuffer();
-            InitGLArrayTextures();
+            InitGLInputShaders();
+            InitGLOutputBuffers();
+            InitGLInputArrayTexture();
         }
-
-        private const int COMPUTE_TEX_SIZE = 2048; // width and height of the compute textures
 
         /// <summary>
         /// Shaders to compute array properties
         /// </summary>
-        private void InitGLArrayComputeShaders() {
+        private void InitGLInputShaders() {
             Debug.WriteLine("compiling shaders");
             shaderFrag = GL.CreateShader(ShaderType.FragmentShader);
             shaderVert = GL.CreateShader(ShaderType.VertexShader);
@@ -80,9 +80,9 @@ void main()
 }");
 
             GL.CompileShader(shaderVert);
-            Debug.WriteLine("info (vert shader): " + GL.GetShaderInfoLog(shaderVert));
+            Debug.WriteLine("vert shader compiled: " + GL.GetShaderInfoLog(shaderVert));
             GL.CompileShader(shaderFrag);
-            Debug.WriteLine("info (frag shader): " + GL.GetShaderInfoLog(shaderFrag));
+            Debug.WriteLine("frag shader compiled: " + GL.GetShaderInfoLog(shaderFrag));
             shaderProg = GL.CreateProgram();
             GL.AttachShader(shaderProg, shaderVert);
             GL.AttachShader(shaderProg, shaderFrag);
@@ -103,7 +103,7 @@ void main()
         /// <summary>
         /// Creates the output buffers.
         /// </summary>
-        private void InitGLComputeBuffer() {
+        private void InitGLOutputBuffers() {
             computeWidth = computeHeight = COMPUTE_TEX_SIZE;
 
             // one buffer for insolation in W...
@@ -153,12 +153,10 @@ void main()
         /// Assumes a top-down projection, ie the texture UVs are the
         /// vertex X and Z coords with a scale factor and an offset.
         /// </summary>
-        private void InitGLArrayTextures() {
+        private void InitGLInputArrayTexture() {
             texArray = GL.GenTexture();
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, texArray);
-            /*GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, 
-                (float)TextureEnvMode.Modulate);*/
             GLUtils.FastTexSettings();
         }
 
@@ -222,7 +220,6 @@ void main()
             GL.Viewport(0, 0, computeWidth, computeHeight);
             GL.ClearColor(Color.White);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
 
             Vector3 arrayCenter = ComputeArrayCenter(array);
             double arrayMaxDimension = ComputeArrayMaxDimension(array);
@@ -295,6 +292,8 @@ void main()
             GL.Uniform1(uniformZ1, array.LayoutBoundsXZ.Bottom);
 
             // array layout texture. shows where each cell is located.
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, texArray);
             if (cacheSolarCells != array.LayoutTexture) {
                 cacheSolarCells = array.LayoutTexture;
                 GLUtils.LoadTexture(array.LayoutTexture, TextureUnit.Texture0);

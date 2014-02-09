@@ -172,6 +172,7 @@ void main()
         public static readonly Bitmap DEFAULT_TEX = new Bitmap(800, 400);
         private Bitmap tex;
         private void SetTexture() {
+            GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, texArray);
             if (Array == null || Array.LayoutTexture == tex) {
                 return; // already up-to-date

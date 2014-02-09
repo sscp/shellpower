@@ -40,29 +40,28 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageRun = new System.Windows.Forms.TabPage();
-            this.simInputControls = new SSCP.ShellPower.ArraySimInputControl();
             this.btnRecalc = new System.Windows.Forms.Button();
             this.labelArrPower = new System.Windows.Forms.RichTextBox();
             this.labelArrayPower = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.tabPageOutputs = new System.Windows.Forms.TabPage();
+            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.outputStringFlattenedLabel = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
+            this.outputStringsListBox = new System.Windows.Forms.ListBox();
             this.outputStringPerfectMPPTLabel = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
+            this.outputStringInsolationLabel = new System.Windows.Forms.Label();
             this.outputStringLabel = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
             this.outputStringIVLinkLabel = new System.Windows.Forms.LinkLabel();
+            this.outputStringPowerLabel = new System.Windows.Forms.Label();
             this.outputStringShadedLabel = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
             this.outputStringAreaLabel = new System.Windows.Forms.Label();
-            this.label16 = new System.Windows.Forms.Label();
-            this.outputStringPowerLabel = new System.Windows.Forms.Label();
-            this.label14 = new System.Windows.Forms.Label();
-            this.outputStringInsolationLabel = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.outputStringsListBox = new System.Windows.Forms.ListBox();
-            this.outputArrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBoxSimulation = new System.Windows.Forms.GroupBox();
             this.label19 = new System.Windows.Forms.Label();
@@ -77,8 +76,9 @@
             this.buttonRun = new System.Windows.Forms.Button();
             this.labelSimAvgPower = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
+            this.simInputControls = new SSCP.ShellPower.ArraySimInputControl();
+            this.outputArrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.glControl = new SSCP.ShellPower.ArrayModelControl();
-            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -88,12 +88,12 @@
             this.tabControl1.SuspendLayout();
             this.tabPageRun.SuspendLayout();
             this.tabPageOutputs.SuspendLayout();
-            this.tabPage1.SuspendLayout();
-            this.groupBoxSimulation.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
+            this.tabPage1.SuspendLayout();
+            this.groupBoxSimulation.SuspendLayout();
             this.SuspendLayout();
             // 
             // statusStrip1
@@ -253,18 +253,6 @@
             this.tabPageRun.Text = "Params";
             this.tabPageRun.UseVisualStyleBackColor = true;
             // 
-            // simInputControls
-            // 
-            this.simInputControls.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.simInputControls.Location = new System.Drawing.Point(0, 0);
-            this.simInputControls.Name = "simInputControls";
-            this.simInputControls.SimInput = null;
-            this.simInputControls.Size = new System.Drawing.Size(406, 288);
-            this.simInputControls.TabIndex = 16;
-            this.simInputControls.Change += new System.EventHandler(this.simInputs_Change);
-            // 
             // btnRecalc
             // 
             this.btnRecalc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -321,6 +309,39 @@
             this.tabPageOutputs.Text = "Outputs";
             this.tabPageOutputs.UseVisualStyleBackColor = true;
             // 
+            // splitContainer2
+            // 
+            this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer2.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer2.Name = "splitContainer2";
+            this.splitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer2.Panel1
+            // 
+            this.splitContainer2.Panel1.Controls.Add(this.outputStringFlattenedLabel);
+            this.splitContainer2.Panel1.Controls.Add(this.label6);
+            this.splitContainer2.Panel1.Controls.Add(this.label17);
+            this.splitContainer2.Panel1.Controls.Add(this.outputStringsListBox);
+            this.splitContainer2.Panel1.Controls.Add(this.outputStringPerfectMPPTLabel);
+            this.splitContainer2.Panel1.Controls.Add(this.label9);
+            this.splitContainer2.Panel1.Controls.Add(this.label15);
+            this.splitContainer2.Panel1.Controls.Add(this.outputStringInsolationLabel);
+            this.splitContainer2.Panel1.Controls.Add(this.outputStringLabel);
+            this.splitContainer2.Panel1.Controls.Add(this.label14);
+            this.splitContainer2.Panel1.Controls.Add(this.outputStringIVLinkLabel);
+            this.splitContainer2.Panel1.Controls.Add(this.outputStringPowerLabel);
+            this.splitContainer2.Panel1.Controls.Add(this.outputStringShadedLabel);
+            this.splitContainer2.Panel1.Controls.Add(this.label16);
+            this.splitContainer2.Panel1.Controls.Add(this.label13);
+            this.splitContainer2.Panel1.Controls.Add(this.outputStringAreaLabel);
+            // 
+            // splitContainer2.Panel2
+            // 
+            this.splitContainer2.Panel2.Controls.Add(this.outputArrayLayoutControl);
+            this.splitContainer2.Size = new System.Drawing.Size(400, 389);
+            this.splitContainer2.SplitterDistance = 218;
+            this.splitContainer2.TabIndex = 17;
+            // 
             // outputStringFlattenedLabel
             // 
             this.outputStringFlattenedLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -330,6 +351,15 @@
             this.outputStringFlattenedLabel.Size = new System.Drawing.Size(27, 13);
             this.outputStringFlattenedLabel.TabIndex = 16;
             this.outputStringFlattenedLabel.Text = "0 W";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(5, 9);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(134, 13);
+            this.label6.TabIndex = 2;
+            this.label6.Text = "Performance of each string";
             // 
             // label17
             // 
@@ -341,6 +371,18 @@
             this.label17.TabIndex = 15;
             this.label17.Text = "...flattened:";
             // 
+            // outputStringsListBox
+            // 
+            this.outputStringsListBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.outputStringsListBox.FormattingEnabled = true;
+            this.outputStringsListBox.Location = new System.Drawing.Point(5, 28);
+            this.outputStringsListBox.Name = "outputStringsListBox";
+            this.outputStringsListBox.Size = new System.Drawing.Size(209, 186);
+            this.outputStringsListBox.TabIndex = 1;
+            this.outputStringsListBox.SelectedIndexChanged += new System.EventHandler(this.outputStringsListBox_SelectedIndexChanged);
+            // 
             // outputStringPerfectMPPTLabel
             // 
             this.outputStringPerfectMPPTLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -350,6 +392,16 @@
             this.outputStringPerfectMPPTLabel.Size = new System.Drawing.Size(27, 13);
             this.outputStringPerfectMPPTLabel.TabIndex = 14;
             this.outputStringPerfectMPPTLabel.Text = "0 W";
+            // 
+            // label9
+            // 
+            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(246, 52);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(55, 13);
+            this.label9.TabIndex = 3;
+            this.label9.Text = "Insolation:";
             // 
             // label15
             // 
@@ -361,6 +413,16 @@
             this.label15.TabIndex = 13;
             this.label15.Text = "...perfect MPPT:";
             // 
+            // outputStringInsolationLabel
+            // 
+            this.outputStringInsolationLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.outputStringInsolationLabel.AutoSize = true;
+            this.outputStringInsolationLabel.Location = new System.Drawing.Point(307, 52);
+            this.outputStringInsolationLabel.Name = "outputStringInsolationLabel";
+            this.outputStringInsolationLabel.Size = new System.Drawing.Size(27, 13);
+            this.outputStringInsolationLabel.TabIndex = 4;
+            this.outputStringInsolationLabel.Text = "0 W";
+            // 
             // outputStringLabel
             // 
             this.outputStringLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -370,6 +432,16 @@
             this.outputStringLabel.Size = new System.Drawing.Size(101, 13);
             this.outputStringLabel.TabIndex = 12;
             this.outputStringLabel.Text = "(No string selected.)";
+            // 
+            // label14
+            // 
+            this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(227, 73);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(74, 13);
+            this.label14.TabIndex = 5;
+            this.label14.Text = "Output power:";
             // 
             // outputStringIVLinkLabel
             // 
@@ -383,6 +455,16 @@
             this.outputStringIVLinkLabel.Text = "Show IV Trace";
             this.outputStringIVLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.outputStringIVLinkLabel_LinkClicked);
             // 
+            // outputStringPowerLabel
+            // 
+            this.outputStringPowerLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.outputStringPowerLabel.AutoSize = true;
+            this.outputStringPowerLabel.Location = new System.Drawing.Point(307, 73);
+            this.outputStringPowerLabel.Name = "outputStringPowerLabel";
+            this.outputStringPowerLabel.Size = new System.Drawing.Size(27, 13);
+            this.outputStringPowerLabel.TabIndex = 6;
+            this.outputStringPowerLabel.Text = "0 W";
+            // 
             // outputStringShadedLabel
             // 
             this.outputStringShadedLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -392,6 +474,16 @@
             this.outputStringShadedLabel.Size = new System.Drawing.Size(36, 13);
             this.outputStringShadedLabel.TabIndex = 10;
             this.outputStringShadedLabel.Text = "0 m^2";
+            // 
+            // label16
+            // 
+            this.label16.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(269, 138);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(32, 13);
+            this.label16.TabIndex = 7;
+            this.label16.Text = "Area:";
             // 
             // label13
             // 
@@ -412,90 +504,6 @@
             this.outputStringAreaLabel.Size = new System.Drawing.Size(36, 13);
             this.outputStringAreaLabel.TabIndex = 8;
             this.outputStringAreaLabel.Text = "0 m^2";
-            // 
-            // label16
-            // 
-            this.label16.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(269, 138);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(32, 13);
-            this.label16.TabIndex = 7;
-            this.label16.Text = "Area:";
-            // 
-            // outputStringPowerLabel
-            // 
-            this.outputStringPowerLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.outputStringPowerLabel.AutoSize = true;
-            this.outputStringPowerLabel.Location = new System.Drawing.Point(307, 73);
-            this.outputStringPowerLabel.Name = "outputStringPowerLabel";
-            this.outputStringPowerLabel.Size = new System.Drawing.Size(27, 13);
-            this.outputStringPowerLabel.TabIndex = 6;
-            this.outputStringPowerLabel.Text = "0 W";
-            // 
-            // label14
-            // 
-            this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(227, 73);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(74, 13);
-            this.label14.TabIndex = 5;
-            this.label14.Text = "Output power:";
-            // 
-            // outputStringInsolationLabel
-            // 
-            this.outputStringInsolationLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.outputStringInsolationLabel.AutoSize = true;
-            this.outputStringInsolationLabel.Location = new System.Drawing.Point(307, 52);
-            this.outputStringInsolationLabel.Name = "outputStringInsolationLabel";
-            this.outputStringInsolationLabel.Size = new System.Drawing.Size(27, 13);
-            this.outputStringInsolationLabel.TabIndex = 4;
-            this.outputStringInsolationLabel.Text = "0 W";
-            // 
-            // label9
-            // 
-            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(246, 52);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(55, 13);
-            this.label9.TabIndex = 3;
-            this.label9.Text = "Insolation:";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(5, 9);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(134, 13);
-            this.label6.TabIndex = 2;
-            this.label6.Text = "Performance of each string";
-            // 
-            // outputStringsListBox
-            // 
-            this.outputStringsListBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.outputStringsListBox.FormattingEnabled = true;
-            this.outputStringsListBox.Location = new System.Drawing.Point(5, 28);
-            this.outputStringsListBox.Name = "outputStringsListBox";
-            this.outputStringsListBox.Size = new System.Drawing.Size(209, 186);
-            this.outputStringsListBox.TabIndex = 1;
-            this.outputStringsListBox.SelectedIndexChanged += new System.EventHandler(this.outputStringsListBox_SelectedIndexChanged);
-            // 
-            // outputArrayLayoutControl
-            // 
-            this.outputArrayLayoutControl.AnimatedSelection = false;
-            this.outputArrayLayoutControl.Array = null;
-            this.outputArrayLayoutControl.CellString = null;
-            this.outputArrayLayoutControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.outputArrayLayoutControl.Editable = false;
-            this.outputArrayLayoutControl.EditBypassDiodes = false;
-            this.outputArrayLayoutControl.Location = new System.Drawing.Point(0, 0);
-            this.outputArrayLayoutControl.Name = "outputArrayLayoutControl";
-            this.outputArrayLayoutControl.Size = new System.Drawing.Size(400, 167);
-            this.outputArrayLayoutControl.TabIndex = 0;
             // 
             // tabPage1
             // 
@@ -537,17 +545,19 @@
             this.label19.AutoSize = true;
             this.label19.Location = new System.Drawing.Point(45, 67);
             this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(128, 13);
+            this.label19.Size = new System.Drawing.Size(167, 13);
             this.label19.TabIndex = 23;
-            this.label19.Text = "Local time. See timezone.";
+            this.label19.Text = "UTC: See timezone under Params";
             // 
             // dateTimePicker2
             // 
+            this.dateTimePicker2.CustomFormat = "yyyy-MM-dd HH:mm (local)";
+            this.dateTimePicker2.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.dateTimePicker2.Location = new System.Drawing.Point(102, 41);
             this.dateTimePicker2.Name = "dateTimePicker2";
-            this.dateTimePicker2.Size = new System.Drawing.Size(200, 20);
+            this.dateTimePicker2.Size = new System.Drawing.Size(194, 20);
             this.dateTimePicker2.TabIndex = 22;
-            this.dateTimePicker2.Value = new System.DateTime(2013, 10, 6, 17, 30, 0, 0);
+            this.dateTimePicker2.Value = new System.DateTime(2013, 10, 9, 17, 0, 0, 0);
             this.dateTimePicker2.ValueChanged += new System.EventHandler(this.dateTimePicker2_ValueChanged);
             // 
             // label18
@@ -561,11 +571,13 @@
             // 
             // dateTimePicker1
             // 
+            this.dateTimePicker1.CustomFormat = "yyyy-MM-dd HH:mm (local)";
+            this.dateTimePicker1.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.dateTimePicker1.Location = new System.Drawing.Point(102, 15);
             this.dateTimePicker1.Name = "dateTimePicker1";
-            this.dateTimePicker1.Size = new System.Drawing.Size(200, 20);
+            this.dateTimePicker1.Size = new System.Drawing.Size(194, 20);
             this.dateTimePicker1.TabIndex = 20;
-            this.dateTimePicker1.Value = new System.DateTime(2013, 10, 6, 8, 30, 0, 0);
+            this.dateTimePicker1.Value = new System.DateTime(2013, 10, 9, 8, 0, 0, 0);
             this.dateTimePicker1.ValueChanged += new System.EventHandler(this.dateTimePicker1_ValueChanged);
             // 
             // label11
@@ -641,6 +653,31 @@
             this.label10.TabIndex = 13;
             this.label10.Text = "Avg power:";
             // 
+            // simInputControls
+            // 
+            this.simInputControls.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.simInputControls.Location = new System.Drawing.Point(0, 0);
+            this.simInputControls.Name = "simInputControls";
+            this.simInputControls.SimInput = null;
+            this.simInputControls.Size = new System.Drawing.Size(406, 288);
+            this.simInputControls.TabIndex = 16;
+            this.simInputControls.Change += new System.EventHandler(this.simInputs_Change);
+            // 
+            // outputArrayLayoutControl
+            // 
+            this.outputArrayLayoutControl.AnimatedSelection = false;
+            this.outputArrayLayoutControl.Array = null;
+            this.outputArrayLayoutControl.CellString = null;
+            this.outputArrayLayoutControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.outputArrayLayoutControl.Editable = false;
+            this.outputArrayLayoutControl.EditBypassDiodes = false;
+            this.outputArrayLayoutControl.Location = new System.Drawing.Point(0, 0);
+            this.outputArrayLayoutControl.Name = "outputArrayLayoutControl";
+            this.outputArrayLayoutControl.Size = new System.Drawing.Size(400, 167);
+            this.outputArrayLayoutControl.TabIndex = 0;
+            // 
             // glControl
             // 
             this.glControl.Array = null;
@@ -652,39 +689,6 @@
             this.glControl.Sprite = null;
             this.glControl.TabIndex = 0;
             this.glControl.VSync = true;
-            // 
-            // splitContainer2
-            // 
-            this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer2.Location = new System.Drawing.Point(3, 3);
-            this.splitContainer2.Name = "splitContainer2";
-            this.splitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // splitContainer2.Panel1
-            // 
-            this.splitContainer2.Panel1.Controls.Add(this.outputStringFlattenedLabel);
-            this.splitContainer2.Panel1.Controls.Add(this.label6);
-            this.splitContainer2.Panel1.Controls.Add(this.label17);
-            this.splitContainer2.Panel1.Controls.Add(this.outputStringsListBox);
-            this.splitContainer2.Panel1.Controls.Add(this.outputStringPerfectMPPTLabel);
-            this.splitContainer2.Panel1.Controls.Add(this.label9);
-            this.splitContainer2.Panel1.Controls.Add(this.label15);
-            this.splitContainer2.Panel1.Controls.Add(this.outputStringInsolationLabel);
-            this.splitContainer2.Panel1.Controls.Add(this.outputStringLabel);
-            this.splitContainer2.Panel1.Controls.Add(this.label14);
-            this.splitContainer2.Panel1.Controls.Add(this.outputStringIVLinkLabel);
-            this.splitContainer2.Panel1.Controls.Add(this.outputStringPowerLabel);
-            this.splitContainer2.Panel1.Controls.Add(this.outputStringShadedLabel);
-            this.splitContainer2.Panel1.Controls.Add(this.label16);
-            this.splitContainer2.Panel1.Controls.Add(this.label13);
-            this.splitContainer2.Panel1.Controls.Add(this.outputStringAreaLabel);
-            // 
-            // splitContainer2.Panel2
-            // 
-            this.splitContainer2.Panel2.Controls.Add(this.outputArrayLayoutControl);
-            this.splitContainer2.Size = new System.Drawing.Size(400, 389);
-            this.splitContainer2.SplitterDistance = 218;
-            this.splitContainer2.TabIndex = 17;
             // 
             // MainForm
             // 
@@ -708,14 +712,14 @@
             this.tabPageRun.ResumeLayout(false);
             this.tabPageRun.PerformLayout();
             this.tabPageOutputs.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
-            this.groupBoxSimulation.ResumeLayout(false);
-            this.groupBoxSimulation.PerformLayout();
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel1.PerformLayout();
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
+            this.groupBoxSimulation.ResumeLayout(false);
+            this.groupBoxSimulation.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
