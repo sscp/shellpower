@@ -27,11 +27,5 @@ namespace SSCP.ShellPower {
             var ret = serializer.Deserialize<T>(json);
             return ret;
         }
-        public static XmlDocument GetXml(string url) {
-            var doc = new XmlDocument();
-            var stream = GetStream(url);
-            doc.Load(stream);
-            return doc;
-        }
     }
 }

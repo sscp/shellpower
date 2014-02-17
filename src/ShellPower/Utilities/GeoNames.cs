@@ -31,13 +31,12 @@ namespace SSCP.ShellPower {
         LruCache<TimezoneResponse, Vector2d> cache = new LruCache<TimezoneResponse, Vector2d>(tz => new Vector2d(tz.Lat, tz.Lng));
 
         public float GetTimezone(double lat, double lng) {
-            //var tz = GetTimezoneResponse(lat, lng);
-            //return tz.GmtOffset;
-            return 9.5f;
+            var tz = GetTimezoneResponse(lat, lng);
+            return tz.GmtOffset;
         }
         public string GetTimezoneName(double lat, double lng) {
-            //var tz = GetTimezoneResponse(lat, lng);
-            return "Northern Territories"; // tz.TimezoneId;
+            var tz = GetTimezoneResponse(lat, lng);
+            return tz.TimezoneId;
         }
         public DateTime GetSunrise(double lat, double lng) {
             var tz = GetTimezoneResponse(lat, lng);

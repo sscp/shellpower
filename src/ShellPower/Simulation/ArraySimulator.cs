@@ -232,36 +232,34 @@ void main()
             sprite.PopTransform();
         }
 
-        private Vector3 GetSunDir(ArraySimulationStepInput simInput) {
+        //TODO: move to a utility class
+        public static Vector3 GetSunDir(ArraySimulationStepInput simInput) {
             // update the astronomy model
             var utc_time = simInput.Utc;
             var sidereal = Astro.sidereal_time(
                 utc_time,
                 simInput.Longitude);
-            var azimuth = Astro.solar_azimuth(
-                (int)sidereal.TimeOfDay.TotalSeconds,
-                sidereal.DayOfYear,
-                simInput.Latitude)
-                - (float)simInput.Heading;
-            var elevation = Astro.solar_elevation(
+            var solarAzimuth = Astro.solar_azimuth(
                 (int)sidereal.TimeOfDay.TotalSeconds,
                 sidereal.DayOfYear,
                 simInput.Latitude);
-            Logger.info("sim step\n\t" +
-                "lat {0:0.0} lon {1:0.0} heading {2:0.0}\n\t" +
-                "azith {3:0.0} elev {4:0.0} utc {5} sidereal {6}",
-                simInput.Latitude,
-                simInput.Longitude,
-                Astro.rad2deg(simInput.Heading),
-                Astro.rad2deg(azimuth),
-                Astro.rad2deg(elevation),
-                utc_time,
-                sidereal);
+            var solarElevation = Astro.solar_elevation(
+                (int)sidereal.TimeOfDay.TotalSeconds,
+                sidereal.DayOfYear,
+                simInput.Latitude);
 
-            var lightDir = new Vector3(
-                (float)(-Math.Cos(elevation) * Math.Cos(azimuth)), (float)(Math.Sin(elevation)),
-                (float)(-Math.Cos(elevation) * Math.Sin(azimuth)));
-            return lightDir;
+            // correct for the car's heading and tilt
+            var phi = solarAzimuth - simInput.Heading;
+
+            var x = Math.Cos(solarElevation) * Math.Cos(phi); // phi 0 = forward = +X
+            var y = Math.Cos(solarElevation) * Math.Sin(phi); // phi 90deg = left = +Y
+            var z = Math.Sin(solarElevation); // up = +Z
+
+            z = Math.Cos(simInput.Tilt) * z + Math.Sin(simInput.Tilt) * y; // +tilt = tilt right
+            y = Math.Cos(simInput.Tilt) * y - Math.Sin(simInput.Tilt) * z;
+
+            //recalculate the shadows
+            return new Vector3((float)x, (float)z, (float)y);
         }
 
         /// <summary>

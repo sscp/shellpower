@@ -40,11 +40,23 @@ namespace SSCP.ShellPower {
                 string[] headings = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW" };
                 int dirIx = (int)Math.Round(simInput.Heading / (2 * Math.PI) * 16);
                 if (dirIx >= headings.Length) dirIx -= headings.Length;
-                labelCarDirection.Text = string.Format("{0:0.00} {1}",
-                    simInput.Heading * 180 / Math.PI, headings[dirIx]);
+                labelCarDirection.Text = string.Format("{0:0.00}° {1}",
+                    Astro.rad2deg(simInput.Heading), headings[dirIx]);
                 int dirIx2 = (int)Math.Round(simInput.Heading / (2 * Math.PI) * (trackBarCarDirection.Maximum+1));
                 if (dirIx2 > trackBarCarDirection.Maximum) dirIx2 -= trackBarCarDirection.Maximum + 1;
                 trackBarCarDirection.Value = dirIx2;
+
+                /* set tilt */
+                double tiltDeg = Astro.rad2deg(Math.Abs(simInput.Tilt));
+                String tiltDir;
+                if(simInput.Tilt > 0){
+                    tiltDir = "right";
+                } else if(simInput.Tilt < 0){
+                    tiltDir = "left";
+                } else {
+                    tiltDir = "";
+                }
+                labelTilt.Text = string.Format("{0:0.00}° {1}", tiltDeg, tiltDir);
 
                 /* set date/time */
                 dateTimePicker.Value = simInput.Utc; // fix roundoff problems
@@ -70,8 +82,9 @@ namespace SSCP.ShellPower {
         /// Eg latitude, longitude, heading etc.
         /// </summary>
         public void UpdateModel() {
-            if (simInput == null) return;
-            if(updating) return;
+            if (simInput == null || updating) {
+                return;
+            }
 
             /* get location */
             var lat = double.Parse(textBoxLat.Text);
@@ -86,19 +99,22 @@ namespace SSCP.ShellPower {
 
             /* get car orientation */
             double heading = 2 * Math.PI * trackBarCarDirection.Value / (trackBarCarDirection.Maximum + 1);
+            double tilt = Math.PI * trackBarTilt.Value / 180.0;
 
             /* get all sim inputs */
             simInput.Heading = heading;
+            simInput.Tilt = tilt;
             simInput.Latitude = lat;
             simInput.Longitude = lon;
             simInput.Timezone = tz;
             simInput.Utc = utcTime;
 
             Logger.info("sim inputs\n\t" +
-                "lat {0:0.0} lon {1:0.0} heading {2:0.0} utc {3} sidereal {4}",
+                "lat {0:0.0} lon {1:0.0} heading {2:0.0} tilt {3:0.0} utc {4} sidereal {5}",
                 simInput.Latitude,
                 simInput.Longitude,
                 Astro.rad2deg(simInput.Heading),
+                Astro.rad2deg(simInput.Tilt),
                 utcTime,
                 Astro.sidereal_time(utcTime, simInput.Longitude));
         }

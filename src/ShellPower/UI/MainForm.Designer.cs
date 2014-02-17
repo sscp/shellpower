@@ -40,6 +40,7 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageRun = new System.Windows.Forms.TabPage();
+            this.simInputControls = new SSCP.ShellPower.ArraySimInputControl();
             this.btnRecalc = new System.Windows.Forms.Button();
             this.labelArrPower = new System.Windows.Forms.RichTextBox();
             this.labelArrayPower = new System.Windows.Forms.Label();
@@ -62,6 +63,7 @@
             this.label16 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
             this.outputStringAreaLabel = new System.Windows.Forms.Label();
+            this.outputArrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBoxSimulation = new System.Windows.Forms.GroupBox();
             this.label19 = new System.Windows.Forms.Label();
@@ -76,8 +78,6 @@
             this.buttonRun = new System.Windows.Forms.Button();
             this.labelSimAvgPower = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
-            this.simInputControls = new SSCP.ShellPower.ArraySimInputControl();
-            this.outputArrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.glControl = new SSCP.ShellPower.ArrayModelControl();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -252,6 +252,18 @@
             this.tabPageRun.TabIndex = 0;
             this.tabPageRun.Text = "Params";
             this.tabPageRun.UseVisualStyleBackColor = true;
+            // 
+            // simInputControls
+            // 
+            this.simInputControls.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.simInputControls.Location = new System.Drawing.Point(0, 0);
+            this.simInputControls.Name = "simInputControls";
+            this.simInputControls.SimInput = null;
+            this.simInputControls.Size = new System.Drawing.Size(406, 288);
+            this.simInputControls.TabIndex = 16;
+            this.simInputControls.Change += new System.EventHandler(this.simInputs_Change);
             // 
             // btnRecalc
             // 
@@ -505,6 +517,19 @@
             this.outputStringAreaLabel.TabIndex = 8;
             this.outputStringAreaLabel.Text = "0 m^2";
             // 
+            // outputArrayLayoutControl
+            // 
+            this.outputArrayLayoutControl.AnimatedSelection = false;
+            this.outputArrayLayoutControl.Array = null;
+            this.outputArrayLayoutControl.CellString = null;
+            this.outputArrayLayoutControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.outputArrayLayoutControl.Editable = false;
+            this.outputArrayLayoutControl.EditBypassDiodes = false;
+            this.outputArrayLayoutControl.Location = new System.Drawing.Point(0, 0);
+            this.outputArrayLayoutControl.Name = "outputArrayLayoutControl";
+            this.outputArrayLayoutControl.Size = new System.Drawing.Size(400, 167);
+            this.outputArrayLayoutControl.TabIndex = 0;
+            // 
             // tabPage1
             // 
             this.tabPage1.BackColor = System.Drawing.Color.Transparent;
@@ -652,31 +677,6 @@
             this.label10.Size = new System.Drawing.Size(61, 13);
             this.label10.TabIndex = 13;
             this.label10.Text = "Avg power:";
-            // 
-            // simInputControls
-            // 
-            this.simInputControls.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.simInputControls.Location = new System.Drawing.Point(0, 0);
-            this.simInputControls.Name = "simInputControls";
-            this.simInputControls.SimInput = null;
-            this.simInputControls.Size = new System.Drawing.Size(406, 288);
-            this.simInputControls.TabIndex = 16;
-            this.simInputControls.Change += new System.EventHandler(this.simInputs_Change);
-            // 
-            // outputArrayLayoutControl
-            // 
-            this.outputArrayLayoutControl.AnimatedSelection = false;
-            this.outputArrayLayoutControl.Array = null;
-            this.outputArrayLayoutControl.CellString = null;
-            this.outputArrayLayoutControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.outputArrayLayoutControl.Editable = false;
-            this.outputArrayLayoutControl.EditBypassDiodes = false;
-            this.outputArrayLayoutControl.Location = new System.Drawing.Point(0, 0);
-            this.outputArrayLayoutControl.Name = "outputArrayLayoutControl";
-            this.outputArrayLayoutControl.Size = new System.Drawing.Size(400, 167);
-            this.outputArrayLayoutControl.TabIndex = 0;
             // 
             // glControl
             // 

@@ -50,10 +50,10 @@ namespace SSCP.ShellPower {
         }
 
         private void InitTimeAndPlace() {
-            // Coober Pedy, SA
+            // Coober Pedy, SA, heading due south
             simInput.Longitude = 134.75555;
             simInput.Latitude = -29.01111;
-            simInput.Heading = (134 + 90) * Math.PI / 180.0;
+            simInput.Heading = Math.PI;
 
             // Start of WSC 2013
             simInput.Utc = new DateTime(2013, 10, 6, 8, 0, 0).AddHours(-9.5);
@@ -165,26 +165,9 @@ namespace SSCP.ShellPower {
         /// Finds the position of the sun, or returns (0,0,0) if it's below the horizon.
         /// </summary>
         private Vector3 CalculateSunDir() {
-            // update the astronomy model
-            var utc_time = simInput.Utc;
-            var sidereal = Astro.sidereal_time(
-                utc_time,
-                simInput.Longitude);
-            var azimuth = Astro.solar_azimuth(
-                (int)sidereal.TimeOfDay.TotalSeconds,
-                sidereal.DayOfYear,
-                simInput.Latitude)
-                - (float)simInput.Heading;
-            var elevation = Astro.solar_elevation(
-                (int)sidereal.TimeOfDay.TotalSeconds,
-                sidereal.DayOfYear,
-                simInput.Latitude);
-
-            //recalculate the shadows
-            var lightDir = new Vector3(
-                (float)(-Math.Cos(elevation) * Math.Cos(azimuth)), (float)(Math.Sin(elevation)),
-                (float)(-Math.Cos(elevation) * Math.Sin(azimuth)));
-            if (elevation < 0) {
+            var lightDir = ArraySimulator.GetSunDir(simInput);
+            // is the sun below the horizon? then it's night, return 0
+            if (lightDir.Y < 0) {
                 lightDir = Vector3.Zero;
             }
             return lightDir;

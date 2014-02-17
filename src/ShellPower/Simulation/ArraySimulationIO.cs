@@ -26,6 +26,10 @@ namespace SSCP.ShellPower {
         /// Heading, in radians, 0 = due north.
         /// </summary>
         public double Heading { get; set; }
+        /// <summary>
+        /// Tilt, in radians, + = tilt right, - = tilt left.
+        /// </summary>
+        public double Tilt { get; set; }
 
         /// <summary>
         /// Temperature in deg C.
