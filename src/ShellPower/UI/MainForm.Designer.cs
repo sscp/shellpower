@@ -203,11 +203,13 @@
             // openFileDialogModel
             // 
             this.openFileDialogModel.Filter = "3DXML files|*.3dxml|STL Files (ascii)|*.stl|All files|*.*";
+            this.openFileDialogModel.FilterIndex = 3;
             this.openFileDialogModel.Title = "Load solar car model";
             // 
             // saveFileDialogLayout
             // 
             this.saveFileDialogLayout.Filter = "PNG Images|*.png|GIF Images|*.gif|Bitmap images|*.bmp";
+            this.saveFileDialogLayout.FilterIndex = 3;
             // 
             // splitContainer1
             // 
@@ -316,7 +318,7 @@
             this.tabPageOutputs.Location = new System.Drawing.Point(4, 22);
             this.tabPageOutputs.Name = "tabPageOutputs";
             this.tabPageOutputs.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageOutputs.Size = new System.Drawing.Size(406, 395);
+            this.tabPageOutputs.Size = new System.Drawing.Size(375, 490);
             this.tabPageOutputs.TabIndex = 1;
             this.tabPageOutputs.Text = "Outputs";
             this.tabPageOutputs.UseVisualStyleBackColor = true;
@@ -350,15 +352,15 @@
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.outputArrayLayoutControl);
-            this.splitContainer2.Size = new System.Drawing.Size(400, 389);
-            this.splitContainer2.SplitterDistance = 218;
+            this.splitContainer2.Size = new System.Drawing.Size(369, 484);
+            this.splitContainer2.SplitterDistance = 271;
             this.splitContainer2.TabIndex = 17;
             // 
             // outputStringFlattenedLabel
             // 
             this.outputStringFlattenedLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.outputStringFlattenedLabel.AutoSize = true;
-            this.outputStringFlattenedLabel.Location = new System.Drawing.Point(307, 114);
+            this.outputStringFlattenedLabel.Location = new System.Drawing.Point(276, 114);
             this.outputStringFlattenedLabel.Name = "outputStringFlattenedLabel";
             this.outputStringFlattenedLabel.Size = new System.Drawing.Size(27, 13);
             this.outputStringFlattenedLabel.TabIndex = 16;
@@ -377,7 +379,7 @@
             // 
             this.label17.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(241, 114);
+            this.label17.Location = new System.Drawing.Point(210, 114);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(60, 13);
             this.label17.TabIndex = 15;
@@ -391,7 +393,7 @@
             this.outputStringsListBox.FormattingEnabled = true;
             this.outputStringsListBox.Location = new System.Drawing.Point(5, 28);
             this.outputStringsListBox.Name = "outputStringsListBox";
-            this.outputStringsListBox.Size = new System.Drawing.Size(209, 186);
+            this.outputStringsListBox.Size = new System.Drawing.Size(178, 238);
             this.outputStringsListBox.TabIndex = 1;
             this.outputStringsListBox.SelectedIndexChanged += new System.EventHandler(this.outputStringsListBox_SelectedIndexChanged);
             // 
@@ -399,7 +401,7 @@
             // 
             this.outputStringPerfectMPPTLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.outputStringPerfectMPPTLabel.AutoSize = true;
-            this.outputStringPerfectMPPTLabel.Location = new System.Drawing.Point(307, 93);
+            this.outputStringPerfectMPPTLabel.Location = new System.Drawing.Point(276, 93);
             this.outputStringPerfectMPPTLabel.Name = "outputStringPerfectMPPTLabel";
             this.outputStringPerfectMPPTLabel.Size = new System.Drawing.Size(27, 13);
             this.outputStringPerfectMPPTLabel.TabIndex = 14;
@@ -409,7 +411,7 @@
             // 
             this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(246, 52);
+            this.label9.Location = new System.Drawing.Point(215, 52);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(55, 13);
             this.label9.TabIndex = 3;
@@ -419,7 +421,7 @@
             // 
             this.label15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(216, 93);
+            this.label15.Location = new System.Drawing.Point(185, 93);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(85, 13);
             this.label15.TabIndex = 13;
@@ -429,7 +431,7 @@
             // 
             this.outputStringInsolationLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.outputStringInsolationLabel.AutoSize = true;
-            this.outputStringInsolationLabel.Location = new System.Drawing.Point(307, 52);
+            this.outputStringInsolationLabel.Location = new System.Drawing.Point(276, 52);
             this.outputStringInsolationLabel.Name = "outputStringInsolationLabel";
             this.outputStringInsolationLabel.Size = new System.Drawing.Size(27, 13);
             this.outputStringInsolationLabel.TabIndex = 4;
@@ -439,7 +441,7 @@
             // 
             this.outputStringLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.outputStringLabel.AutoSize = true;
-            this.outputStringLabel.Location = new System.Drawing.Point(232, 28);
+            this.outputStringLabel.Location = new System.Drawing.Point(201, 28);
             this.outputStringLabel.Name = "outputStringLabel";
             this.outputStringLabel.Size = new System.Drawing.Size(101, 13);
             this.outputStringLabel.TabIndex = 12;
@@ -449,7 +451,7 @@
             // 
             this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(227, 73);
+            this.label14.Location = new System.Drawing.Point(196, 73);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(74, 13);
             this.label14.TabIndex = 5;
@@ -459,7 +461,7 @@
             // 
             this.outputStringIVLinkLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.outputStringIVLinkLabel.AutoSize = true;
-            this.outputStringIVLinkLabel.Location = new System.Drawing.Point(307, 184);
+            this.outputStringIVLinkLabel.Location = new System.Drawing.Point(276, 184);
             this.outputStringIVLinkLabel.Name = "outputStringIVLinkLabel";
             this.outputStringIVLinkLabel.Size = new System.Drawing.Size(78, 13);
             this.outputStringIVLinkLabel.TabIndex = 11;
@@ -471,7 +473,7 @@
             // 
             this.outputStringPowerLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.outputStringPowerLabel.AutoSize = true;
-            this.outputStringPowerLabel.Location = new System.Drawing.Point(307, 73);
+            this.outputStringPowerLabel.Location = new System.Drawing.Point(276, 73);
             this.outputStringPowerLabel.Name = "outputStringPowerLabel";
             this.outputStringPowerLabel.Size = new System.Drawing.Size(27, 13);
             this.outputStringPowerLabel.TabIndex = 6;
@@ -481,7 +483,7 @@
             // 
             this.outputStringShadedLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.outputStringShadedLabel.AutoSize = true;
-            this.outputStringShadedLabel.Location = new System.Drawing.Point(307, 158);
+            this.outputStringShadedLabel.Location = new System.Drawing.Point(276, 158);
             this.outputStringShadedLabel.Name = "outputStringShadedLabel";
             this.outputStringShadedLabel.Size = new System.Drawing.Size(36, 13);
             this.outputStringShadedLabel.TabIndex = 10;
@@ -491,7 +493,7 @@
             // 
             this.label16.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(269, 138);
+            this.label16.Location = new System.Drawing.Point(238, 138);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(32, 13);
             this.label16.TabIndex = 7;
@@ -501,7 +503,7 @@
             // 
             this.label13.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(247, 158);
+            this.label13.Location = new System.Drawing.Point(216, 158);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(54, 13);
             this.label13.TabIndex = 9;
@@ -511,7 +513,7 @@
             // 
             this.outputStringAreaLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.outputStringAreaLabel.AutoSize = true;
-            this.outputStringAreaLabel.Location = new System.Drawing.Point(307, 138);
+            this.outputStringAreaLabel.Location = new System.Drawing.Point(276, 138);
             this.outputStringAreaLabel.Name = "outputStringAreaLabel";
             this.outputStringAreaLabel.Size = new System.Drawing.Size(36, 13);
             this.outputStringAreaLabel.TabIndex = 8;
@@ -527,7 +529,7 @@
             this.outputArrayLayoutControl.EditBypassDiodes = false;
             this.outputArrayLayoutControl.Location = new System.Drawing.Point(0, 0);
             this.outputArrayLayoutControl.Name = "outputArrayLayoutControl";
-            this.outputArrayLayoutControl.Size = new System.Drawing.Size(400, 167);
+            this.outputArrayLayoutControl.Size = new System.Drawing.Size(369, 209);
             this.outputArrayLayoutControl.TabIndex = 0;
             // 
             // tabPage1
@@ -537,7 +539,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(406, 395);
+            this.tabPage1.Size = new System.Drawing.Size(375, 490);
             this.tabPage1.TabIndex = 2;
             this.tabPage1.Text = "Time-averaged sim";
             // 
@@ -560,7 +562,7 @@
             this.groupBoxSimulation.Controls.Add(this.label10);
             this.groupBoxSimulation.Location = new System.Drawing.Point(8, 6);
             this.groupBoxSimulation.Name = "groupBoxSimulation";
-            this.groupBoxSimulation.Size = new System.Drawing.Size(392, 214);
+            this.groupBoxSimulation.Size = new System.Drawing.Size(361, 214);
             this.groupBoxSimulation.TabIndex = 3;
             this.groupBoxSimulation.TabStop = false;
             this.groupBoxSimulation.Text = "Simulation";

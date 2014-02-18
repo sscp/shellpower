@@ -26,7 +26,9 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOK = new System.Windows.Forms.Button();
+            this.listViewStrings = new SSCP.ShellPower.RefreshListBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.checkBoxEditDiodes = new System.Windows.Forms.CheckBox();
             this.buttonCreateString = new System.Windows.Forms.Button();
             this.buttonDeleteString = new System.Windows.Forms.Button();
             this.labelMakeString = new System.Windows.Forms.Label();
@@ -36,11 +38,9 @@
             this.label3 = new System.Windows.Forms.Label();
             this.linkLabelLoadLayoutTexture = new System.Windows.Forms.LinkLabel();
             this.labelNoLayout = new System.Windows.Forms.Label();
+            this.arrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.openFileDialogArray = new System.Windows.Forms.OpenFileDialog();
             this.directorySearcher1 = new System.DirectoryServices.DirectorySearcher();
-            this.checkBoxEditDiodes = new System.Windows.Forms.CheckBox();
-            this.listViewStrings = new SSCP.ShellPower.RefreshListBox();
-            this.arrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -99,6 +99,18 @@
             this.buttonOK.UseVisualStyleBackColor = true;
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
+            // listViewStrings
+            // 
+            this.listViewStrings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.listViewStrings.FormattingEnabled = true;
+            this.listViewStrings.Location = new System.Drawing.Point(12, 27);
+            this.listViewStrings.Name = "listViewStrings";
+            this.listViewStrings.Size = new System.Drawing.Size(177, 290);
+            this.listViewStrings.TabIndex = 1;
+            this.listViewStrings.SelectedIndexChanged += new System.EventHandler(this.listViewStrings_SelectedIndexChanged);
+            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -107,6 +119,18 @@
             this.label1.Size = new System.Drawing.Size(39, 13);
             this.label1.TabIndex = 0;
             this.label1.Text = "Strings";
+            // 
+            // checkBoxEditDiodes
+            // 
+            this.checkBoxEditDiodes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.checkBoxEditDiodes.AutoSize = true;
+            this.checkBoxEditDiodes.Location = new System.Drawing.Point(18, 323);
+            this.checkBoxEditDiodes.Name = "checkBoxEditDiodes";
+            this.checkBoxEditDiodes.Size = new System.Drawing.Size(114, 17);
+            this.checkBoxEditDiodes.TabIndex = 13;
+            this.checkBoxEditDiodes.Text = "Edit bypass diodes";
+            this.checkBoxEditDiodes.UseVisualStyleBackColor = true;
+            this.checkBoxEditDiodes.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
             // buttonCreateString
             // 
@@ -150,7 +174,7 @@
             this.labelExplain.Size = new System.Drawing.Size(260, 26);
             this.labelExplain.TabIndex = 8;
             this.labelExplain.Text = "A string is a list of cells wired in series.\r\nEach string should correspond to on" +
-    "e MPPT channel.";
+                "e MPPT channel.";
             // 
             // buttonEdit
             // 
@@ -176,9 +200,9 @@
             // 
             // label3
             // 
-            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(3, 56);
             this.label3.Name = "label3";
@@ -200,9 +224,9 @@
             // 
             // labelNoLayout
             // 
-            this.labelNoLayout.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.labelNoLayout.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.labelNoLayout.AutoSize = true;
             this.labelNoLayout.Location = new System.Drawing.Point(3, 0);
             this.labelNoLayout.Name = "labelNoLayout";
@@ -210,46 +234,11 @@
             this.labelNoLayout.TabIndex = 2;
             this.labelNoLayout.Text = "  No layout texture loaded.";
             // 
-            // openFileDialogArray
-            // 
-            this.openFileDialogArray.Filter = "PNG Files|*.png|JPG Files|*.jpg|Bitmap files|*.bmp";
-            this.openFileDialogArray.Title = "Load array texture (cell layout)";
-            // 
-            // directorySearcher1
-            // 
-            this.directorySearcher1.ClientTimeout = System.TimeSpan.Parse("-00:00:01");
-            this.directorySearcher1.ServerPageTimeLimit = System.TimeSpan.Parse("-00:00:01");
-            this.directorySearcher1.ServerTimeLimit = System.TimeSpan.Parse("-00:00:01");
-            // 
-            // checkBoxEditDiodes
-            // 
-            this.checkBoxEditDiodes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.checkBoxEditDiodes.AutoSize = true;
-            this.checkBoxEditDiodes.Location = new System.Drawing.Point(18, 323);
-            this.checkBoxEditDiodes.Name = "checkBoxEditDiodes";
-            this.checkBoxEditDiodes.Size = new System.Drawing.Size(114, 17);
-            this.checkBoxEditDiodes.TabIndex = 13;
-            this.checkBoxEditDiodes.Text = "Edit bypass diodes";
-            this.checkBoxEditDiodes.UseVisualStyleBackColor = true;
-            this.checkBoxEditDiodes.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
-            // 
-            // listViewStrings
-            // 
-            this.listViewStrings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.listViewStrings.FormattingEnabled = true;
-            this.listViewStrings.Location = new System.Drawing.Point(12, 27);
-            this.listViewStrings.Name = "listViewStrings";
-            this.listViewStrings.Size = new System.Drawing.Size(177, 290);
-            this.listViewStrings.TabIndex = 1;
-            this.listViewStrings.SelectedIndexChanged += new System.EventHandler(this.listViewStrings_SelectedIndexChanged);
-            // 
             // arrayLayoutControl
             // 
-            this.arrayLayoutControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.arrayLayoutControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.arrayLayoutControl.AnimatedSelection = true;
             this.arrayLayoutControl.Array = null;
             this.arrayLayoutControl.CellString = null;
@@ -260,6 +249,18 @@
             this.arrayLayoutControl.Size = new System.Drawing.Size(379, 285);
             this.arrayLayoutControl.TabIndex = 9;
             this.arrayLayoutControl.CellStringChanged += new System.EventHandler(this.arrayLayoutControl_CellStringChanged);
+            // 
+            // openFileDialogArray
+            // 
+            this.openFileDialogArray.Filter = "PNG Files|*.png|GIF Files|*.gif|Bitmap files|*.bmp|All files|*.*";
+            this.openFileDialogArray.FilterIndex = 4;
+            this.openFileDialogArray.Title = "Load array texture (cell layout)";
+            // 
+            // directorySearcher1
+            // 
+            this.directorySearcher1.ClientTimeout = System.TimeSpan.Parse("-00:00:01");
+            this.directorySearcher1.ServerPageTimeLimit = System.TimeSpan.Parse("-00:00:01");
+            this.directorySearcher1.ServerTimeLimit = System.TimeSpan.Parse("-00:00:01");
             // 
             // ArrayLayoutForm
             // 
