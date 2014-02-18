@@ -100,9 +100,9 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 445);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 540);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1062, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(984, 22);
             this.statusStrip1.TabIndex = 0;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -118,7 +118,7 @@
             this.editToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1062, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(984, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -222,8 +222,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.glControl);
-            this.splitContainer1.Size = new System.Drawing.Size(1062, 421);
-            this.splitContainer1.SplitterDistance = 414;
+            this.splitContainer1.Size = new System.Drawing.Size(984, 516);
+            this.splitContainer1.SplitterDistance = 383;
             this.splitContainer1.TabIndex = 2;
             // 
             // tabControl1
@@ -235,7 +235,7 @@
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 1;
-            this.tabControl1.Size = new System.Drawing.Size(414, 421);
+            this.tabControl1.Size = new System.Drawing.Size(383, 516);
             this.tabControl1.TabIndex = 3;
             // 
             // tabPageRun
@@ -248,7 +248,7 @@
             this.tabPageRun.Location = new System.Drawing.Point(4, 22);
             this.tabPageRun.Name = "tabPageRun";
             this.tabPageRun.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageRun.Size = new System.Drawing.Size(406, 395);
+            this.tabPageRun.Size = new System.Drawing.Size(375, 490);
             this.tabPageRun.TabIndex = 0;
             this.tabPageRun.Text = "Params";
             this.tabPageRun.UseVisualStyleBackColor = true;
@@ -261,14 +261,14 @@
             this.simInputControls.Location = new System.Drawing.Point(0, 0);
             this.simInputControls.Name = "simInputControls";
             this.simInputControls.SimInput = null;
-            this.simInputControls.Size = new System.Drawing.Size(406, 288);
+            this.simInputControls.Size = new System.Drawing.Size(375, 383);
             this.simInputControls.TabIndex = 16;
             this.simInputControls.Change += new System.EventHandler(this.simInputs_Change);
             // 
             // btnRecalc
             // 
             this.btnRecalc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnRecalc.Location = new System.Drawing.Point(299, 312);
+            this.btnRecalc.Location = new System.Drawing.Point(268, 407);
             this.btnRecalc.Name = "btnRecalc";
             this.btnRecalc.Size = new System.Drawing.Size(82, 28);
             this.btnRecalc.TabIndex = 15;
@@ -283,11 +283,11 @@
             this.labelArrPower.AutoSize = true;
             this.labelArrPower.BackColor = System.Drawing.SystemColors.Control;
             this.labelArrPower.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.labelArrPower.Location = new System.Drawing.Point(81, 350);
+            this.labelArrPower.Location = new System.Drawing.Point(81, 445);
             this.labelArrPower.Name = "labelArrPower";
             this.labelArrPower.ReadOnly = true;
             this.labelArrPower.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.labelArrPower.Size = new System.Drawing.Size(319, 39);
+            this.labelArrPower.Size = new System.Drawing.Size(288, 39);
             this.labelArrPower.TabIndex = 12;
             this.labelArrPower.Text = "-";
             this.labelArrPower.WordWrap = false;
@@ -304,7 +304,7 @@
             // 
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(9, 350);
+            this.label5.Location = new System.Drawing.Point(9, 445);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(66, 13);
             this.label5.TabIndex = 9;
@@ -685,7 +685,7 @@
             this.glControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.glControl.Location = new System.Drawing.Point(0, 0);
             this.glControl.Name = "glControl";
-            this.glControl.Size = new System.Drawing.Size(644, 421);
+            this.glControl.Size = new System.Drawing.Size(597, 516);
             this.glControl.Sprite = null;
             this.glControl.TabIndex = 0;
             this.glControl.VSync = true;
@@ -694,7 +694,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1062, 467);
+            this.ClientSize = new System.Drawing.Size(984, 562);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);

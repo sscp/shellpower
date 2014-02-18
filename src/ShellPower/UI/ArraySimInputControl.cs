@@ -72,6 +72,11 @@ namespace SSCP.ShellPower {
                 }
                 if (tzIx > comboBoxTimezone.Items.Count) throw new Exception("can't find timezone: "+ simInput.Timezone);
                 comboBoxTimezone.SelectedIndex = tzIx;
+
+                /* set conditions */
+                textBoxIrrad.Text = string.Format("{0:0.##########}", simInput.Irradiance);
+                textBoxIndirectIrrad.Text = string.Format("{0:0.##########}", simInput.IndirectIrradiance);
+                textBoxEncapLoss.Text = string.Format("{0:0.##########}", simInput.EncapuslationLoss * 100);
             } finally {
                 updating = false;
             }
@@ -101,13 +106,27 @@ namespace SSCP.ShellPower {
             double heading = 2 * Math.PI * trackBarCarDirection.Value / (trackBarCarDirection.Maximum + 1);
             double tilt = Math.PI * trackBarTilt.Value / 180.0;
 
-            /* get all sim inputs */
+            /* get conditions */
+            double irrad = double.Parse(textBoxIrrad.Text);
+            double indirectIrrad = double.Parse(textBoxIndirectIrrad.Text);
+            double encapLoss = double.Parse(textBoxEncapLoss.Text) / 100;
+            if (irrad < 0 || irrad > 2000 || indirectIrrad < 0 || indirectIrrad > 2000) {
+                throw new Exception("Irradiance must be between 0 and 2000 w/m^2");
+            }
+            if (encapLoss < 0 || encapLoss > 1) {
+                throw new Exception("Encapsulation loss must be between 0% and 100%");
+            }
+
+            /* construct sim input */
             simInput.Heading = heading;
             simInput.Tilt = tilt;
             simInput.Latitude = lat;
             simInput.Longitude = lon;
             simInput.Timezone = tz;
             simInput.Utc = utcTime;
+            simInput.Irradiance = irrad;
+            simInput.IndirectIrradiance = indirectIrrad;
+            simInput.EncapuslationLoss = encapLoss;
 
             Logger.info("sim inputs\n\t" +
                 "lat {0:0.0} lon {1:0.0} heading {2:0.0} tilt {3:0.0} utc {4} sidereal {5}",

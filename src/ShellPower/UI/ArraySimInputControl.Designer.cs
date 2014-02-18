@@ -41,15 +41,27 @@
             this.textBoxLat = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label5 = new System.Windows.Forms.Label();
             this.Tilt = new System.Windows.Forms.Label();
             this.labelTilt = new System.Windows.Forms.Label();
             this.trackBarTilt = new System.Windows.Forms.TrackBar();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.textBoxEncapLoss = new System.Windows.Forms.TextBox();
+            this.textBoxIndirectIrrad = new System.Windows.Forms.TextBox();
+            this.textBoxIrrad = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarTimeOfDay)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCarDirection)).BeginInit();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarTilt)).BeginInit();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox2
@@ -83,7 +95,7 @@
             // labelTimezone
             // 
             this.labelTimezone.AutoSize = true;
-            this.labelTimezone.Location = new System.Drawing.Point(240, 77);
+            this.labelTimezone.Location = new System.Drawing.Point(271, 77);
             this.labelTimezone.Name = "labelTimezone";
             this.labelTimezone.Size = new System.Drawing.Size(41, 13);
             this.labelTimezone.TabIndex = 18;
@@ -111,7 +123,7 @@
             // 
             this.comboBoxTimezone.DisplayMember = "Id";
             this.comboBoxTimezone.FormattingEnabled = true;
-            this.comboBoxTimezone.Location = new System.Drawing.Point(65, 74);
+            this.comboBoxTimezone.Location = new System.Drawing.Point(96, 74);
             this.comboBoxTimezone.Name = "comboBoxTimezone";
             this.comboBoxTimezone.Size = new System.Drawing.Size(169, 21);
             this.comboBoxTimezone.TabIndex = 17;
@@ -122,7 +134,7 @@
             // 
             this.trackBarTimeOfDay.AutoSize = false;
             this.trackBarTimeOfDay.LargeChange = 12;
-            this.trackBarTimeOfDay.Location = new System.Drawing.Point(143, 48);
+            this.trackBarTimeOfDay.Location = new System.Drawing.Point(174, 48);
             this.trackBarTimeOfDay.Maximum = 287;
             this.trackBarTimeOfDay.Name = "trackBarTimeOfDay";
             this.trackBarTimeOfDay.Size = new System.Drawing.Size(138, 20);
@@ -134,7 +146,7 @@
             // 
             this.dateTimePicker.CustomFormat = "yyyy-MM-dd HH:mm:ss";
             this.dateTimePicker.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dateTimePicker.Location = new System.Drawing.Point(65, 22);
+            this.dateTimePicker.Location = new System.Drawing.Point(96, 22);
             this.dateTimePicker.Name = "dateTimePicker";
             this.dateTimePicker.Size = new System.Drawing.Size(177, 20);
             this.dateTimePicker.TabIndex = 0;
@@ -144,7 +156,7 @@
             // labelLocalTime
             // 
             this.labelLocalTime.AutoSize = true;
-            this.labelLocalTime.Location = new System.Drawing.Point(62, 49);
+            this.labelLocalTime.Location = new System.Drawing.Point(93, 49);
             this.labelLocalTime.Name = "labelLocalTime";
             this.labelLocalTime.Size = new System.Drawing.Size(48, 13);
             this.labelLocalTime.TabIndex = 2;
@@ -162,7 +174,7 @@
             // labelCarDirection
             // 
             this.labelCarDirection.AutoSize = true;
-            this.labelCarDirection.Location = new System.Drawing.Point(218, 26);
+            this.labelCarDirection.Location = new System.Drawing.Point(249, 26);
             this.labelCarDirection.Name = "labelCarDirection";
             this.labelCarDirection.Size = new System.Drawing.Size(45, 13);
             this.labelCarDirection.TabIndex = 13;
@@ -181,7 +193,7 @@
             // 
             this.trackBarCarDirection.AutoSize = false;
             this.trackBarCarDirection.LargeChange = 6;
-            this.trackBarCarDirection.Location = new System.Drawing.Point(65, 26);
+            this.trackBarCarDirection.Location = new System.Drawing.Point(96, 26);
             this.trackBarCarDirection.Maximum = 35;
             this.trackBarCarDirection.Name = "trackBarCarDirection";
             this.trackBarCarDirection.Size = new System.Drawing.Size(147, 20);
@@ -191,7 +203,7 @@
             // 
             // textBoxLon
             // 
-            this.textBoxLon.Location = new System.Drawing.Point(65, 107);
+            this.textBoxLon.Location = new System.Drawing.Point(96, 107);
             this.textBoxLon.Name = "textBoxLon";
             this.textBoxLon.Size = new System.Drawing.Size(147, 20);
             this.textBoxLon.TabIndex = 6;
@@ -208,7 +220,7 @@
             // 
             // textBoxLat
             // 
-            this.textBoxLat.Location = new System.Drawing.Point(65, 81);
+            this.textBoxLat.Location = new System.Drawing.Point(96, 81);
             this.textBoxLat.Name = "textBoxLat";
             this.textBoxLat.Size = new System.Drawing.Size(147, 20);
             this.textBoxLat.TabIndex = 4;
@@ -245,14 +257,6 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Where";
             // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 154);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(0, 13);
-            this.label5.TabIndex = 9;
-            // 
             // Tilt
             // 
             this.Tilt.AutoSize = true;
@@ -265,7 +269,7 @@
             // labelTilt
             // 
             this.labelTilt.AutoSize = true;
-            this.labelTilt.Location = new System.Drawing.Point(218, 53);
+            this.labelTilt.Location = new System.Drawing.Point(249, 53);
             this.labelTilt.Name = "labelTilt";
             this.labelTilt.Size = new System.Drawing.Size(17, 13);
             this.labelTilt.TabIndex = 16;
@@ -275,7 +279,7 @@
             // 
             this.trackBarTilt.AutoSize = false;
             this.trackBarTilt.LargeChange = 6;
-            this.trackBarTilt.Location = new System.Drawing.Point(65, 53);
+            this.trackBarTilt.Location = new System.Drawing.Point(96, 53);
             this.trackBarTilt.Minimum = -10;
             this.trackBarTilt.Name = "trackBarTilt";
             this.trackBarTilt.Size = new System.Drawing.Size(147, 20);
@@ -283,14 +287,127 @@
             this.trackBarTilt.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarTilt.Scroll += new System.EventHandler(this.anyInput_changed);
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(6, 154);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(0, 13);
+            this.label5.TabIndex = 9;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(6, 21);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(54, 13);
+            this.label13.TabIndex = 3;
+            this.label13.Text = "Irradiance";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(6, 47);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(68, 13);
+            this.label12.TabIndex = 5;
+            this.label12.Text = "Indirect irrad.";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(6, 154);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(0, 13);
+            this.label9.TabIndex = 9;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox3.Controls.Add(this.label11);
+            this.groupBox3.Controls.Add(this.label10);
+            this.groupBox3.Controls.Add(this.label8);
+            this.groupBox3.Controls.Add(this.textBoxEncapLoss);
+            this.groupBox3.Controls.Add(this.textBoxIndirectIrrad);
+            this.groupBox3.Controls.Add(this.textBoxIrrad);
+            this.groupBox3.Controls.Add(this.label6);
+            this.groupBox3.Controls.Add(this.label9);
+            this.groupBox3.Controls.Add(this.label12);
+            this.groupBox3.Controls.Add(this.label13);
+            this.groupBox3.Location = new System.Drawing.Point(3, 271);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(348, 109);
+            this.groupBox3.TabIndex = 11;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Conditions";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(228, 73);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(15, 13);
+            this.label8.TabIndex = 16;
+            this.label8.Text = "%";
+            // 
+            // textBoxEncapLoss
+            // 
+            this.textBoxEncapLoss.Location = new System.Drawing.Point(96, 70);
+            this.textBoxEncapLoss.Name = "textBoxEncapLoss";
+            this.textBoxEncapLoss.Size = new System.Drawing.Size(126, 20);
+            this.textBoxEncapLoss.TabIndex = 15;
+            // 
+            // textBoxIndirectIrrad
+            // 
+            this.textBoxIndirectIrrad.Location = new System.Drawing.Point(96, 44);
+            this.textBoxIndirectIrrad.Name = "textBoxIndirectIrrad";
+            this.textBoxIndirectIrrad.Size = new System.Drawing.Size(126, 20);
+            this.textBoxIndirectIrrad.TabIndex = 14;
+            // 
+            // textBoxIrrad
+            // 
+            this.textBoxIrrad.Location = new System.Drawing.Point(96, 18);
+            this.textBoxIrrad.Name = "textBoxIrrad";
+            this.textBoxIrrad.Size = new System.Drawing.Size(126, 20);
+            this.textBoxIrrad.TabIndex = 13;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(6, 73);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(62, 13);
+            this.label6.TabIndex = 12;
+            this.label6.Text = "Encap. loss";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(228, 47);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(31, 13);
+            this.label10.TabIndex = 17;
+            this.label10.Text = "w/m²";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(228, 21);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(31, 13);
+            this.label11.TabIndex = 18;
+            this.label11.Text = "w/m²";
+            // 
             // ArraySimInputControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox2);
             this.Name = "ArraySimInputControl";
-            this.Size = new System.Drawing.Size(354, 268);
+            this.Size = new System.Drawing.Size(354, 385);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarTimeOfDay)).EndInit();
@@ -298,6 +415,8 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarTilt)).EndInit();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -326,5 +445,16 @@
         private System.Windows.Forms.Label Tilt;
         private System.Windows.Forms.Label labelTilt;
         private System.Windows.Forms.TrackBar trackBarTilt;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.TextBox textBoxEncapLoss;
+        private System.Windows.Forms.TextBox textBoxIndirectIrrad;
+        private System.Windows.Forms.TextBox textBoxIrrad;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label10;
     }
 }

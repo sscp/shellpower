@@ -87,7 +87,9 @@ namespace SSCP.ShellPower {
 
         private void InitializeConditions() {
             simInput.Temperature = 25; // STC, 25 Celcius
-            simInput.Insolation = 1000; // STC, 1000 W/m^2
+            simInput.Irradiance = 1050; // not STC
+            simInput.IndirectIrradiance = 70; // not STC
+            simInput.EncapuslationLoss = 0.025; // 2.5 %
         }
 
         private void InitSimulator()
@@ -227,7 +229,9 @@ namespace SSCP.ShellPower {
             try {
                 InitSimulator();
                 ArraySimulationStepOutput simOutputNoon = simulator.Simulate(
-                    simInput.Array, new Vector3(0.1f, 0.995f, 0.0f), simInput.Insolation, simInput.Temperature);
+                    simInput.Array, new Vector3(0.1f, 0.995f, 0.0f), 
+                    simInput.Irradiance, simInput.IndirectIrradiance, 
+                    simInput.EncapuslationLoss, simInput.Temperature);
                 ArraySimulationStepOutput simOutput = simulator.Simulate(simInput);
                 double arrayAreaDistortion = Math.Abs(simOutputNoon.ArrayLitArea-simOutput.ArrayArea)/simOutput.ArrayArea;
                 

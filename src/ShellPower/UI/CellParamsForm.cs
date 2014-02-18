@@ -34,7 +34,7 @@ namespace SSCP.ShellPower {
             textBoxSeriesR.Text = "" + cellSpec.SeriesR;
 
             textBoxTemp.Text = "" + input.Temperature;
-            textBoxInsolation.Text = "" + input.Insolation;
+            textBoxInsolation.Text = "" + input.Irradiance;
         }
 
         private bool ValidateEntries() {
@@ -56,7 +56,7 @@ namespace SSCP.ShellPower {
             if (ValidateEntries()) {
                 UpdateSpec(input.Array.CellSpec);
                 input.Temperature = tempC;
-                input.Insolation = wattsIn;
+                input.Irradiance = wattsIn;
                 Close();
             } else {
                 MessageBox.Show("Some of those entries don't look right. Try again.");

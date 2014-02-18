@@ -36,9 +36,19 @@ namespace SSCP.ShellPower {
         /// </summary>
         public double Temperature { get; set; }
         /// <summary>
-        /// Flat-plate insolation in watts per square meter. 
+        /// Flat-plate (facing the sun) direct irradiance in watts per square meter. 
+        /// Does NOT include indirect irradiance from the rest of the sky, only from the sun.
         /// </summary>
-        public Double Insolation { get; set; }
+        public double Irradiance { get; set; }
+        /// <summary>
+        /// Flat-plate (facing straight up) indirect irraciance in watts per square meter. 
+        /// Does NOT include irradiance directly from the sun, but only from the rest of the sky.
+        /// </summary>
+        public double IndirectIrradiance { get; set; }
+        /// <summary>
+        /// Encapsulation loss. 0.03 = 3% loss
+        /// </summary>
+        public double EncapuslationLoss { get; set; }
 
         /// <summary>
         /// Shape and layout of the solar array
