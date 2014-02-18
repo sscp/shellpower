@@ -25,6 +25,7 @@ namespace SSCP.ShellPower {
             double q = Constants.ELECTRON_CHARGE_Q;
             double ni = cell.NIdeal;
             double rs = cell.SeriesR;
+            double epsilon = 0.000001;
             bool invalid = false;
             for (int i = 0; i < vecv.Length; i++) {
                 double v = vecv[i];
@@ -41,10 +42,10 @@ namespace SSCP.ShellPower {
                     iprev = 0.95 * iprev + 0.05 * icurr;
                 }
                 // check for invalid results (the simulation didn't converge)
-                if (icurr < 0 || (i > 0 && icurr > veci[i - 1])){
+                if (icurr < -epsilon || (i > 0 && icurr > veci[i - 1])){
                     invalid = true;
                 }
-                veci[i] = icurr;
+                veci[i] = Math.Max(icurr, 0.0);
             }
             if (invalid)
             {
