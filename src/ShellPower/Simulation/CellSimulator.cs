@@ -25,6 +25,7 @@ namespace SSCP.ShellPower {
             double q = Constants.ELECTRON_CHARGE_Q;
             double ni = cell.NIdeal;
             double rs = cell.SeriesR;
+            bool invalid = false;
             for (int i = 0; i < vecv.Length; i++) {
                 double v = vecv[i];
                 // iterate to convergence
@@ -39,7 +40,16 @@ namespace SSCP.ShellPower {
                     }
                     iprev = 0.95 * iprev + 0.05 * icurr;
                 }
+                // check for invalid results (the simulation didn't converge)
+                if (icurr < 0 || (i > 0 && icurr > veci[i - 1])){
+                    invalid = true;
+                }
                 veci[i] = icurr;
+            }
+            if (invalid)
+            {
+                Debug.WriteLine("Warning: the IV trace didn't converge, returning zero currents");
+                return new double[vecv.Length];
             }
             return veci;
         }
