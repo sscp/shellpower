@@ -34,7 +34,16 @@ namespace SSCP.ShellPower {
         /// <summary>
         /// The location of cells on the array. Each cell should have a unique, flat color.
         /// </summary>
-        public Bitmap LayoutTexture { get; set; }
+        private Bitmap _layoutTexture;
+        public Bitmap LayoutTexture {
+            get {
+                return _layoutTexture;
+            }
+            set {
+                _layoutTexture = value;
+                ReadStringsFromColors();
+            }
+        }
         /// <summary>
         /// Aligns the layout texture. 
         /// The texture is expected to be a top-down ortho projection.
@@ -188,7 +197,7 @@ namespace SSCP.ShellPower {
             LayoutTexture.UnlockBits(data);
         }
 
-        public void ReadStringsFromColors() {
+        private void ReadStringsFromColors() {
             // first, read out all the strings
             Strings.Clear();
             var cellMap = new Dictionary<Color, Cell>();
@@ -204,9 +213,6 @@ namespace SSCP.ShellPower {
                     for (int y = 0; y < texH; y++) {
                         for (int x = 0; x < texW; x++) {
                             Color color = Color.FromArgb(ptr[y * texW + x]);
-                            if (color.A != 255) {
-                                throw new ArgumentException("Layout texture cannot be transparent.");
-                            }
                             if (ColorUtils.IsGrayscale(color)) continue;
                             Color stringColor = Color.FromArgb(255, color.R, color.G, 0);
 

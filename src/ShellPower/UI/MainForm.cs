@@ -12,7 +12,7 @@ using System.IO;
 namespace SSCP.ShellPower {
     public partial class MainForm : Form {
         /* model */
-        ArraySimulationStepInput simInput = new ArraySimulationStepInput();
+        ArraySimulationStepInput simInput;
         Shadow shadow;
 
         /* sub views */
@@ -30,10 +30,9 @@ namespace SSCP.ShellPower {
             labelArrPower.Rtf = @"{\rtf1\ansi\deff0 Load model, load texture, then click simulate. }";
 
             // init model
-            simInput.Array = new ArraySpec();
-            InitTimeAndPlace();
-            InitializeArraySpec();
-            InitializeConditions();
+            simInput = ArraySimDefaults.CreateDefaultInput();
+            simInput.Array.Mesh = MeshIO.LoadMesh("../../../../arrays/luminos/luminos.stl");
+            LoadModel(simInput.Array.Mesh, "luminos.stl");
             CalculateSimStepGui();
 
             // init subviews
@@ -49,49 +48,6 @@ namespace SSCP.ShellPower {
             outputArrayLayoutControl.Array = simInput.Array;
         }
 
-        private void InitTimeAndPlace() {
-            // Coober Pedy, SA, heading due south
-            simInput.Longitude = 134.75555;
-            simInput.Latitude = -29.01111;
-            simInput.Heading = Math.PI;
-
-            // Start of WSC 2013
-            simInput.Utc = new DateTime(2013, 10, 6, 8, 0, 0).AddHours(-9.5);
-            simInput.Timezone = TimeZoneInfo.FindSystemTimeZoneById("AUS Central Standard Time");
-        }
-
-        /// <summary>
-        /// Hack to make debugging faster.
-        /// </summary>
-        private void InitializeArraySpec() {
-            ArraySpec array = simInput.Array;
-            array.LayoutBoundsXZ = new RectangleF(-0.115f, -0.23f, 2.15f, 4.820f);
-            array.LayoutTexture = ArrayModelControl.DEFAULT_TEX;
-            LoadModel("../../../../arrays/luminos/luminos.stl");
-
-            // Sunpower C60 Bin I
-            // http://www.kyletsai.com/uploads/9/7/5/3/9753015/sunpower_c60_bin_ghi.pdf
-            CellSpec cellSpec = simInput.Array.CellSpec;
-            cellSpec.IscStc = 6.27;
-            cellSpec.VocStc = 0.686;
-            cellSpec.DIscDT = -0.0020; // approx, computed
-            cellSpec.DVocDT = -0.0018;
-            cellSpec.Area = 0.015555; // m^2
-            cellSpec.NIdeal = 1.26; // fudge
-            cellSpec.SeriesR = 0.003; // ohms
-
-            // Average bypass diode
-            DiodeSpec diodeSpec = simInput.Array.BypassDiodeSpec;
-            diodeSpec.VoltageDrop = 0.35;
-        }
-
-        private void InitializeConditions() {
-            simInput.Temperature = 25; // STC, 25 Celcius
-            simInput.Irradiance = 1050; // not STC
-            simInput.IndirectIrradiance = 70; // not STC
-            simInput.EncapuslationLoss = 0.025; // 2.5 %
-        }
-
         private void InitSimulator()
         {
             if (simulator == null)
@@ -100,34 +56,13 @@ namespace SSCP.ShellPower {
             }
         }
 
-        private void LoadModel(string filename) {
-            Mesh mesh = LoadMesh(filename);
+        private void LoadModel(Mesh mesh, String name) {
             Vector3 size = mesh.BoundingBox.Max - mesh.BoundingBox.Min;
-            if (size.Length > 1000)
-            {
-                mesh = MeshUtils.Scale(mesh, 0.001f);
-                size *= 0.001f;
-            }
             toolStripStatusLabel.Text = string.Format("Loaded model {0}, {1} triangles, {2:0.00}x{3:0.00}x{4:0.00}m",
-                System.IO.Path.GetFileName(filename),
+                name,
                 mesh.triangles.Length,
                 size.X, size.Y, size.Z);
-            
             SetModel(mesh);
-        }
-
-        private Mesh LoadMesh(String filename) {
-            String extension = filename.Split('.').Last().ToLower();
-            IMeshParser parser;
-            if (extension.Equals("3dxml")) {
-                parser = new MeshParser3DXml();
-            } else if (extension.Equals("stl")) {
-                parser = new MeshParserStl();
-            } else {
-                throw new ArgumentException("Unsupported file type: " + extension);
-            }
-            parser.Parse(filename);
-            return parser.GetMesh();
         }
         
         /// <summary>
@@ -191,7 +126,9 @@ namespace SSCP.ShellPower {
                 return;
             }
             try {
-                LoadModel(openFileDialogModel.FileName);
+                var fname = openFileDialogModel.FileName;
+                var mesh = MeshIO.LoadMesh(fname);
+                LoadModel(mesh, Path.GetFileName(fname));
             } catch (Exception e) {
                 MessageBox.Show(e.Message, "Error loading model", MessageBoxButtons.OK);
             }
@@ -210,7 +147,6 @@ namespace SSCP.ShellPower {
             Bitmap origTexture = simInput.Array.LayoutTexture;
             try {
                 simInput.Array.LayoutTexture = bitmap;
-                simInput.Array.ReadStringsFromColors();
             } catch (Exception e) {
                 MessageBox.Show(e.Message, "Error loading layout texture", MessageBoxButtons.OK);
                 simInput.Array.LayoutTexture = origTexture;
@@ -237,8 +173,7 @@ namespace SSCP.ShellPower {
                 
                 Debug.WriteLine("Array simulation output");
                 Debug.WriteLine("   ... " + simOutput.ArrayArea + " m^2 nominal area, "
-                    + simOutputNoon.ArrayLitArea + " m^2 simulated area" + (arrayAreaDistortion > 0.01 ? " MISMATCH" : ""));
-                Debug.WriteLine("   ... " + simOutput.ArrayLitArea + " m^2 exposed to sunlight");
+                    + simOutputNoon.ArrayLitArea + " m^2 lit area" + (arrayAreaDistortion > 0.01 ? " MISMATCH" : ""));
                 Debug.WriteLine("   ... " + simOutput.WattsInsolation + " W insolation");
                 Debug.WriteLine("   ... " + simOutput.WattsOutputByCell + " W output (assuming mppt per cell)");
                 Debug.WriteLine("   ... " + simOutput.WattsOutput + " W output");

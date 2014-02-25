@@ -134,6 +134,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileFormats\MeshIO.cs" />
     <Compile Include="FileFormats\MeshParser3DXml.cs" />
     <Compile Include="FileFormats\IMeshParser.cs" />
     <Compile Include="FileFormats\MeshParserStl.cs" />
@@ -146,8 +147,10 @@
     <Compile Include="Geom\IArea.cs" />
     <Compile Include="Geom\Shadow.cs" />
     <Compile Include="Geom\ShadowVolume.cs" />
+    <Compile Include="Simulation\ArraySimulationInput.cs" />
     <Compile Include="Simulation\ArraySimulator.cs" />
     <Compile Include="Simulation\CellSimulator.cs" />
+    <Compile Include="Simulation\ArraySimDefaults.cs" />
     <Compile Include="Simulation\IVTrace.cs" />
     <Compile Include="Simulation\StringSimulator.cs" />
     <Compile Include="SolPos\PosData.cs" />

@@ -35,7 +35,7 @@ namespace SSCP.ShellPower {
         /// Shaders to compute array properties
         /// </summary>
         private void InitGLInputShaders() {
-            Debug.WriteLine("compiling shaders");
+            Debug.WriteLine("Compiling shaders");
             shaderFrag = GL.CreateShader(ShaderType.FragmentShader);
             shaderVert = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(shaderVert, @"
@@ -188,7 +188,9 @@ void main()
                 DateTime dt1 = DateTime.Now;
                 SetUniforms(array, wPerM2Insolation);
                 ComputeRender(array, sunDir);
-                DebugSaveBuffers();
+                if (Debugger.IsAttached) {
+                    DebugSaveBuffers();
+                }
                 output = AnalyzeComputeTex(array, wPerM2Insolation, wPerM2Indirect, encapLoss, cTemp);
                 DateTime dt2 = DateTime.Now;
 

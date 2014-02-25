@@ -112,7 +112,6 @@ namespace SSCP.ShellPower {
             Bitmap bmp = PromptUserForLayoutTexture();
             if (bmp != null) {
                 array.LayoutTexture = bmp;
-                array.ReadStringsFromColors();
                 UpdateView();
             }
         }
