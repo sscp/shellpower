@@ -19,7 +19,7 @@ Quick start
 
 Instanteous inputs
 ------------------
-* A 3D model of the array. Plain triangle mesh, 3dxml or STL format. Dimension should be in mm or m, the +Y axis points upward.
+* A 3D model of the array. Plain triangle mesh, 3dxml or STL format. Dimension should be in mm or m, the +Y axis points upward, and the +Z axis points forward.
 * A texture of the of array. Top down view, orthographic projection, no shading, no antialiasing, just black pixels for each cell and white pixels everywhere else.
 * Latitude, longitude, date and time.
 * Solar insolation (square-plate). Default: 1000 W/m^2
