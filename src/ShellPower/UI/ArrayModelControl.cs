@@ -221,7 +221,7 @@ void main()
                 int period = Math.Min(1000, framesRendered);
                 emaDelay = (DateTime.Now - startRender).TotalSeconds / period + emaDelay * (period - 1) / period;
                 startRender = DateTime.Now;
-                if (framesRendered % 100 == 0) {
+                if (framesRendered % 1000 == 0) {
                     Debug.WriteLine(string.Format("{0:0.00} fps", 1.0 / emaDelay));
                 }
             } catch(Exception e){

@@ -84,27 +84,27 @@ namespace SSCP.ShellPower {
             DateTime start = DateTime.Now;
 
             RecomputeArrayViewModel(); // compute junction points, downsampled array image, etc
-            Debug.WriteLine("compute: " + (DateTime.Now - start).TotalMilliseconds);
+            //Debug.WriteLine("compute: " + (DateTime.Now - start).TotalMilliseconds);
 
             DrawBackground(g);
-            Debug.WriteLine("clear: " + (DateTime.Now - start).TotalMilliseconds);
+            //Debug.WriteLine("clear: " + (DateTime.Now - start).TotalMilliseconds);
 
             if (texSmall != null) {
                 g.DrawImage(texSmall, new Point(0, 0));
-                Debug.WriteLine("layout: " + (DateTime.Now - start).TotalMilliseconds);
+                //Debug.WriteLine("layout: " + (DateTime.Now - start).TotalMilliseconds);
             }
 
             if (CellString != null) {
                 RecomputeTexSelected();
                 DrawSelectedString(g);
-                Debug.WriteLine("highlight: " + (DateTime.Now - start).TotalMilliseconds);
+                //Debug.WriteLine("highlight: " + (DateTime.Now - start).TotalMilliseconds);
             }
 
             if (mouseoverJunction >= 0 && mouseoverJunction < junctionPoints.Length) {
                 DrawJunction(g, junctionPoints[mouseoverJunction], Brushes.White);
-                Debug.WriteLine("mouse: " + (DateTime.Now - start).TotalMilliseconds);
+                //Debug.WriteLine("mouse: " + (DateTime.Now - start).TotalMilliseconds);
             }
-            Debug.WriteLine("done: " + (DateTime.Now - start).TotalMilliseconds);
+            //Debug.WriteLine("done: " + (DateTime.Now - start).TotalMilliseconds);
         }
 
         protected override void OnMouseDown(MouseEventArgs e) {
@@ -171,7 +171,7 @@ namespace SSCP.ShellPower {
             if (tex != Array.LayoutTexture){
                 tex = Array.LayoutTexture;
                 pixels = GetPixels(tex);
-                Debug.WriteLine("... read pix " + (DateTime.Now - start).TotalMilliseconds);
+                //Debug.WriteLine("... read pix " + (DateTime.Now - start).TotalMilliseconds);
             }
 
             // scale the array texture to the current viewport size
@@ -180,13 +180,13 @@ namespace SSCP.ShellPower {
                 texSmall = new Bitmap((int)size.Width, (int)size.Height);
                 Graphics g = Graphics.FromImage(texSmall);
                 g.DrawImage(Array.LayoutTexture, new Rectangle(new Point(0, 0), texSmall.Size));
-                Debug.WriteLine("... read pix " + (DateTime.Now - start).TotalMilliseconds);
+                //Debug.WriteLine("... read pix " + (DateTime.Now - start).TotalMilliseconds);
             }
 
             // compute properties of the individual cells
             cellPoints = ComputeCellCenterpoints(CellString);
             junctionPoints = ComputeJunctions(cellPoints);
-            Debug.WriteLine("... c+j " + (DateTime.Now - start).TotalMilliseconds);
+            //Debug.WriteLine("... c+j " + (DateTime.Now - start).TotalMilliseconds);
         }
 
         private void RecomputeTexSelected() {
@@ -211,6 +211,10 @@ namespace SSCP.ShellPower {
                     foreach (Pair<int> pixel in cell.Pixels) {
                         int i = (int)(pixel.First * scale);
                         int j = (int)(pixel.Second * scale);
+                        if (i < 0 || i >= selW || j < 0 || j >= selH)
+                        {
+                            continue;
+                        }
                         bool mask = (j + i + animation) % 16 < 8;
                         uint alpha = (uint)(mask ? 0x80 : 0x00);
                         uint color = 0xffffff | (alpha << 24); // white highlight
