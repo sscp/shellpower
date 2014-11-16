@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
-using System.Xml;
-using System.Threading;
-using OpenTK;
 using System.IO;
+using System.Linq;
+using System.Runtime.Serialization.Json;
+using System.Windows.Forms;
+using OpenTK;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace SSCP.ShellPower {
     public partial class MainForm : Form {
@@ -55,9 +55,9 @@ namespace SSCP.ShellPower {
             simInput.Latitude = -29.01111;
             simInput.Heading = Math.PI;
 
-            // Start of WSC 2013
-            simInput.Utc = new DateTime(2013, 10, 6, 8, 0, 0).AddHours(-9.5);
-            simInput.Timezone = TimeZoneInfo.FindSystemTimeZoneById("AUS Central Standard Time");
+            // Middle of WSC 2015
+            simInput.Utc = new DateTime(2015, 10, 20, 8, 0, 0).AddHours(-9.5);
+            simInput.TimezoneOffsetHours = 9.5; // Darwin, NT time
         }
 
         /// <summary>
@@ -65,9 +65,15 @@ namespace SSCP.ShellPower {
         /// </summary>
         private void InitializeArraySpec() {
             ArraySpec array = simInput.Array;
-            array.LayoutBoundsXZ = new RectangleF(-0.115f, -0.23f, 2.15f, 4.820f);
+            array.LayoutBounds = new BoundsSpec() {
+                MinX = -0.115,
+                MaxX = 2.035,
+                MinZ = -0.23,
+                MaxZ = 4.59
+            };
             array.LayoutTexture = ArrayModelControl.DEFAULT_TEX;
             LoadModel("../../../../arrays/luminos/luminos.stl");
+            array.EncapuslationLoss = 0.025; // 2.5 %
 
             // Sunpower C60 Bin I
             // http://www.kyletsai.com/uploads/9/7/5/3/9753015/sunpower_c60_bin_ghi.pdf
@@ -89,13 +95,10 @@ namespace SSCP.ShellPower {
             simInput.Temperature = 25; // STC, 25 Celcius
             simInput.Irradiance = 1050; // not STC
             simInput.IndirectIrradiance = 70; // not STC
-            simInput.EncapuslationLoss = 0.025; // 2.5 %
         }
 
-        private void InitSimulator()
-        {
-            if (simulator == null)
-            {
+        private void InitSimulator() {
+            if (simulator == null) {
                 simulator = new ArraySimulator();
             }
         }
@@ -103,8 +106,7 @@ namespace SSCP.ShellPower {
         private void LoadModel(string filename) {
             Mesh mesh = LoadMesh(filename);
             Vector3 size = mesh.BoundingBox.Max - mesh.BoundingBox.Min;
-            if (size.Length > 1000)
-            {
+            if (size.Length > 1000) {
                 mesh = MeshUtils.Scale(mesh, 0.001f);
                 size *= 0.001f;
             }
@@ -112,7 +114,7 @@ namespace SSCP.ShellPower {
                 System.IO.Path.GetFileName(filename),
                 mesh.triangles.Length,
                 size.X, size.Y, size.Z);
-            
+
             SetModel(mesh);
         }
 
@@ -129,7 +131,7 @@ namespace SSCP.ShellPower {
             parser.Parse(filename);
             return parser.GetMesh();
         }
-        
+
         /// <summary>
         /// Uses the given mesh for rendering and calculation.
         /// 
@@ -218,6 +220,28 @@ namespace SSCP.ShellPower {
             CalculateSimStepGui();
         }
 
+        private void openParametersToolStripMenuItem_Click(object sender, EventArgs args) {
+            if (openFileDialogParameters.ShowDialog() != System.Windows.Forms.DialogResult.OK) {
+                return;
+            }
+            try {
+                JsonSpec spec = JsonSpecConverter.Read(openFileDialogParameters.FileName);
+                Console.WriteLine("Read spec " + spec);
+            } catch (Exception e) {
+                MessageBox.Show(e.Message, "Error loading model", MessageBoxButtons.OK);
+            }
+            CalculateSimStepGui();
+        }
+
+        private void saveParametersToolStripMenuItem_Click(object sender, EventArgs e) {
+            if (saveFileDialogParameters.ShowDialog() != System.Windows.Forms.DialogResult.OK) {
+                return;
+            }
+            var filename = saveFileDialogParameters.FileName;
+            JsonSpec spec = JsonSpecConverter.ToJson(simInput, Path.GetDirectoryName(filename));
+            JsonSpecConverter.Write(spec, filename);
+        }
+
         /// <summary>
         /// Called when one of the sim input GUIs changes.
         /// </summary>
@@ -229,12 +253,11 @@ namespace SSCP.ShellPower {
             try {
                 InitSimulator();
                 ArraySimulationStepOutput simOutputNoon = simulator.Simulate(
-                    simInput.Array, new Vector3(0.1f, 0.995f, 0.0f), 
-                    simInput.Irradiance, simInput.IndirectIrradiance, 
-                    simInput.EncapuslationLoss, simInput.Temperature);
+                    simInput.Array, new Vector3(0.1f, 0.995f, 0.0f),
+                    simInput.Irradiance, simInput.IndirectIrradiance, simInput.Temperature);
                 ArraySimulationStepOutput simOutput = simulator.Simulate(simInput);
-                double arrayAreaDistortion = Math.Abs(simOutputNoon.ArrayLitArea-simOutput.ArrayArea)/simOutput.ArrayArea;
-                
+                double arrayAreaDistortion = Math.Abs(simOutputNoon.ArrayLitArea - simOutput.ArrayArea) / simOutput.ArrayArea;
+
                 Debug.WriteLine("Array simulation output");
                 Debug.WriteLine("   ... " + simOutput.ArrayArea + " m^2 nominal area, "
                     + simOutputNoon.ArrayLitArea + " m^2 simulated area" + (arrayAreaDistortion > 0.01 ? " MISMATCH" : ""));
@@ -244,16 +267,16 @@ namespace SSCP.ShellPower {
                 Debug.WriteLine("   ... " + simOutput.WattsOutput + " W output");
 
                 //update ui
-                String boldLine = string.Format("{0:0}W over {1:0.00}m\u00B2 cell area", 
+                String boldLine = string.Format("{0:0}W over {1:0.00}m\u00B2 cell area",
                     simOutput.WattsOutput, simOutput.ArrayArea);
                 String firstLine = string.Format(", {0:0.00}m\u00B2 lit cells{1}, {2:0.00}m\u00B2 shaded",
-                    simOutputNoon.ArrayLitArea, arrayAreaDistortion>0.01 ? " (MISMATCH)":"", simOutputNoon.ArrayLitArea-simOutput.ArrayLitArea);
+                    simOutputNoon.ArrayLitArea, arrayAreaDistortion > 0.01 ? " (MISMATCH)" : "", simOutputNoon.ArrayLitArea - simOutput.ArrayLitArea);
                 String secondLine = string.Format("(Power breakdown: {0:0}W {1:0}% in, {2:0}W {3:0}% ideal mppt, {4:0}W {5:0}% output)",
                     simOutput.WattsInsolation, simOutput.WattsInsolation / simOutputNoon.WattsInsolation * 100,
                     simOutput.WattsOutputByCell, simOutput.WattsOutputByCell / simOutputNoon.WattsOutputByCell * 100,
                     simOutput.WattsOutput, simOutput.WattsOutput / simOutputNoon.WattsOutput * 100);
-                this.labelArrPower.Rtf = @"{\rtf1\ansi\deff0 {\b "+boldLine+@"}"+firstLine
-                    +@"\line "+ secondLine+"}";
+                this.labelArrPower.Rtf = @"{\rtf1\ansi\deff0 {\b " + boldLine + @"}" + firstLine
+                    + @"\line " + secondLine + "}";
 
                 outputStringsListBox.Items.Clear();
                 outputStringsListBox.Items.AddRange(simOutput.Strings);
@@ -286,10 +309,10 @@ namespace SSCP.ShellPower {
 
             // show details
             outputStringLabel.Text = "" + output.String;
-            outputStringInsolationLabel.Text = string.Format("{0:0.0} W", 
+            outputStringInsolationLabel.Text = string.Format("{0:0.0} W",
                 output.WattsIn);
-            outputStringPowerLabel.Text = string.Format("{0:0.0} W ({1:0.0} %)", 
-                output.WattsOutput, 100*output.WattsOutput/output.WattsOutputIdeal);
+            outputStringPowerLabel.Text = string.Format("{0:0.0} W ({1:0.0} %)",
+                output.WattsOutput, 100 * output.WattsOutput / output.WattsOutputIdeal);
             outputStringPerfectMPPTLabel.Text = string.Format("{0:0.0} W ({1:0.0} %)",
                 output.WattsOutputByCell, 100 * output.WattsOutputByCell / output.WattsOutputIdeal);
             outputStringFlattenedLabel.Text = string.Format("{0:0.0} W",
@@ -297,14 +320,14 @@ namespace SSCP.ShellPower {
             outputStringAreaLabel.Text = string.Format("{0:0.000} m^2",
                 output.Area);
             outputStringShadedLabel.Text = string.Format("{0:0.000} m^2 ({1:0.0} %)",
-                output.AreaShaded, 100*output.AreaShaded / output.Area);
-            
+                output.AreaShaded, 100 * output.AreaShaded / output.Area);
+
             // show it on the layout
             outputArrayLayoutControl.CellString = output.String;
         }
 
         private void saveLayoutTextureToolStripMenuItem_Click(object sender, EventArgs e) {
-            if(simInput.Array.LayoutTexture == null){
+            if (simInput.Array.LayoutTexture == null) {
                 MessageBox.Show("Nothing to save. Try opening and editing a layout first.");
                 return;
             }
@@ -315,7 +338,7 @@ namespace SSCP.ShellPower {
 
         private void outputStringIVLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
             ArraySimStringOutput output = (ArraySimStringOutput)outputStringsListBox.SelectedItem;
-            if(output == null) {
+            if (output == null) {
                 MessageBox.Show("No string selected.");
                 return;
             }
@@ -350,8 +373,8 @@ namespace SSCP.ShellPower {
 
         private void TimeAveragedSim() {
             // input time range; all other inputs come from simInput
-            DateTime utcStart = dateTimePicker1.Value.Subtract(simInput.Timezone.GetUtcOffset(dateTimePicker1.Value));
-            DateTime utcEnd = dateTimePicker2.Value.Subtract(simInput.Timezone.GetUtcOffset(dateTimePicker2.Value));
+            DateTime utcStart = dateTimePicker1.Value.AddHours(-simInput.TimezoneOffsetHours);
+            DateTime utcEnd = dateTimePicker2.Value.AddHours(-simInput.TimezoneOffsetHours);
 
             // step-by-step output
             TextWriter csv = new StreamWriter("../../../../output.csv");

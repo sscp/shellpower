@@ -92,9 +92,9 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(12, 50);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(89, 13);
+            this.label2.Size = new System.Drawing.Size(91, 13);
             this.label2.TabIndex = 2;
-            this.label2.Text = "Width (in meters):";
+            this.label2.Text = "Max X (in meters):";
             // 
             // numZ0
             // 
@@ -148,9 +148,9 @@
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(12, 102);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(92, 13);
+            this.label4.Size = new System.Drawing.Size(91, 13);
             this.label4.TabIndex = 6;
-            this.label4.Text = "Height (in meters):";
+            this.label4.Text = "Max Z (in meters):";
             // 
             // label5
             // 
@@ -183,7 +183,7 @@
             this.buttonOK.UseVisualStyleBackColor = true;
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
-            // ArrayDimensionsControl
+            // ArrayDimensionsForm
             // 
             this.AcceptButton = this.buttonOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -202,7 +202,7 @@
             this.Controls.Add(this.numX0);
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Name = "ArrayDimensionsControl";
+            this.Name = "ArrayDimensionsForm";
             this.Text = "Array Texture Dimensions";
             ((System.ComponentModel.ISupportInitialize)(this.numX0)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numX1)).EndInit();

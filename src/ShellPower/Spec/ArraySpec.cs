@@ -35,6 +35,8 @@ namespace SSCP.ShellPower {
         /// The location of cells on the array. Each cell should have a unique, flat color.
         /// </summary>
         public Bitmap LayoutTexture { get; set; }
+        public string MeshFilename { get; set; }
+        public string LayoutFilename { get; set; }
         /// <summary>
         /// Aligns the layout texture. 
         /// The texture is expected to be a top-down ortho projection.
@@ -43,7 +45,7 @@ namespace SSCP.ShellPower {
         /// of the texture (in model coordinates, in meters) and [x1, z1]
         /// is the bottom-right corner.
         /// </summary>
-        public RectangleF LayoutBoundsXZ { get; set; }
+        public BoundsSpec LayoutBounds { get; set; }
         /// <summary>
         /// Defines individual-cell properties, such as area and efficiency.
         /// </summary>
@@ -58,6 +60,10 @@ namespace SSCP.ShellPower {
         /// Assigns cells to strings (a group of cells in series).
         /// </summary>
         public List<CellString> Strings { get; private set; }
+        /// <summary>
+        /// Encapsulation loss. 0.03 = 3% loss
+        /// </summary>
+        public double EncapuslationLoss { get; set; }
 
         public class CellString {
             public CellString() {

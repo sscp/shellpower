@@ -156,10 +156,10 @@ void main()
 
         private void SetUniforms() {
             GL.UseProgram(shaderProg);
-            GL.Uniform1(uniformX0, Array.LayoutBoundsXZ.Left);
-            GL.Uniform1(uniformX1, Array.LayoutBoundsXZ.Right);
-            GL.Uniform1(uniformZ0, Array.LayoutBoundsXZ.Top);
-            GL.Uniform1(uniformZ1, Array.LayoutBoundsXZ.Bottom); 
+            GL.Uniform1(uniformX0, (float)Array.LayoutBounds.MinX);
+            GL.Uniform1(uniformX1, (float)Array.LayoutBounds.MaxX);
+            GL.Uniform1(uniformZ0, (float)Array.LayoutBounds.MinZ);
+            GL.Uniform1(uniformZ1, (float)Array.LayoutBounds.MaxZ); 
             GL.Uniform1(uniformSolarCells, (float)TextureUnit.Texture0);
             var sunDir = new Vector3();
             if (Sprite != null && Sprite.Shadow.Light.Length > 0) {

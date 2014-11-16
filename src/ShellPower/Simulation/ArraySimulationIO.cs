@@ -4,16 +4,11 @@ namespace SSCP.ShellPower {
     public class ArraySimulationStepInput {
         // when and where
         public DateTime Utc { get; set; }
-        public DateTime LocalTime {
-            get {
-                return Utc.Add(Timezone.GetUtcOffset(Utc));
-            }
-        }
         /// <summary>
-        /// Time zone. This has no effect on the simulation,
+        /// Time zone offset from UTC. This has no effect on the simulation,
         /// but is useful for working with local time.
         /// </summary>
-        public TimeZoneInfo Timezone { get; set; }
+        public double TimezoneOffsetHours { get; set; }
         /// <summary>
         /// Latitude, in degrees.
         /// </summary>
@@ -41,14 +36,10 @@ namespace SSCP.ShellPower {
         /// </summary>
         public double Irradiance { get; set; }
         /// <summary>
-        /// Flat-plate (facing straight up) indirect irraciance in watts per square meter. 
+        /// Flat-plate (facing straight up) indirect irradiance in watts per square meter. 
         /// Does NOT include irradiance directly from the sun, but only from the rest of the sky.
         /// </summary>
         public double IndirectIrradiance { get; set; }
-        /// <summary>
-        /// Encapsulation loss. 0.03 = 3% loss
-        /// </summary>
-        public double EncapuslationLoss { get; set; }
 
         /// <summary>
         /// Shape and layout of the solar array

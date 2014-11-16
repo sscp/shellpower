@@ -24,11 +24,11 @@
         /// </summary>
         private void InitializeComponent() {
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.textBoxTimezone = new System.Windows.Forms.TextBox();
             this.labelAzimuthElevation = new System.Windows.Forms.Label();
             this.labelTimezone = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.comboBoxTimezone = new System.Windows.Forms.ComboBox();
             this.trackBarTimeOfDay = new System.Windows.Forms.TrackBar();
             this.dateTimePicker = new System.Windows.Forms.DateTimePicker();
             this.labelLocalTime = new System.Windows.Forms.Label();
@@ -49,13 +49,13 @@
             this.label12 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.textBoxEncapLoss = new System.Windows.Forms.TextBox();
             this.textBoxIndirectIrrad = new System.Windows.Forms.TextBox();
             this.textBoxIrrad = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarTimeOfDay)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCarDirection)).BeginInit();
@@ -66,13 +66,13 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.textBoxTimezone);
             this.groupBox2.Controls.Add(this.labelAzimuthElevation);
             this.groupBox2.Controls.Add(this.labelTimezone);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Controls.Add(this.label4);
-            this.groupBox2.Controls.Add(this.comboBoxTimezone);
             this.groupBox2.Controls.Add(this.trackBarTimeOfDay);
             this.groupBox2.Controls.Add(this.dateTimePicker);
             this.groupBox2.Controls.Add(this.labelLocalTime);
@@ -83,6 +83,15 @@
             this.groupBox2.TabIndex = 2;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "When";
+            // 
+            // textBoxTimezone
+            // 
+            this.textBoxTimezone.Location = new System.Drawing.Point(140, 74);
+            this.textBoxTimezone.Name = "textBoxTimezone";
+            this.textBoxTimezone.Size = new System.Drawing.Size(133, 20);
+            this.textBoxTimezone.TabIndex = 17;
+            this.textBoxTimezone.Text = "9.5";
+            this.textBoxTimezone.Leave += new System.EventHandler(this.anyInput_changed);
             // 
             // labelAzimuthElevation
             // 
@@ -95,11 +104,11 @@
             // labelTimezone
             // 
             this.labelTimezone.AutoSize = true;
-            this.labelTimezone.Location = new System.Drawing.Point(271, 77);
+            this.labelTimezone.Location = new System.Drawing.Point(93, 77);
             this.labelTimezone.Name = "labelTimezone";
-            this.labelTimezone.Size = new System.Drawing.Size(41, 13);
+            this.labelTimezone.Size = new System.Drawing.Size(38, 13);
             this.labelTimezone.TabIndex = 18;
-            this.labelTimezone.Text = "tzoffset";
+            this.labelTimezone.Text = "UTC+ ";
             // 
             // label1
             // 
@@ -118,17 +127,6 @@
             this.label4.Size = new System.Drawing.Size(33, 13);
             this.label4.TabIndex = 7;
             this.label4.Text = "Local";
-            // 
-            // comboBoxTimezone
-            // 
-            this.comboBoxTimezone.DisplayMember = "Id";
-            this.comboBoxTimezone.FormattingEnabled = true;
-            this.comboBoxTimezone.Location = new System.Drawing.Point(96, 74);
-            this.comboBoxTimezone.Name = "comboBoxTimezone";
-            this.comboBoxTimezone.Size = new System.Drawing.Size(169, 21);
-            this.comboBoxTimezone.TabIndex = 17;
-            this.comboBoxTimezone.ValueMember = "Id";
-            this.comboBoxTimezone.SelectedIndexChanged += new System.EventHandler(this.anyInput_changed);
             // 
             // trackBarTimeOfDay
             // 
@@ -237,8 +235,8 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.Tilt);
             this.groupBox1.Controls.Add(this.labelTilt);
             this.groupBox1.Controls.Add(this.trackBarTilt);
@@ -323,8 +321,8 @@
             // 
             // groupBox3
             // 
-            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox3.Controls.Add(this.label11);
             this.groupBox3.Controls.Add(this.label10);
             this.groupBox3.Controls.Add(this.label8);
@@ -341,6 +339,24 @@
             this.groupBox3.TabIndex = 11;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Conditions";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(228, 21);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(31, 13);
+            this.label11.TabIndex = 18;
+            this.label11.Text = "w/m²";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(228, 47);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(31, 13);
+            this.label10.TabIndex = 17;
+            this.label10.Text = "w/m²";
             // 
             // label8
             // 
@@ -381,24 +397,6 @@
             this.label6.TabIndex = 12;
             this.label6.Text = "Encap. loss";
             // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(228, 47);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(31, 13);
-            this.label10.TabIndex = 17;
-            this.label10.Text = "w/m²";
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(228, 21);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(31, 13);
-            this.label11.TabIndex = 18;
-            this.label11.Text = "w/m²";
-            // 
             // ArraySimInputControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -425,10 +423,8 @@
 
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label labelAzimuthElevation;
-        private System.Windows.Forms.Label labelTimezone;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.ComboBox comboBoxTimezone;
         private System.Windows.Forms.TrackBar trackBarTimeOfDay;
         private System.Windows.Forms.DateTimePicker dateTimePicker;
         private System.Windows.Forms.Label labelLocalTime;
@@ -456,5 +452,7 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox textBoxTimezone;
+        private System.Windows.Forms.Label labelTimezone;
     }
 }

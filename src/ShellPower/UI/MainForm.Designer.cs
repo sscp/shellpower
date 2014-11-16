@@ -79,6 +79,10 @@
             this.labelSimAvgPower = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.glControl = new SSCP.ShellPower.ArrayModelControl();
+            this.openParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openFileDialogParameters = new System.Windows.Forms.OpenFileDialog();
+            this.saveFileDialogParameters = new System.Windows.Forms.SaveFileDialog();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -127,7 +131,9 @@
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openModelToolStripMenuItem,
             this.openLayoutToolStripMenuItem,
-            this.saveLayoutTextureToolStripMenuItem});
+            this.saveLayoutTextureToolStripMenuItem,
+            this.openParametersToolStripMenuItem,
+            this.saveParametersToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
@@ -146,7 +152,7 @@
             this.openLayoutToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.openLayoutToolStripMenuItem.Text = "Open layout texture";
             this.openLayoutToolStripMenuItem.ToolTipText = "Open a texture (image file, lossless compression like GIF or PNG, no antialiasing" +
-                ") that defines where each cell is on your array.";
+    ") that defines where each cell is on your array.";
             this.openLayoutToolStripMenuItem.Click += new System.EventHandler(this.openLayoutToolStripMenuItem_Click);
             // 
             // saveLayoutTextureToolStripMenuItem
@@ -181,7 +187,7 @@
             this.layoutTextureDimensionsToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
             this.layoutTextureDimensionsToolStripMenuItem.Text = "Layout texture dimensions";
             this.layoutTextureDimensionsToolStripMenuItem.ToolTipText = "Define which part of the model is covered by the layout texture image--in other w" +
-                "ords, where the cells are.";
+    "ords, where the cells are.";
             this.layoutTextureDimensionsToolStripMenuItem.Click += new System.EventHandler(this.layoutTextureDimensionsToolStripMenuItem_Click);
             // 
             // cellParametersToolStripMenuItem
@@ -190,7 +196,7 @@
             this.cellParametersToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
             this.cellParametersToolStripMenuItem.Text = "Cell parameters";
             this.cellParametersToolStripMenuItem.ToolTipText = "Define the characteristics of the indiviudual cell. Efficiency, fill factor, etc." +
-                "";
+    "";
             this.cellParametersToolStripMenuItem.Click += new System.EventHandler(this.cellParametersToolStripMenuItem_Click);
             // 
             // bypassDiodeParametersToolStripMenuItem
@@ -257,9 +263,9 @@
             // 
             // simInputControls
             // 
-            this.simInputControls.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.simInputControls.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.simInputControls.Location = new System.Drawing.Point(0, 0);
             this.simInputControls.Name = "simInputControls";
             this.simInputControls.SimInput = null;
@@ -280,8 +286,8 @@
             // 
             // labelArrPower
             // 
-            this.labelArrPower.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.labelArrPower.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.labelArrPower.AutoSize = true;
             this.labelArrPower.BackColor = System.Drawing.SystemColors.Control;
             this.labelArrPower.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -387,9 +393,9 @@
             // 
             // outputStringsListBox
             // 
-            this.outputStringsListBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.outputStringsListBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.outputStringsListBox.FormattingEnabled = true;
             this.outputStringsListBox.Location = new System.Drawing.Point(5, 28);
             this.outputStringsListBox.Name = "outputStringsListBox";
@@ -545,8 +551,8 @@
             // 
             // groupBoxSimulation
             // 
-            this.groupBoxSimulation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBoxSimulation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxSimulation.BackColor = System.Drawing.Color.Transparent;
             this.groupBoxSimulation.Controls.Add(this.label19);
             this.groupBoxSimulation.Controls.Add(this.dateTimePicker2);
@@ -692,6 +698,31 @@
             this.glControl.TabIndex = 0;
             this.glControl.VSync = true;
             // 
+            // openParametersToolStripMenuItem
+            // 
+            this.openParametersToolStripMenuItem.Name = "openParametersToolStripMenuItem";
+            this.openParametersToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.openParametersToolStripMenuItem.Text = "Open parameters";
+            this.openParametersToolStripMenuItem.Click += new System.EventHandler(this.openParametersToolStripMenuItem_Click);
+            // 
+            // saveParametersToolStripMenuItem
+            // 
+            this.saveParametersToolStripMenuItem.Name = "saveParametersToolStripMenuItem";
+            this.saveParametersToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.saveParametersToolStripMenuItem.Text = "Save parameters";
+            this.saveParametersToolStripMenuItem.Click += new System.EventHandler(this.saveParametersToolStripMenuItem_Click);
+            // 
+            // openFileDialogParameters
+            // 
+            this.openFileDialogParameters.Filter = "JSON files|*.json";
+            this.openFileDialogParameters.FilterIndex = 3;
+            this.openFileDialogParameters.Title = "Load solar car model";
+            // 
+            // saveFileDialogParameters
+            // 
+            this.saveFileDialogParameters.Filter = "JSON files|*.json";
+            this.saveFileDialogParameters.FilterIndex = 3;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -785,5 +816,9 @@
         private System.Windows.Forms.Button btnRecalc;
         private SSCP.ShellPower.ArraySimInputControl simInputControls;
         private System.Windows.Forms.SplitContainer splitContainer2;
+        private System.Windows.Forms.ToolStripMenuItem openParametersToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveParametersToolStripMenuItem;
+        private System.Windows.Forms.OpenFileDialog openFileDialogParameters;
+        private System.Windows.Forms.SaveFileDialog saveFileDialogParameters;
     }
 }

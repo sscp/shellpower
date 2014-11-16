@@ -20,9 +20,6 @@ namespace SSCP.ShellPower {
 
         public ArraySimInputControl() {
             InitializeComponent();
-            TimeZoneInfo[] tzs = TimeZoneInfo.GetSystemTimeZones().ToArray();
-            comboBoxTimezone.Items.Clear();
-            comboBoxTimezone.Items.AddRange(tzs);
         }
 
         /// <summary>
@@ -60,23 +57,15 @@ namespace SSCP.ShellPower {
 
                 /* set date/time */
                 dateTimePicker.Value = simInput.Utc; // fix roundoff problems
-                var tzOffsetHours = simInput.Timezone.GetUtcOffset(simInput.Utc).TotalHours;
-                labelTimezone.Text = string.Format("GMT{0}{1:0.0}", tzOffsetHours >= 0 ? "+" : "", tzOffsetHours);
-                labelLocalTime.Text = simInput.LocalTime.ToString("HH:mm:ss");
-                trackBarTimeOfDay.Value = (int)(simInput.LocalTime.TimeOfDay.TotalHours * (trackBarTimeOfDay.Maximum + 1) / 24);
-                int tzIx;
-                for(tzIx = 0; tzIx < comboBoxTimezone.Items.Count; tzIx++){
-                    if(((TimeZoneInfo)comboBoxTimezone.Items[tzIx]).Id == simInput.Timezone.Id){
-                        break;
-                    }
-                }
-                if (tzIx > comboBoxTimezone.Items.Count) throw new Exception("can't find timezone: "+ simInput.Timezone);
-                comboBoxTimezone.SelectedIndex = tzIx;
+                var localTime = simInput.Utc.AddHours(simInput.TimezoneOffsetHours);
+                labelLocalTime.Text = localTime.ToString("HH:mm:ss");
+                trackBarTimeOfDay.Value = (int)(localTime.TimeOfDay.TotalHours * (trackBarTimeOfDay.Maximum + 1) / 24);
+                textBoxTimezone.Text = string.Format("{0:0.##########}", simInput.TimezoneOffsetHours);
 
                 /* set conditions */
                 textBoxIrrad.Text = string.Format("{0:0.##########}", simInput.Irradiance);
                 textBoxIndirectIrrad.Text = string.Format("{0:0.##########}", simInput.IndirectIrradiance);
-                textBoxEncapLoss.Text = string.Format("{0:0.##########}", simInput.EncapuslationLoss * 100);
+                textBoxEncapLoss.Text = string.Format("{0:0.##########}", simInput.Array.EncapuslationLoss * 100);
             } finally {
                 updating = false;
             }
@@ -99,7 +88,10 @@ namespace SSCP.ShellPower {
             }
 
             /* get time */
-            TimeZoneInfo tz = (TimeZoneInfo)comboBoxTimezone.SelectedItem;
+            double tzOffset = double.Parse(textBoxTimezone.Text);
+            if (tzOffset < -15 || tzOffset > 15) {
+                throw new Exception("Timezone offset must be in [-15, 15].");
+            }
             DateTime utcTime = dateTimePicker.Value;
 
             /* get car orientation */
@@ -122,11 +114,11 @@ namespace SSCP.ShellPower {
             simInput.Tilt = tilt;
             simInput.Latitude = lat;
             simInput.Longitude = lon;
-            simInput.Timezone = tz;
+            simInput.TimezoneOffsetHours = tzOffset;
             simInput.Utc = utcTime;
             simInput.Irradiance = irrad;
             simInput.IndirectIrradiance = indirectIrrad;
-            simInput.EncapuslationLoss = encapLoss;
+            simInput.Array.EncapuslationLoss = encapLoss;
 
             Logger.info("sim inputs\n\t" +
                 "lat {0:0.0} lon {1:0.0} heading {2:0.0} tilt {3:0.0} utc {4} sidereal {5}",
@@ -142,9 +134,8 @@ namespace SSCP.ShellPower {
 
         private void trackBarTimeOfDay_Scroll(object sender, EventArgs e) {
             double hours = (double)trackBarTimeOfDay.Value / (trackBarTimeOfDay.Maximum + 1) * 24;
-            var timeOfDay = new TimeSpan((long)(hours * 60 * 60 * 10000000) + 1);
-            var localTime = simInput.LocalTime.Date + timeOfDay;
-            simInput.Utc = localTime - simInput.Timezone.GetUtcOffset(localTime);
+            var localTime = simInput.Utc.AddHours(simInput.TimezoneOffsetHours).Date.AddHours(hours);
+            simInput.Utc = localTime.AddHours(-simInput.TimezoneOffsetHours);
             UpdateView();
         }
 

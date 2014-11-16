@@ -170,12 +170,11 @@ void main()
             // validate that we're gtg
             if (simInput == null) throw new InvalidOperationException("No input specified.");
             Vector3 sunDir = GetSunDir(simInput);
-            return Simulate(simInput.Array, sunDir, simInput.Irradiance, simInput.IndirectIrradiance, 
-                simInput.EncapuslationLoss, simInput.Temperature);
+            return Simulate(simInput.Array, sunDir, simInput.Irradiance, simInput.IndirectIrradiance, simInput.Temperature);
         }
 
         public ArraySimulationStepOutput Simulate(ArraySpec array, Vector3 sunDir, 
-            double wPerM2Insolation, double wPerM2Indirect, double encapLoss, double cTemp) {
+            double wPerM2Insolation, double wPerM2Indirect, double cTemp) {
             // validate that we're gtg
             if (array == null) throw new ArgumentException("No array specified.");
             if (array.Mesh == null) throw new ArgumentException("No array shape (mesh) loaded.");
@@ -189,7 +188,7 @@ void main()
                 SetUniforms(array, wPerM2Insolation);
                 ComputeRender(array, sunDir);
                 DebugSaveBuffers();
-                output = AnalyzeComputeTex(array, wPerM2Insolation, wPerM2Indirect, encapLoss, cTemp);
+                output = AnalyzeComputeTex(array, wPerM2Insolation, wPerM2Indirect, cTemp);
                 DateTime dt2 = DateTime.Now;
 
                 Debug.WriteLine(string.Format("finished sim step! {0:0.000}s {1:0.0}/{2:0.0}W",
@@ -286,10 +285,10 @@ void main()
             GL.UseProgram(shaderProg);
 
             // array layout alignment
-            GL.Uniform1(uniformX0, array.LayoutBoundsXZ.Left); 
-            GL.Uniform1(uniformX1, array.LayoutBoundsXZ.Right); 
-            GL.Uniform1(uniformZ0, array.LayoutBoundsXZ.Top);
-            GL.Uniform1(uniformZ1, array.LayoutBoundsXZ.Bottom);
+            GL.Uniform1(uniformX0, (float)array.LayoutBounds.MinX);
+            GL.Uniform1(uniformX1, (float)array.LayoutBounds.MaxX);
+            GL.Uniform1(uniformZ0, (float)array.LayoutBounds.MinZ);
+            GL.Uniform1(uniformZ1, (float)array.LayoutBounds.MaxZ);
 
             // array layout texture. shows where each cell is located.
             GL.ActiveTexture(TextureUnit.Texture0);
@@ -383,7 +382,7 @@ void main()
         /// 
         /// Uses this to calculate IV curves, etc, and ultimately array power.
         /// </summary>
-        private ArraySimulationStepOutput AnalyzeComputeTex(ArraySpec array, double wPerM2Insolation, double wPerM2Iindirect, double encapLoss, double cTemp) {
+        private ArraySimulationStepOutput AnalyzeComputeTex(ArraySpec array, double wPerM2Insolation, double wPerM2Iindirect, double cTemp) {
             Color[] texColors = ReadColorTexture(FramebufferAttachment.ColorAttachment0);
             float[] texWattsIn = ReadFloatTexture(FramebufferAttachment.ColorAttachment1, 0.0001);
             double arrayDimM = ComputeArrayMaxDimension(array);
@@ -436,7 +435,7 @@ void main()
             // add indirect insolation, encapsulation loss
             for (int i = 0; i < ncells; i++) {
                 wattsIn[i] += array.CellSpec.Area * wPerM2Iindirect;
-                wattsIn[i] *= (1.0 - encapLoss);
+                wattsIn[i] *= (1.0 - array.EncapuslationLoss);
             }
 
             // find totals

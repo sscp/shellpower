@@ -10,7 +10,7 @@ using OpenTK;
 
 namespace SSCP.ShellPower {
     public partial class ArrayDimensionsForm : Form {
-        private RectangleF originalLayoutBounds;
+        private BoundsSpec originalLayoutBounds;
         private bool updatingView = false;
         private ArraySpec array;
         public ArraySpec Array {
@@ -19,7 +19,7 @@ namespace SSCP.ShellPower {
             }
             set { 
                 array = value;
-                originalLayoutBounds = array.LayoutBoundsXZ;
+                originalLayoutBounds = array.LayoutBounds;
                 UpdateView(); 
             }
         }
@@ -36,21 +36,19 @@ namespace SSCP.ShellPower {
             }
             updatingView = true;
             numX0.Enabled = numX1.Enabled = numZ0.Enabled = numZ1.Enabled = buttonOK.Enabled = true;
-            numX0.Value = (decimal)Array.LayoutBoundsXZ.X;
-            numX1.Value = (decimal)Array.LayoutBoundsXZ.Width;
-            numZ0.Value = (decimal)Array.LayoutBoundsXZ.Y;
-            numZ1.Value = (decimal)Array.LayoutBoundsXZ.Height;
+            numX0.Value = (decimal)Array.LayoutBounds.MinX;
+            numX1.Value = (decimal)Array.LayoutBounds.MaxX;
+            numZ0.Value = (decimal)Array.LayoutBounds.MinZ;
+            numZ1.Value = (decimal)Array.LayoutBounds.MaxZ;
             updatingView = false;
         }
 
         private void UpdateModel() {
             if (Array == null) return;
-            var b = Array.LayoutBoundsXZ;
-            b.X = (float)numX0.Value;
-            b.Y = (float)numZ0.Value;
-            b.Width = (float)numX1.Value;
-            b.Height = (float)numZ1.Value;
-            Array.LayoutBoundsXZ = b;
+            Array.LayoutBounds.MinX = (double)numX0.Value;
+            Array.LayoutBounds.MaxX = (double)numX1.Value;
+            Array.LayoutBounds.MinZ = (double)numZ0.Value;
+            Array.LayoutBounds.MaxZ = (double)numZ1.Value;
         }
 
         private void numX0_ValueChanged(object sender, EventArgs e) {
@@ -72,7 +70,7 @@ namespace SSCP.ShellPower {
 
         private void buttonCancel_Click(object sender, EventArgs e) {
             if (Array != null) {
-                Array.LayoutBoundsXZ = originalLayoutBounds;
+                Array.LayoutBounds = originalLayoutBounds;
             }
             Close();
         }

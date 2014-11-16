@@ -28,7 +28,7 @@ namespace SSCP.ShellPower {
             var texFile = openFileDialogArray.FileName;
             try {
                 return new Bitmap(texFile);
-            } catch (Exception e){
+            } catch {
                 MessageBox.Show("Could not open bitmap " + texFile + ". Is it open in another program? Is it a valid bitmap?");
                 return null;
             }
