@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Drawing;
 
 namespace SSCP.ShellPower {
     public static class JsonSpecConverter {
@@ -17,9 +18,47 @@ namespace SSCP.ShellPower {
             File.WriteAllText(filename, json, Encoding.UTF8);
         }
 
-        public static JsonSpec ToJson(ArraySimulationStepInput input, string relativeDir) {
+
+        public static ArraySimulationStepInput FromJson(JsonSpec spec, Mesh mesh, Bitmap texture) {
+            ArraySimulationStepInput input = new ArraySimulationStepInput();
+            input.Heading = DegToRad(spec.Environment.HeadingDeg);
+            input.IndirectIrradiance = spec.Environment.IndirectIrradianceWM2;
+            input.Irradiance = spec.Environment.IrradianceWM2;
+            input.Latitude = spec.Environment.LatitudeDeg;
+            input.Longitude = spec.Environment.LongitudeDeg;
+            input.Temperature = spec.Environment.TemperatureC;
+            input.Tilt = DegToRad(spec.Environment.TiltDeg);
+            input.TimezoneOffsetHours = spec.Environment.TimezoneOffsetHours;
+            input.Utc = spec.Environment.Utc;
+            input.Array = new ArraySpec();
+            input.Array.BypassDiodeSpec.VoltageDrop = spec.Array.BypassDiode.VoltageDrop;
+            input.Array.CellSpec.Area = spec.Array.Cell.AreaM2;
+            input.Array.CellSpec.DIscDT = spec.Array.Cell.DIscDT;
+            input.Array.CellSpec.DVocDT = spec.Array.Cell.DVocDT;
+            input.Array.CellSpec.IscStc = spec.Array.Cell.IscStc;
+            input.Array.CellSpec.NIdeal = spec.Array.Cell.NIdeal;
+            input.Array.CellSpec.SeriesR = spec.Array.Cell.SeriesR;
+            input.Array.CellSpec.VocStc = spec.Array.Cell.VocStc;
+            input.Array.EncapuslationLoss = spec.Array.EncapuslationLoss;
+            input.Array.LayoutBounds = FromJson(spec.Array.LayoutBounds);
+            input.Array.Mesh = mesh;
+            input.Array.LayoutTexture = texture;
+            input.Array.ReadStringsFromColors();
+            return input;
+        }
+
+        private static BoundsSpec FromJson(BoundsJsonSpec boundsJsonSpec) {
+            BoundsSpec spec = new BoundsSpec();
+            spec.MaxX = boundsJsonSpec.MaxX;
+            spec.MinX = boundsJsonSpec.MinX;
+            spec.MaxZ = boundsJsonSpec.MaxZ;
+            spec.MinZ = boundsJsonSpec.MinZ;
+            return spec;
+        }
+
+        public static JsonSpec ToJson(ArraySimulationStepInput input, string layoutFile, string meshFile, string relativeDir) {
             return new JsonSpec() {
-                Array = ToJson(input.Array, relativeDir),
+                Array = ToJson(input.Array, meshFile, layoutFile, relativeDir),
                 Environment = new EnvironmentJsonSpec() {
                     HeadingDeg = RadToDeg(input.Heading),
                     IndirectIrradianceWM2 = input.IndirectIrradiance,
@@ -42,19 +81,32 @@ namespace SSCP.ShellPower {
             return d * Math.PI / 180.0;
         }
 
-        private static ArrayJsonSpec ToJson(ArraySpec arraySpec, string relativeDir) {
+        private static ArrayJsonSpec ToJson(ArraySpec arraySpec, string layoutFile, string meshFile, string relativeDir) {
             return new ArrayJsonSpec() {
                 BypassDiode = ToJson(arraySpec.BypassDiodeSpec),
                 Cell = ToJson(arraySpec.CellSpec),
                 EncapuslationLoss = arraySpec.EncapuslationLoss,
                 LayoutBounds = ToJson(arraySpec.LayoutBounds),
-                LayoutFilename = GetRelative(arraySpec.LayoutFilename, relativeDir),
-                MeshFilename = GetRelative(arraySpec.MeshFilename, relativeDir)
+                LayoutFilename = GetRelative(layoutFile, relativeDir),
+                MeshFilename = GetRelative(meshFile, relativeDir)
             };
         }
 
-        private static string GetRelative(string p, string relativeDir) {
-            throw new NotImplementedException();
+        private static string GetRelative(string fromPath, string toPath) {
+            Uri fromUri = new Uri(fromPath);
+            Uri toUri = new Uri(toPath);
+
+            if (fromUri.Scheme != toUri.Scheme) {
+                throw new ArgumentException();
+            }
+
+            Uri relativeUri = fromUri.MakeRelativeUri(toUri);
+            String relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+
+            if (toUri.Scheme.ToUpperInvariant() == "FILE") {
+                relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            }
+            return relativePath;
         }
 
         private static BoundsJsonSpec ToJson(BoundsSpec rect) {

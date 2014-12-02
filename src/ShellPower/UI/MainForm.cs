@@ -14,6 +14,7 @@ namespace SSCP.ShellPower {
         /* model */
         ArraySimulationStepInput simInput = new ArraySimulationStepInput();
         Shadow shadow;
+        string meshFilename;
 
         /* sub views */
         ArrayLayoutForm arrayLayoutForm;
@@ -72,7 +73,7 @@ namespace SSCP.ShellPower {
                 MaxZ = 4.59
             };
             array.LayoutTexture = ArrayModelControl.DEFAULT_TEX;
-            LoadModel("../../../../arrays/luminos/luminos.stl");
+            //LoadModel(meshFilename);
             array.EncapuslationLoss = 0.025; // 2.5 %
 
             // Sunpower C60 Bin I
@@ -105,16 +106,6 @@ namespace SSCP.ShellPower {
 
         private void LoadModel(string filename) {
             Mesh mesh = LoadMesh(filename);
-            Vector3 size = mesh.BoundingBox.Max - mesh.BoundingBox.Min;
-            if (size.Length > 1000) {
-                mesh = MeshUtils.Scale(mesh, 0.001f);
-                size *= 0.001f;
-            }
-            toolStripStatusLabel.Text = string.Format("Loaded model {0}, {1} triangles, {2:0.00}x{3:0.00}x{4:0.00}m",
-                System.IO.Path.GetFileName(filename),
-                mesh.triangles.Length,
-                size.X, size.Y, size.Z);
-
             SetModel(mesh);
         }
 
@@ -129,7 +120,16 @@ namespace SSCP.ShellPower {
                 throw new ArgumentException("Unsupported file type: " + extension);
             }
             parser.Parse(filename);
-            return parser.GetMesh();
+            Mesh mesh = parser.GetMesh();
+            Vector3 size = mesh.BoundingBox.Max - mesh.BoundingBox.Min;
+            if (size.Length > 1000) {
+                mesh = MeshUtils.Scale(mesh, 0.001f);
+            }
+            toolStripStatusLabel.Text = string.Format("Loaded model {0}, {1} triangles, {2:0.00}x{3:0.00}x{4:0.00}m",
+                System.IO.Path.GetFileName(filename),
+                mesh.triangles.Length,
+                size.X, size.Y, size.Z);
+            return mesh;
         }
 
         /// <summary>
@@ -162,7 +162,9 @@ namespace SSCP.ShellPower {
             /* compute array power automatically? 
              * currently, only on Compute button press */
             /* update the view */
-            UpdateShadowView();
+            if(shadow != null){
+                UpdateShadowView();
+            }
         }
 
         /// <summary>
@@ -194,6 +196,7 @@ namespace SSCP.ShellPower {
             }
             try {
                 LoadModel(openFileDialogModel.FileName);
+                meshFilename = openFileDialogModel.FileName;
             } catch (Exception e) {
                 MessageBox.Show(e.Message, "Error loading model", MessageBoxButtons.OK);
             }
@@ -225,7 +228,16 @@ namespace SSCP.ShellPower {
                 return;
             }
             try {
-                JsonSpec spec = JsonSpecConverter.Read(openFileDialogParameters.FileName);
+                string filename = openFileDialogParameters.FileName;
+                string dir = Path.GetDirectoryName(filename);
+                JsonSpec spec = JsonSpecConverter.Read(filename);
+                string meshFname = dir + "/" + spec.Array.MeshFilename;
+                Mesh mesh = LoadMesh(meshFname);
+                Bitmap texture = new Bitmap(dir + "/" + spec.Array.LayoutFilename);
+                simInput = JsonSpecConverter.FromJson(spec, mesh, texture);
+
+                SetModel(simInput.Array.Mesh);
+                meshFilename = meshFname;
                 Console.WriteLine("Read spec " + spec);
             } catch (Exception e) {
                 MessageBox.Show(e.Message, "Error loading model", MessageBoxButtons.OK);
@@ -237,8 +249,9 @@ namespace SSCP.ShellPower {
             if (saveFileDialogParameters.ShowDialog() != System.Windows.Forms.DialogResult.OK) {
                 return;
             }
-            var filename = saveFileDialogParameters.FileName;
-            JsonSpec spec = JsonSpecConverter.ToJson(simInput, Path.GetDirectoryName(filename));
+            string filename = saveFileDialogParameters.FileName;
+            string layoutFile = saveLayoutTextureDialog();
+            JsonSpec spec = JsonSpecConverter.ToJson(simInput, layoutFile, meshFilename, Path.GetDirectoryName(filename));
             JsonSpecConverter.Write(spec, filename);
         }
 
@@ -331,9 +344,15 @@ namespace SSCP.ShellPower {
                 MessageBox.Show("Nothing to save. Try opening and editing a layout first.");
                 return;
             }
+            string filename = saveLayoutTextureDialog();
+            if (filename == null) return;
+            simInput.Array.LayoutTexture.Save(filename);
+        }
+
+        private string saveLayoutTextureDialog() {
             DialogResult result = saveFileDialogLayout.ShowDialog();
-            if (result != DialogResult.OK) return;
-            simInput.Array.LayoutTexture.Save(saveFileDialogLayout.FileName);
+            if (result != DialogResult.OK) return null;
+            return saveFileDialogLayout.FileName;
         }
 
         private void outputStringIVLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {

@@ -35,8 +35,6 @@ namespace SSCP.ShellPower {
         /// The location of cells on the array. Each cell should have a unique, flat color.
         /// </summary>
         public Bitmap LayoutTexture { get; set; }
-        public string MeshFilename { get; set; }
-        public string LayoutFilename { get; set; }
         /// <summary>
         /// Aligns the layout texture. 
         /// The texture is expected to be a top-down ortho projection.
