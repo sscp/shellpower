@@ -30,6 +30,8 @@
             this.openModelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveLayoutTextureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.layoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.layoutTextureDimensionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -40,7 +42,6 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageRun = new System.Windows.Forms.TabPage();
-            this.simInputControls = new SSCP.ShellPower.ArraySimInputControl();
             this.btnRecalc = new System.Windows.Forms.Button();
             this.labelArrPower = new System.Windows.Forms.RichTextBox();
             this.labelArrayPower = new System.Windows.Forms.Label();
@@ -63,7 +64,6 @@
             this.label16 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
             this.outputStringAreaLabel = new System.Windows.Forms.Label();
-            this.outputArrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBoxSimulation = new System.Windows.Forms.GroupBox();
             this.label19 = new System.Windows.Forms.Label();
@@ -78,11 +78,11 @@
             this.buttonRun = new System.Windows.Forms.Button();
             this.labelSimAvgPower = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
-            this.glControl = new SSCP.ShellPower.ArrayModelControl();
-            this.openParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialogParameters = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialogParameters = new System.Windows.Forms.SaveFileDialog();
+            this.simInputControls = new SSCP.ShellPower.ArraySimInputControl();
+            this.outputArrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
+            this.glControl = new SSCP.ShellPower.ArrayModelControl();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -123,7 +123,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(984, 24);
-            this.menuStrip1.TabIndex = 1;
+            this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // fileToolStripMenuItem
@@ -161,6 +161,20 @@
             this.saveLayoutTextureToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.saveLayoutTextureToolStripMenuItem.Text = "Save layout texture";
             this.saveLayoutTextureToolStripMenuItem.Click += new System.EventHandler(this.saveLayoutTextureToolStripMenuItem_Click);
+            // 
+            // openParametersToolStripMenuItem
+            // 
+            this.openParametersToolStripMenuItem.Name = "openParametersToolStripMenuItem";
+            this.openParametersToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.openParametersToolStripMenuItem.Text = "Open parameters";
+            this.openParametersToolStripMenuItem.Click += new System.EventHandler(this.openParametersToolStripMenuItem_Click);
+            // 
+            // saveParametersToolStripMenuItem
+            // 
+            this.saveParametersToolStripMenuItem.Name = "saveParametersToolStripMenuItem";
+            this.saveParametersToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.saveParametersToolStripMenuItem.Text = "Save parameters";
+            this.saveParametersToolStripMenuItem.Click += new System.EventHandler(this.saveParametersToolStripMenuItem_Click);
             // 
             // editToolStripMenuItem
             // 
@@ -216,6 +230,7 @@
             // 
             this.saveFileDialogLayout.Filter = "PNG Images|*.png|GIF Images|*.gif|Bitmap images|*.bmp";
             this.saveFileDialogLayout.FilterIndex = 3;
+            this.saveFileDialogLayout.Title = "Save array layout texture";
             // 
             // splitContainer1
             // 
@@ -244,7 +259,7 @@
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 1;
             this.tabControl1.Size = new System.Drawing.Size(383, 516);
-            this.tabControl1.TabIndex = 3;
+            this.tabControl1.TabIndex = 0;
             // 
             // tabPageRun
             // 
@@ -260,18 +275,6 @@
             this.tabPageRun.TabIndex = 0;
             this.tabPageRun.Text = "Params";
             this.tabPageRun.UseVisualStyleBackColor = true;
-            // 
-            // simInputControls
-            // 
-            this.simInputControls.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.simInputControls.Location = new System.Drawing.Point(0, 0);
-            this.simInputControls.Name = "simInputControls";
-            this.simInputControls.SimInput = null;
-            this.simInputControls.Size = new System.Drawing.Size(375, 383);
-            this.simInputControls.TabIndex = 16;
-            this.simInputControls.Change += new System.EventHandler(this.simInputs_Change);
             // 
             // btnRecalc
             // 
@@ -296,7 +299,8 @@
             this.labelArrPower.ReadOnly = true;
             this.labelArrPower.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
             this.labelArrPower.Size = new System.Drawing.Size(288, 39);
-            this.labelArrPower.TabIndex = 12;
+            this.labelArrPower.TabIndex = 0;
+            this.labelArrPower.TabStop = false;
             this.labelArrPower.Text = "-";
             this.labelArrPower.WordWrap = false;
             // 
@@ -525,19 +529,6 @@
             this.outputStringAreaLabel.TabIndex = 8;
             this.outputStringAreaLabel.Text = "0 m^2";
             // 
-            // outputArrayLayoutControl
-            // 
-            this.outputArrayLayoutControl.AnimatedSelection = false;
-            this.outputArrayLayoutControl.Array = null;
-            this.outputArrayLayoutControl.CellString = null;
-            this.outputArrayLayoutControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.outputArrayLayoutControl.Editable = false;
-            this.outputArrayLayoutControl.EditBypassDiodes = false;
-            this.outputArrayLayoutControl.Location = new System.Drawing.Point(0, 0);
-            this.outputArrayLayoutControl.Name = "outputArrayLayoutControl";
-            this.outputArrayLayoutControl.Size = new System.Drawing.Size(369, 209);
-            this.outputArrayLayoutControl.TabIndex = 0;
-            // 
             // tabPage1
             // 
             this.tabPage1.BackColor = System.Drawing.Color.Transparent;
@@ -589,7 +580,7 @@
             this.dateTimePicker2.Location = new System.Drawing.Point(102, 41);
             this.dateTimePicker2.Name = "dateTimePicker2";
             this.dateTimePicker2.Size = new System.Drawing.Size(194, 20);
-            this.dateTimePicker2.TabIndex = 22;
+            this.dateTimePicker2.TabIndex = 1;
             this.dateTimePicker2.Value = new System.DateTime(2013, 10, 9, 17, 0, 0, 0);
             this.dateTimePicker2.ValueChanged += new System.EventHandler(this.dateTimePicker2_ValueChanged);
             // 
@@ -609,7 +600,7 @@
             this.dateTimePicker1.Location = new System.Drawing.Point(102, 15);
             this.dateTimePicker1.Name = "dateTimePicker1";
             this.dateTimePicker1.Size = new System.Drawing.Size(194, 20);
-            this.dateTimePicker1.TabIndex = 20;
+            this.dateTimePicker1.TabIndex = 0;
             this.dateTimePicker1.Value = new System.DateTime(2013, 10, 9, 8, 0, 0, 0);
             this.dateTimePicker1.ValueChanged += new System.EventHandler(this.dateTimePicker1_ValueChanged);
             // 
@@ -663,7 +654,7 @@
             this.buttonRun.Location = new System.Drawing.Point(9, 103);
             this.buttonRun.Name = "buttonRun";
             this.buttonRun.Size = new System.Drawing.Size(75, 23);
-            this.buttonRun.TabIndex = 9;
+            this.buttonRun.TabIndex = 2;
             this.buttonRun.Text = "Run";
             this.buttonRun.UseVisualStyleBackColor = true;
             this.buttonRun.Click += new System.EventHandler(this.buttonRun_Click_1);
@@ -686,6 +677,43 @@
             this.label10.TabIndex = 13;
             this.label10.Text = "Avg power:";
             // 
+            // openFileDialogParameters
+            // 
+            this.openFileDialogParameters.Filter = "JSON files|*.json";
+            this.openFileDialogParameters.FilterIndex = 3;
+            this.openFileDialogParameters.Title = "Load solar car model";
+            // 
+            // saveFileDialogParameters
+            // 
+            this.saveFileDialogParameters.Filter = "JSON files|*.json";
+            this.saveFileDialogParameters.FilterIndex = 3;
+            this.saveFileDialogParameters.Title = "Save simulation parameters";
+            // 
+            // simInputControls
+            // 
+            this.simInputControls.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.simInputControls.Location = new System.Drawing.Point(0, 0);
+            this.simInputControls.Name = "simInputControls";
+            this.simInputControls.SimInput = null;
+            this.simInputControls.Size = new System.Drawing.Size(375, 383);
+            this.simInputControls.TabIndex = 3;
+            this.simInputControls.Change += new System.EventHandler(this.simInputs_Change);
+            // 
+            // outputArrayLayoutControl
+            // 
+            this.outputArrayLayoutControl.AnimatedSelection = false;
+            this.outputArrayLayoutControl.Array = null;
+            this.outputArrayLayoutControl.CellString = null;
+            this.outputArrayLayoutControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.outputArrayLayoutControl.Editable = false;
+            this.outputArrayLayoutControl.EditBypassDiodes = false;
+            this.outputArrayLayoutControl.Location = new System.Drawing.Point(0, 0);
+            this.outputArrayLayoutControl.Name = "outputArrayLayoutControl";
+            this.outputArrayLayoutControl.Size = new System.Drawing.Size(369, 209);
+            this.outputArrayLayoutControl.TabIndex = 0;
+            // 
             // glControl
             // 
             this.glControl.Array = null;
@@ -697,31 +725,6 @@
             this.glControl.Sprite = null;
             this.glControl.TabIndex = 0;
             this.glControl.VSync = true;
-            // 
-            // openParametersToolStripMenuItem
-            // 
-            this.openParametersToolStripMenuItem.Name = "openParametersToolStripMenuItem";
-            this.openParametersToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.openParametersToolStripMenuItem.Text = "Open parameters";
-            this.openParametersToolStripMenuItem.Click += new System.EventHandler(this.openParametersToolStripMenuItem_Click);
-            // 
-            // saveParametersToolStripMenuItem
-            // 
-            this.saveParametersToolStripMenuItem.Name = "saveParametersToolStripMenuItem";
-            this.saveParametersToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.saveParametersToolStripMenuItem.Text = "Save parameters";
-            this.saveParametersToolStripMenuItem.Click += new System.EventHandler(this.saveParametersToolStripMenuItem_Click);
-            // 
-            // openFileDialogParameters
-            // 
-            this.openFileDialogParameters.Filter = "JSON files|*.json";
-            this.openFileDialogParameters.FilterIndex = 3;
-            this.openFileDialogParameters.Title = "Load solar car model";
-            // 
-            // saveFileDialogParameters
-            // 
-            this.saveFileDialogParameters.Filter = "JSON files|*.json";
-            this.saveFileDialogParameters.FilterIndex = 3;
             // 
             // MainForm
             // 

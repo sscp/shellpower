@@ -89,7 +89,7 @@
             this.textBoxTimezone.Location = new System.Drawing.Point(140, 74);
             this.textBoxTimezone.Name = "textBoxTimezone";
             this.textBoxTimezone.Size = new System.Drawing.Size(133, 20);
-            this.textBoxTimezone.TabIndex = 17;
+            this.textBoxTimezone.TabIndex = 2;
             this.textBoxTimezone.Text = "9.5";
             this.textBoxTimezone.Leave += new System.EventHandler(this.anyInput_changed);
             // 
@@ -136,7 +136,7 @@
             this.trackBarTimeOfDay.Maximum = 287;
             this.trackBarTimeOfDay.Name = "trackBarTimeOfDay";
             this.trackBarTimeOfDay.Size = new System.Drawing.Size(138, 20);
-            this.trackBarTimeOfDay.TabIndex = 8;
+            this.trackBarTimeOfDay.TabIndex = 1;
             this.trackBarTimeOfDay.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarTimeOfDay.Scroll += new System.EventHandler(this.trackBarTimeOfDay_Scroll);
             // 
@@ -195,7 +195,7 @@
             this.trackBarCarDirection.Maximum = 35;
             this.trackBarCarDirection.Name = "trackBarCarDirection";
             this.trackBarCarDirection.Size = new System.Drawing.Size(147, 20);
-            this.trackBarCarDirection.TabIndex = 11;
+            this.trackBarCarDirection.TabIndex = 0;
             this.trackBarCarDirection.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarCarDirection.Scroll += new System.EventHandler(this.anyInput_changed);
             // 
@@ -204,7 +204,7 @@
             this.textBoxLon.Location = new System.Drawing.Point(96, 107);
             this.textBoxLon.Name = "textBoxLon";
             this.textBoxLon.Size = new System.Drawing.Size(147, 20);
-            this.textBoxLon.TabIndex = 6;
+            this.textBoxLon.TabIndex = 3;
             this.textBoxLon.Leave += new System.EventHandler(this.anyInput_changed);
             // 
             // label3
@@ -221,7 +221,7 @@
             this.textBoxLat.Location = new System.Drawing.Point(96, 81);
             this.textBoxLat.Name = "textBoxLat";
             this.textBoxLat.Size = new System.Drawing.Size(147, 20);
-            this.textBoxLat.TabIndex = 4;
+            this.textBoxLat.TabIndex = 2;
             this.textBoxLat.Leave += new System.EventHandler(this.anyInput_changed);
             // 
             // label2
@@ -281,7 +281,7 @@
             this.trackBarTilt.Minimum = -10;
             this.trackBarTilt.Name = "trackBarTilt";
             this.trackBarTilt.Size = new System.Drawing.Size(147, 20);
-            this.trackBarTilt.TabIndex = 14;
+            this.trackBarTilt.TabIndex = 1;
             this.trackBarTilt.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarTilt.Scroll += new System.EventHandler(this.anyInput_changed);
             // 
@@ -369,24 +369,27 @@
             // 
             // textBoxEncapLoss
             // 
-            this.textBoxEncapLoss.Location = new System.Drawing.Point(96, 70);
+            this.textBoxEncapLoss.Location = new System.Drawing.Point(96, 73);
             this.textBoxEncapLoss.Name = "textBoxEncapLoss";
             this.textBoxEncapLoss.Size = new System.Drawing.Size(126, 20);
-            this.textBoxEncapLoss.TabIndex = 15;
+            this.textBoxEncapLoss.TabIndex = 2;
+            this.textBoxEncapLoss.Leave += new System.EventHandler(this.anyInput_changed);
             // 
             // textBoxIndirectIrrad
             // 
             this.textBoxIndirectIrrad.Location = new System.Drawing.Point(96, 44);
             this.textBoxIndirectIrrad.Name = "textBoxIndirectIrrad";
             this.textBoxIndirectIrrad.Size = new System.Drawing.Size(126, 20);
-            this.textBoxIndirectIrrad.TabIndex = 14;
+            this.textBoxIndirectIrrad.TabIndex = 1;
+            this.textBoxIndirectIrrad.Leave += new System.EventHandler(this.anyInput_changed);
             // 
             // textBoxIrrad
             // 
             this.textBoxIrrad.Location = new System.Drawing.Point(96, 18);
             this.textBoxIrrad.Name = "textBoxIrrad";
             this.textBoxIrrad.Size = new System.Drawing.Size(126, 20);
-            this.textBoxIrrad.TabIndex = 13;
+            this.textBoxIrrad.TabIndex = 0;
+            this.textBoxIrrad.Leave += new System.EventHandler(this.anyInput_changed);
             // 
             // label6
             // 

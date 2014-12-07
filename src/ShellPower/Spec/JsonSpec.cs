@@ -21,7 +21,7 @@ namespace SSCP.ShellPower {
         public BoundsJsonSpec LayoutBounds { get; set; }
         public CellJsonSpec Cell { get; set; }
         public DiodeJsonSpec BypassDiode { get; set; }
-        public double EncapuslationLoss { get; set; }
+        public double EncapsulationLoss { get; set; }
     }
     public class BoundsJsonSpec {
         public double MinX { get; set; }

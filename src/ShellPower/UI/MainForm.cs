@@ -38,11 +38,15 @@ namespace SSCP.ShellPower {
             CalculateSimStepGui();
 
             // init subviews
+            InitInputView();
+            InitOutputView();
+        }
+
+        private void InitInputView() {
             arrayLayoutForm = new ArrayLayoutForm(simInput.Array);
             cellParamsForm = new CellParamsForm(simInput);
             glControl.Array = simInput.Array;
             simInputControls.SimInput = simInput;
-            InitOutputView();
         }
 
         private void InitOutputView() {
@@ -74,7 +78,7 @@ namespace SSCP.ShellPower {
             };
             array.LayoutTexture = ArrayModelControl.DEFAULT_TEX;
             //LoadModel(meshFilename);
-            array.EncapuslationLoss = 0.025; // 2.5 %
+            array.EncapsulationLoss = 0.025; // 2.5 %
 
             // Sunpower C60 Bin I
             // http://www.kyletsai.com/uploads/9/7/5/3/9753015/sunpower_c60_bin_ghi.pdf
@@ -130,6 +134,10 @@ namespace SSCP.ShellPower {
                 mesh.triangles.Length,
                 size.X, size.Y, size.Z);
             return mesh;
+        }
+
+        private Bitmap LoadTexture(String filename) {
+            return new Bitmap(Bitmap.FromFile(filename));
         }
 
         /// <summary>
@@ -233,7 +241,7 @@ namespace SSCP.ShellPower {
                 JsonSpec spec = JsonSpecConverter.Read(filename);
                 string meshFname = dir + "/" + spec.Array.MeshFilename;
                 Mesh mesh = LoadMesh(meshFname);
-                Bitmap texture = new Bitmap(dir + "/" + spec.Array.LayoutFilename);
+                Bitmap texture = LoadTexture(dir + "/" + spec.Array.LayoutFilename);
                 simInput = JsonSpecConverter.FromJson(spec, mesh, texture);
 
                 SetModel(simInput.Array.Mesh);
@@ -243,6 +251,8 @@ namespace SSCP.ShellPower {
                 MessageBox.Show(e.Message, "Error loading model", MessageBoxButtons.OK);
             }
             CalculateSimStepGui();
+            InitInputView();
+            InitOutputView();
         }
 
         private void saveParametersToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -251,6 +261,8 @@ namespace SSCP.ShellPower {
             }
             string filename = saveFileDialogParameters.FileName;
             string layoutFile = saveLayoutTextureDialog();
+            if (layoutFile == null) return;
+            simInput.Array.LayoutTexture.Save(layoutFile);
             JsonSpec spec = JsonSpecConverter.ToJson(simInput, layoutFile, meshFilename, Path.GetDirectoryName(filename));
             JsonSpecConverter.Write(spec, filename);
         }
@@ -436,7 +448,6 @@ namespace SSCP.ShellPower {
             Debug.WriteLine("   ... " + simAvg.WattsInsolation + " W insolation");
             Debug.WriteLine("   ... " + simAvg.WattsOutputByCell + " W output (assuming mppt per cell)");
             Debug.WriteLine("   ... " + simAvg.WattsOutput + " W output");
-
         }
     }
 }

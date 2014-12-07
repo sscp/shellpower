@@ -65,7 +65,7 @@ namespace SSCP.ShellPower {
                 /* set conditions */
                 textBoxIrrad.Text = string.Format("{0:0.##########}", simInput.Irradiance);
                 textBoxIndirectIrrad.Text = string.Format("{0:0.##########}", simInput.IndirectIrradiance);
-                textBoxEncapLoss.Text = string.Format("{0:0.##########}", simInput.Array.EncapuslationLoss * 100);
+                textBoxEncapLoss.Text = string.Format("{0:0.##########}", simInput.Array.EncapsulationLoss * 100);
             } finally {
                 updating = false;
             }
@@ -118,7 +118,7 @@ namespace SSCP.ShellPower {
             simInput.Utc = utcTime;
             simInput.Irradiance = irrad;
             simInput.IndirectIrradiance = indirectIrrad;
-            simInput.Array.EncapuslationLoss = encapLoss;
+            simInput.Array.EncapsulationLoss = encapLoss;
 
             Logger.info("sim inputs\n\t" +
                 "lat {0:0.0} lon {1:0.0} heading {2:0.0} tilt {3:0.0} utc {4} sidereal {5}",

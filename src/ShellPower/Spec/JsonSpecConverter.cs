@@ -18,7 +18,6 @@ namespace SSCP.ShellPower {
             File.WriteAllText(filename, json, Encoding.UTF8);
         }
 
-
         public static ArraySimulationStepInput FromJson(JsonSpec spec, Mesh mesh, Bitmap texture) {
             ArraySimulationStepInput input = new ArraySimulationStepInput();
             input.Heading = DegToRad(spec.Environment.HeadingDeg);
@@ -39,7 +38,7 @@ namespace SSCP.ShellPower {
             input.Array.CellSpec.NIdeal = spec.Array.Cell.NIdeal;
             input.Array.CellSpec.SeriesR = spec.Array.Cell.SeriesR;
             input.Array.CellSpec.VocStc = spec.Array.Cell.VocStc;
-            input.Array.EncapuslationLoss = spec.Array.EncapuslationLoss;
+            input.Array.EncapsulationLoss = spec.Array.EncapsulationLoss;
             input.Array.LayoutBounds = FromJson(spec.Array.LayoutBounds);
             input.Array.Mesh = mesh;
             input.Array.LayoutTexture = texture;
@@ -58,7 +57,7 @@ namespace SSCP.ShellPower {
 
         public static JsonSpec ToJson(ArraySimulationStepInput input, string layoutFile, string meshFile, string relativeDir) {
             return new JsonSpec() {
-                Array = ToJson(input.Array, meshFile, layoutFile, relativeDir),
+                Array = ToJson(input.Array, layoutFile, meshFile, relativeDir),
                 Environment = new EnvironmentJsonSpec() {
                     HeadingDeg = RadToDeg(input.Heading),
                     IndirectIrradianceWM2 = input.IndirectIrradiance,
@@ -85,15 +84,15 @@ namespace SSCP.ShellPower {
             return new ArrayJsonSpec() {
                 BypassDiode = ToJson(arraySpec.BypassDiodeSpec),
                 Cell = ToJson(arraySpec.CellSpec),
-                EncapuslationLoss = arraySpec.EncapuslationLoss,
+                EncapsulationLoss = arraySpec.EncapsulationLoss,
                 LayoutBounds = ToJson(arraySpec.LayoutBounds),
-                LayoutFilename = GetRelative(layoutFile, relativeDir),
-                MeshFilename = GetRelative(meshFile, relativeDir)
+                LayoutFilename = GetRelative(relativeDir, layoutFile),
+                MeshFilename = GetRelative(relativeDir, meshFile)
             };
         }
 
         private static string GetRelative(string fromPath, string toPath) {
-            Uri fromUri = new Uri(fromPath);
+            Uri fromUri = new Uri(fromPath + "/");
             Uri toUri = new Uri(toPath);
 
             if (fromUri.Scheme != toUri.Scheme) {
@@ -103,9 +102,6 @@ namespace SSCP.ShellPower {
             Uri relativeUri = fromUri.MakeRelativeUri(toUri);
             String relativePath = Uri.UnescapeDataString(relativeUri.ToString());
 
-            if (toUri.Scheme.ToUpperInvariant() == "FILE") {
-                relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-            }
             return relativePath;
         }
 

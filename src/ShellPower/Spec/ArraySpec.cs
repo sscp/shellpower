@@ -61,7 +61,7 @@ namespace SSCP.ShellPower {
         /// <summary>
         /// Encapsulation loss. 0.03 = 3% loss
         /// </summary>
-        public double EncapuslationLoss { get; set; }
+        public double EncapsulationLoss { get; set; }
 
         public class CellString {
             public CellString() {

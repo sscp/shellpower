@@ -435,7 +435,7 @@ void main()
             // add indirect insolation, encapsulation loss
             for (int i = 0; i < ncells; i++) {
                 wattsIn[i] += array.CellSpec.Area * wPerM2Iindirect;
-                wattsIn[i] *= (1.0 - array.EncapuslationLoss);
+                wattsIn[i] *= (1.0 - array.EncapsulationLoss);
             }
 
             // find totals
