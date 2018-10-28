@@ -1,0 +1,36 @@
+﻿{
+  "Array": {
+    "MeshFilename": "luminos.stl",
+    "LayoutFilename": "approximate-array-ro.bmp",
+    "LayoutBounds": {
+      "MinX": -0.215,
+      "MaxX": 4.535,
+      "MinZ": -0.23,
+      "MaxZ": 1.89
+    },
+    "Cell": {
+      "VocStc": 0.686,
+      "IscStc": 6.27,
+      "DVocDT": -0.0018,
+      "DIscDT": -0.002,
+      "AreaM2": 0.015555,
+      "NIdeal": 1.26,
+      "SeriesR": 0.003
+    },
+    "BypassDiode": {
+      "VoltageDrop": 0.35
+    },
+    "EncapsulationLoss": 0.025
+  },
+  "Environment": {
+    "Utc": "2018-06-27T17:15:00",
+    "TimezoneOffsetHours": -7.0,
+    "LatitudeDeg": 40.87508,
+    "LongitudeDeg": -77.85419,
+    "HeadingDeg": 0.0,
+    "TiltDeg": 0.0,
+    "TemperatureC": 25.0,
+    "IrradianceWM2": 1050.0,
+    "IndirectIrradianceWM2": 70.0
+  }
+}

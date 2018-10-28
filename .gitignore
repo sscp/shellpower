@@ -13,6 +13,7 @@ output.csv
 *.suo
 *.user
 desktop.ini
+src/.vs/
 
 # latex
 *.aux
