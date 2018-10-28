@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -55,13 +55,13 @@ namespace SSCP.ShellPower {
         }
 
         private void InitTimeAndPlace() {
-            // Coober Pedy, SA, heading due south
-            simInput.Longitude = 134.75555;
-            simInput.Latitude = -29.01111;
+            // Alice Springs, heading due south
+            simInput.Longitude = 133.8;
+            simInput.Latitude = -23.7;
             simInput.Heading = Math.PI;
 
-            // Middle of WSC 2015
-            simInput.Utc = new DateTime(2015, 10, 20, 8, 0, 0).AddHours(-9.5);
+            // Middle of WSC 2019
+            simInput.Utc = new DateTime(2019, 10, 16, 8, 0, 0).AddHours(-9.5);
             simInput.TimezoneOffsetHours = 9.5; // Darwin, NT time
         }
 
@@ -448,6 +448,20 @@ namespace SSCP.ShellPower {
             Debug.WriteLine("   ... " + simAvg.WattsInsolation + " W insolation");
             Debug.WriteLine("   ... " + simAvg.WattsOutputByCell + " W output (assuming mppt per cell)");
             Debug.WriteLine("   ... " + simAvg.WattsOutput + " W output");
+        }
+
+        private void btnSaveRender_Click(object sender, EventArgs e)
+        {
+            Bitmap screenshot = glControl.GrabScreenshot();
+            DialogResult result = saveFileDialogRender.ShowDialog();
+            if (result != DialogResult.OK)
+            {
+                return;
+            }
+
+            String filename = saveFileDialogRender.FileName;
+
+            screenshot.Save(filename);
         }
     }
 }

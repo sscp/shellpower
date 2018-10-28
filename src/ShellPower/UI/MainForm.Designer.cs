@@ -1,4 +1,4 @@
-﻿namespace SSCP.ShellPower {
+namespace SSCP.ShellPower {
     partial class MainForm {
         /// <summary>
         /// Required designer variable.
@@ -42,6 +42,7 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageRun = new System.Windows.Forms.TabPage();
+            this.btnSaveRender = new System.Windows.Forms.Button();
             this.btnRecalc = new System.Windows.Forms.Button();
             this.labelArrPower = new System.Windows.Forms.RichTextBox();
             this.labelArrayPower = new System.Windows.Forms.Label();
@@ -80,6 +81,7 @@
             this.label10 = new System.Windows.Forms.Label();
             this.openFileDialogParameters = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialogParameters = new System.Windows.Forms.SaveFileDialog();
+            this.saveFileDialogRender = new System.Windows.Forms.SaveFileDialog();
             this.simInputControls = new SSCP.ShellPower.ArraySimInputControl();
             this.outputArrayLayoutControl = new SSCP.ShellPower.ArrayLayoutControl();
             this.glControl = new SSCP.ShellPower.ArrayModelControl();
@@ -223,7 +225,7 @@
             // openFileDialogModel
             // 
             this.openFileDialogModel.Filter = "3DXML files|*.3dxml|STL Files (ascii)|*.stl|All files|*.*";
-            this.openFileDialogModel.FilterIndex = 3;
+            this.openFileDialogModel.FilterIndex = 2;
             this.openFileDialogModel.Title = "Load solar car model";
             // 
             // saveFileDialogLayout
@@ -263,6 +265,7 @@
             // 
             // tabPageRun
             // 
+            this.tabPageRun.Controls.Add(this.btnSaveRender);
             this.tabPageRun.Controls.Add(this.simInputControls);
             this.tabPageRun.Controls.Add(this.btnRecalc);
             this.tabPageRun.Controls.Add(this.labelArrPower);
@@ -275,6 +278,17 @@
             this.tabPageRun.TabIndex = 0;
             this.tabPageRun.Text = "Params";
             this.tabPageRun.UseVisualStyleBackColor = true;
+            // 
+            // btnSaveRender
+            // 
+            this.btnSaveRender.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSaveRender.Location = new System.Drawing.Point(180, 407);
+            this.btnSaveRender.Name = "btnSaveRender";
+            this.btnSaveRender.Size = new System.Drawing.Size(82, 28);
+            this.btnSaveRender.TabIndex = 16;
+            this.btnSaveRender.Text = "Save Render";
+            this.btnSaveRender.UseVisualStyleBackColor = true;
+            this.btnSaveRender.Click += new System.EventHandler(this.btnSaveRender_Click);
             // 
             // btnRecalc
             // 
@@ -689,6 +703,11 @@
             this.saveFileDialogParameters.FilterIndex = 3;
             this.saveFileDialogParameters.Title = "Save simulation parameters";
             // 
+            // saveFileDialogRender
+            // 
+            this.saveFileDialogRender.Filter = "PNG Images|*.png|GIF Images|*.gif|Bitmap images|*.bmp";
+            this.saveFileDialogRender.Title = "Save array layout texture";
+            // 
             // simInputControls
             // 
             this.simInputControls.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -823,5 +842,7 @@
         private System.Windows.Forms.ToolStripMenuItem saveParametersToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog openFileDialogParameters;
         private System.Windows.Forms.SaveFileDialog saveFileDialogParameters;
+        private System.Windows.Forms.Button btnSaveRender;
+        private System.Windows.Forms.SaveFileDialog saveFileDialogRender;
     }
 }

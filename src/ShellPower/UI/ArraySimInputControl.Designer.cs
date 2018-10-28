@@ -1,4 +1,4 @@
-﻿namespace SSCP.ShellPower {
+namespace SSCP.ShellPower {
     partial class ArraySimInputControl {
         /// <summary> 
         /// Required designer variable.
@@ -148,7 +148,7 @@
             this.dateTimePicker.Name = "dateTimePicker";
             this.dateTimePicker.Size = new System.Drawing.Size(177, 20);
             this.dateTimePicker.TabIndex = 0;
-            this.dateTimePicker.Value = new System.DateTime(2011, 10, 24, 23, 0, 0, 0);
+            this.dateTimePicker.Value = new System.DateTime(2019, 10, 16, 23, 0, 0, 0);
             this.dateTimePicker.ValueChanged += new System.EventHandler(this.anyInput_changed);
             // 
             // labelLocalTime

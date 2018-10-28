@@ -1,4 +1,4 @@
-﻿namespace SSCP.ShellPower {
+namespace SSCP.ShellPower {
     partial class ArrayLayoutControl {
         /// <summary> 
         /// Required designer variable.

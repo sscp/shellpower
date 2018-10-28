@@ -1,4 +1,4 @@
-﻿namespace SSCP.ShellPower {
+namespace SSCP.ShellPower {
     partial class SimpleGraph {
         /// <summary> 
         /// Required designer variable.

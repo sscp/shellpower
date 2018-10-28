@@ -1,4 +1,4 @@
-﻿namespace SSCP.ShellPower {
+namespace SSCP.ShellPower {
     partial class BypassDiodesForm {
         /// <summary>
         /// Required designer variable.

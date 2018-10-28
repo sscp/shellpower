@@ -23,7 +23,7 @@ namespace SSCP.ShellPower {
         /* view state */
         const double INITIAL_ZOOM = 20;
         double zoom = INITIAL_ZOOM; /* zoom, in meters away from the model */
-        Matrix4 rotation = Matrix4.Identity; /* model */
+        Matrix4 rotation = Matrix4.CreateRotationX(pi / 2 * -1); /* top-down view */
 
         /* graphics state */
         bool loaded = false;
@@ -40,7 +40,7 @@ namespace SSCP.ShellPower {
             set {
                 if (value != null) {
                     double arrayMaxDim = (value.BoundingBox.Max - value.BoundingBox.Min).Length;
-                    zoom = arrayMaxDim * 4;
+                    zoom = arrayMaxDim * 1.8;
                 }
                 sprite = value;
             }
