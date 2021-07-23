@@ -1,6 +1,8 @@
 Shellpower
 ==========
 
+![image](https://user-images.githubusercontent.com/169280/126763521-c34eab37-8afd-4f18-9ffa-ee442ba14fe5.png)
+
 Simulates insolation and shading on a curved solar array.
 Simulates flux to each individual cell, does string calculations including bypass diodes, and computes power output.
 Shows insolation, shading, and power output given a lat/lon/date/time, cell specification, and array specification.
